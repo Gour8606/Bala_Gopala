@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="70%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </radialGradient>
+    <radialGradient id="skin" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#A5F3FC"/>
+      <stop offset="60%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </radialGradient>
+  </defs>
+  <!-- Background Badge -->
+  <circle cx="64" cy="64" r="60" fill="url(#bgGlow)"/>
+  <circle cx="64" cy="64" r="54" fill="#FFFDF5"/>
+
+  <!-- Peacock Feather (Mor Pankh) -->
+  <g transform="translate(74, 18) rotate(22)">
+    <path d="M 0 35 C -15 25 -18 5 0 0 C 18 5 15 25 0 35 Z" fill="#059669"/>
+    <path d="M 0 28 C -10 20 -12 8 0 4 C 12 8 10 20 0 28 Z" fill="#38BDF8"/>
+    <ellipse cx="0" cy="14" rx="4" ry="6" fill="#312E81"/>
+    <circle cx="0" cy="14" r="2.5" fill="#F59E0B"/>
+  </g>
+
+  <!-- Baby Krishna Hair Topknot -->
+  <circle cx="64" cy="38" r="14" fill="#0F172A"/>
+  <circle cx="60" cy="32" r="2.5" fill="#FFF"/>
+
+  <!-- Face -->
+  <ellipse cx="64" cy="65" rx="32" ry="29" fill="url(#skin)"/>
+
+  <!-- Golden Tilak -->
+  <path d="M 60 48 L 68 48 L 66 58 C 64 60 62 60 62 58 Z" fill="#FEF08A"/>
+  <line x1="64" y1="50" x2="64" y2="57" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Large Sparkle Eyes -->
+  <ellipse cx="53" cy="64" rx="6" ry="7" fill="#0F172A"/>
+  <circle cx="51" cy="62" r="2.5" fill="#FFF"/>
+  <ellipse cx="75" cy="64" rx="6" ry="7" fill="#0F172A"/>
+  <circle cx="73" cy="62" r="2.5" fill="#FFF"/>
+
+  <!-- Cheeks -->
+  <ellipse cx="43" cy="72" rx="6" ry="4" fill="#F472B6" opacity="0.6"/>
+  <ellipse cx="85" cy="72" rx="6" ry="4" fill="#F472B6" opacity="0.6"/>
+
+  <!-- Smile -->
+  <circle cx="64" cy="70" r="2.5" fill="#0284C7"/>
+  <path d="M 58 76 Q 64 82 70 76" stroke="#BE123C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Makhan Butter smudge on cheek -->
+  <circle cx="48" cy="77" r="4" fill="#FFFDF0"/>
+
+  <!-- Golden Kundalas -->
+  <circle cx="34" cy="68" r="5" fill="#F59E0B"/>
+  <circle cx="94" cy="68" r="5" fill="#F59E0B"/>
+</svg>

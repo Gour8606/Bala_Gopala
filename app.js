@@ -1,0 +1,563 @@
+/**
+ * Bala Gopala & Sandipani Gurukul - Main Application Controller (Commercial Grade)
+ * Featuring Toddler Lock, Parent Gate, Screen-Time Manager,
+ * Kanha's Ghungroo Footstep Trails, and Infant-Safe Multitouch Sensory Response.
+ */
+
+class ToddlerApp {
+  constructor() {
+    this.stage = document.getElementById('game-stage');
+    this.currentGame = null;
+    this.currentGameKey = 'bubbles';
+    this.isShantiMode = false;
+    this.isChildLocked = false;
+    this.lastFootstepTime = 0;
+    this.footstepToggle = false;
+    this.mashCount = 0;
+
+    // Screen Time Timer state
+    this.timerMinutes = 0;
+    this.timerSecondsRemaining = 0;
+    this.timerInterval = null;
+
+    // Parent Gate state
+    this.gatePendingAction = null;
+    this.gateCorrectAnswer = 0;
+
+    this.games = {
+      bubbles: BubbleGame,
+      peekaboo: PeekabooGame,
+      xylophone: XylophoneGame,
+      aarti: AartiGame,
+      shapes: ShapeMatchGame,
+      sparkles: SparkleCanvasGame,
+      shringar: ShringarGame
+    };
+
+    this.initElements();
+    this.bindEvents();
+    this.bindBabyMashKeyboard();
+    this.bindKanhaGhungrooFootsteps();
+    this.bindSafetyGestures();
+  }
+
+  initElements() {
+    this.container = document.getElementById('app-container');
+    this.topNavbar = document.getElementById('top-navbar');
+    this.tabs = document.querySelectorAll('.tab-btn');
+    this.muteBtn = document.getElementById('mute-btn');
+    this.fullscreenBtn = document.getElementById('fullscreen-btn');
+    this.startOverlay = document.getElementById('start-overlay');
+    this.tapToPlayBtn = document.getElementById('tap-to-play-btn');
+
+    // Parent Modals
+    this.parentGuideBtn = document.getElementById('parent-guide-btn');
+    this.parentModal = document.getElementById('parent-modal');
+    this.closeParentModal = document.getElementById('close-parent-modal');
+
+    // Controls
+    this.langToggleBtn = document.getElementById('lang-toggle-btn');
+    this.langIndicator = document.getElementById('lang-indicator');
+    this.shantiModeBtn = document.getElementById('shanti-mode-btn');
+
+    // Child Lock
+    this.childLockBtn = document.getElementById('child-lock-btn');
+    this.floatingUnlockHandle = document.getElementById('floating-unlock-handle');
+
+    // Parent Gate
+    this.parentGateModal = document.getElementById('parent-gate-modal');
+    this.closeGateModal = document.getElementById('close-gate-modal');
+    this.gateQuestionText = document.getElementById('gate-question-text');
+    this.gateMathQuestion = document.getElementById('gate-math-question');
+    this.gateKeypad = document.getElementById('gate-keypad');
+
+    // Screen Time Timer
+    this.timerBtn = document.getElementById('timer-btn');
+    this.timerModal = document.getElementById('timer-modal');
+    this.closeTimerModal = document.getElementById('close-timer-modal');
+    this.timerStatusPill = document.getElementById('timer-status-pill');
+    this.timerCountdown = document.getElementById('timer-countdown');
+    this.screenTimeDoneModal = document.getElementById('screen-time-done-modal');
+    this.resumeScreenBtn = document.getElementById('resume-screen-btn');
+  }
+
+  bindEvents() {
+    // 1. Start Overlay Unlock - Any tap anywhere on the start screen unlocks the game!
+    const unlockAndStart = (e) => {
+      e.preventDefault();
+      this.startGame();
+    };
+    this.tapToPlayBtn.addEventListener('pointerdown', unlockAndStart);
+    this.startOverlay.addEventListener('pointerdown', (e) => {
+      // If tapped anywhere on overlay card or background
+      unlockAndStart(e);
+    });
+
+    // 2. Game Mode Tabs
+    this.tabs.forEach(tab => {
+      tab.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.isChildLocked) return;
+        const gameKey = tab.dataset.game;
+        if (gameKey && gameKey !== this.currentGameKey) {
+          this.switchGame(gameKey);
+        }
+      });
+    });
+
+    // 3. Language Toggle
+    this.langToggleBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const current = window.toddlerAudio.currentLanguage;
+      const next = current === 'hi' ? 'en' : 'hi';
+      window.toddlerAudio.setLanguage(next);
+      this.langIndicator.textContent = next === 'hi' ? '🇮🇳 हिन्दी' : '🌐 English';
+      window.toddlerAudio.playTempleBell(880);
+
+      window.toddlerAudio.speak({
+        hi: "हिन्दी भाषा। राधे राधे!",
+        en: "English language selected. Welcome!"
+      });
+
+      if (this.currentGame && typeof this.currentGame.render === 'function') {
+        this.currentGame.render();
+      }
+    });
+
+    // 4. Bedtime Shanti Mode Toggle
+    this.shantiModeBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.toggleShantiMode();
+    });
+
+    // 5. Mute Button
+    this.muteBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const isMuted = window.toddlerAudio.toggleMute();
+      this.muteBtn.textContent = isMuted ? '🔇' : '🔊';
+      this.muteBtn.title = isMuted ? 'Unmute Sound' : 'Mute Sound';
+    });
+
+    // 6. Fullscreen Toggle
+    this.fullscreenBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.toggleFullscreen();
+    });
+
+    // 7. Child Lock Toggle
+    this.childLockBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.toggleChildLock(true);
+    });
+
+    // Unlock floating handle (Hold 2 seconds or double tap)
+    let holdTimeout = null;
+    this.floatingUnlockHandle.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.floatingUnlockHandle.classList.add('holding');
+      holdTimeout = setTimeout(() => {
+        this.toggleChildLock(false);
+        this.floatingUnlockHandle.classList.remove('holding');
+      }, 1800);
+    });
+
+    const cancelHold = () => {
+      if (holdTimeout) {
+        clearTimeout(holdTimeout);
+        holdTimeout = null;
+      }
+      this.floatingUnlockHandle.classList.remove('holding');
+    };
+    this.floatingUnlockHandle.addEventListener('pointerup', cancelHold);
+    this.floatingUnlockHandle.addEventListener('pointerleave', cancelHold);
+    this.floatingUnlockHandle.addEventListener('pointercancel', cancelHold);
+
+    // 8. Parent Gate Protected Buttons (Parent Guide & Timer)
+    this.parentGuideBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.requestParentAccess(() => {
+        this.parentModal.classList.remove('hidden');
+      });
+    });
+
+    this.closeParentModal.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.parentModal.classList.add('hidden');
+    });
+
+    this.timerBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.requestParentAccess(() => {
+        this.timerModal.classList.remove('hidden');
+      });
+    });
+
+    this.timerStatusPill.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.requestParentAccess(() => {
+        this.timerModal.classList.remove('hidden');
+      });
+    });
+
+    this.closeTimerModal.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.timerModal.classList.add('hidden');
+    });
+
+    // Screen Time Option buttons
+    const timerOptions = this.timerModal.querySelectorAll('.timer-opt-btn');
+    timerOptions.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        timerOptions.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const mins = parseInt(btn.dataset.minutes, 10);
+        this.setScreenTimeLimit(mins);
+        this.timerModal.classList.add('hidden');
+      });
+    });
+
+    // Screen Time Complete Resume button
+    this.resumeScreenBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.requestParentAccess(() => {
+        this.screenTimeDoneModal.classList.add('hidden');
+        if (this.isShantiMode) this.toggleShantiMode(false);
+      });
+    });
+
+    // Parent Gate Modal controls
+    this.closeGateModal.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      this.parentGateModal.classList.add('hidden');
+      this.gatePendingAction = null;
+    });
+  }
+
+  // GENTLE SCREEN TIME MANAGER
+  setScreenTimeLimit(minutes) {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+
+    this.timerMinutes = minutes;
+    if (minutes <= 0) {
+      this.timerStatusPill.classList.add('hidden');
+      return;
+    }
+
+    this.timerSecondsRemaining = minutes * 60;
+    this.timerStatusPill.classList.remove('hidden');
+    this.updateTimerDisplay();
+
+    this.timerInterval = setInterval(() => {
+      this.timerSecondsRemaining--;
+      this.updateTimerDisplay();
+
+      if (this.timerSecondsRemaining <= 0) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        this.triggerScreenTimeFinished();
+      }
+    }, 1000);
+
+    window.toddlerAudio.speak({
+      hi: `${minutes} मिनट का बाल समय निर्धारित।`,
+      en: `${minutes} minutes screen time set.`
+    });
+  }
+
+  updateTimerDisplay() {
+    const mins = Math.floor(this.timerSecondsRemaining / 60);
+    const secs = this.timerSecondsRemaining % 60;
+    const str = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    if (this.timerCountdown) {
+      this.timerCountdown.textContent = str;
+    }
+  }
+
+  triggerScreenTimeFinished() {
+    this.timerStatusPill.classList.add('hidden');
+
+    // Enter Shanti Mode
+    if (!this.isShantiMode) {
+      this.toggleShantiMode(true);
+    }
+
+    // Play gentle lullaby
+    window.toddlerAudio.playLullabyMelody();
+    window.toddlerAudio.speak({
+      hi: "शान्ति समय। अब विश्राम का समय, नन्हे कान्हा!",
+      en: "Shanti time! Time to rest peacefully, little Kanha!"
+    });
+
+    // Show gentle bedtime screen
+    setTimeout(() => {
+      this.screenTimeDoneModal.classList.remove('hidden');
+    }, 1200);
+  }
+
+  // PARENT GATE CHILD LOCK VERIFICATION
+  requestParentAccess(onSuccessCallback) {
+    this.gatePendingAction = onSuccessCallback;
+
+    // Generate simple arithmetic: e.g. 3 + 4 = 7
+    const n1 = Math.floor(Math.random() * 5) + 2;
+    const n2 = Math.floor(Math.random() * 5) + 1;
+    this.gateCorrectAnswer = n1 + n2;
+
+    this.gateMathQuestion.textContent = `${n1} + ${n2} = ?`;
+
+    // 4 options including correct answer
+    const options = new Set([this.gateCorrectAnswer]);
+    while (options.size < 4) {
+      const wrong = this.gateCorrectAnswer + (Math.floor(Math.random() * 7) - 3);
+      if (wrong > 0 && wrong !== this.gateCorrectAnswer) {
+        options.add(wrong);
+      }
+    }
+
+    const shuffled = Array.from(options).sort(() => Math.random() - 0.5);
+
+    this.gateKeypad.innerHTML = shuffled.map(num => `
+      <button class="gate-num-btn" data-val="${num}">${num}</button>
+    `).join('');
+
+    const btns = this.gateKeypad.querySelectorAll('.gate-num-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const selected = parseInt(btn.dataset.val, 10);
+        if (selected === this.gateCorrectAnswer) {
+          window.toddlerAudio.playTempleBell(1046.5);
+          this.parentGateModal.classList.add('hidden');
+          if (typeof this.gatePendingAction === 'function') {
+            this.gatePendingAction();
+          }
+          this.gatePendingAction = null;
+        } else {
+          btn.classList.add('wrong');
+          window.toddlerAudio.playDamru();
+          setTimeout(() => btn.classList.remove('wrong'), 500);
+        }
+      });
+    });
+
+    this.parentGateModal.classList.remove('hidden');
+  }
+
+  // CHILD LOCK (Toddler UI Lock)
+  toggleChildLock(shouldLock) {
+    this.isChildLocked = shouldLock !== undefined ? shouldLock : !this.isChildLocked;
+    this.container.classList.toggle('child-locked', this.isChildLocked);
+    this.floatingUnlockHandle.classList.toggle('hidden', !this.isChildLocked);
+
+    window.toddlerAudio.playTempleBell(880);
+
+    if (this.isChildLocked) {
+      window.toddlerAudio.speak({
+        hi: "बाल सुरक्षा लॉक सक्रिय।",
+        en: "Toddler play lock enabled."
+      });
+    } else {
+      window.toddlerAudio.speak({
+        hi: "लॉक खुल गया।",
+        en: "Unlocked."
+      });
+    }
+  }
+
+  toggleShantiMode(forceState) {
+    this.isShantiMode = forceState !== undefined ? forceState : !this.isShantiMode;
+    this.container.classList.toggle('shanti-mode', this.isShantiMode);
+    this.shantiModeBtn.classList.toggle('active-glow', this.isShantiMode);
+
+    if (this.isShantiMode) {
+      window.toddlerAudio.startTanpuraDrone();
+      window.toddlerAudio.speak({
+        hi: "शान्ति मोड प्रारम्भ। शुभ रात्रि, नन्हे कान्हा!",
+        en: "Bedtime Shanti mode on. Sweet dreams, little Kanha!"
+      });
+    } else {
+      window.toddlerAudio.stopTanpuraDrone();
+      window.toddlerAudio.playTempleBell(1046.5);
+    }
+  }
+
+  startGame() {
+    window.toddlerAudio.ensureContext();
+    window.toddlerAudio.playCelebration();
+    this.startOverlay.classList.add('hidden');
+
+    setTimeout(() => {
+      window.toddlerAudio.speak({
+        hi: "जय श्री कृष्णा! बाल गोपाला के गुरुकुल में आपका स्वागत है! कोई भी बटन दबाएं!",
+        en: "Jai Shri Krishna! Welcome to Bala Gopala's Gurukul! Press any key or tap to play!"
+      });
+    }, 500);
+
+    this.switchGame('bubbles');
+  }
+
+  // BABY MASH ANY-KEY LISTENER
+  bindBabyMashKeyboard() {
+    window.addEventListener('keydown', (e) => {
+      // Prevent browser default behaviors that confuse toddlers
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Backspace', 'Enter'].includes(e.code)) {
+        e.preventDefault();
+      }
+
+      if (!this.startOverlay.classList.contains('hidden')) {
+        this.startGame();
+        return;
+      }
+
+      if (!this.parentModal.classList.contains('hidden') && e.key === 'Escape') {
+        this.parentModal.classList.add('hidden');
+        return;
+      }
+
+      if (e.ctrlKey || e.altKey) {
+        if (e.key === '1') { this.switchGame('bubbles'); return; }
+        if (e.key === '2') { this.switchGame('peekaboo'); return; }
+        if (e.key === '3') { this.switchGame('xylophone'); return; }
+        if (e.key === '4') { this.switchGame('aarti'); return; }
+        if (e.key === '5') { this.switchGame('shapes'); return; }
+        if (e.key === '6') { this.switchGame('sparkles'); return; }
+        if (e.key === '7') { this.switchGame('shringar'); return; }
+      }
+
+      this.mashCount++;
+
+      // Trigger the active game's action
+      if (this.currentGame && typeof this.currentGame.handleAnyKey === 'function') {
+        this.currentGame.handleAnyKey();
+        this.showKeyboardRipple(e.key);
+      }
+
+      // Every 5th key mash, play a delightful surprise animal vocalization!
+      if (this.mashCount % 5 === 0) {
+        const surpriseSounds = [
+          () => window.toddlerAudio.playCowMoo(),
+          () => window.toddlerAudio.playCalfMoo(),
+          () => window.toddlerAudio.playPeacockCall(),
+          () => window.toddlerAudio.playKoelCall(),
+          () => window.toddlerAudio.playElephantTrumpet(),
+          () => window.toddlerAudio.playGhungroo()
+        ];
+        const soundPick = surpriseSounds[Math.floor(Math.random() * surpriseSounds.length)];
+        setTimeout(() => soundPick(), 200);
+      }
+    });
+  }
+
+  // Kanha's Magic Ghungroo Footstep Trails on Touch / Move
+  bindKanhaGhungrooFootsteps() {
+    const handlePointerAction = (e) => {
+      // Don't trigger if tapping on navigation buttons or modals
+      if (e.target.closest('button') || e.target.closest('.interactive-cow-bell') || e.target.closest('.overlay-modal:not(.hidden)')) {
+        return;
+      }
+
+      const now = performance.now();
+      if (now - this.lastFootstepTime > 200) {
+        this.lastFootstepTime = now;
+        this.footstepToggle = !this.footstepToggle;
+        window.toddlerAudio.playGhungroo();
+        this.spawnKanhaFootprint(e.clientX, e.clientY, this.footstepToggle ? 15 : -15);
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerAction, { passive: true });
+    window.addEventListener('pointermove', (e) => {
+      if (e.buttons > 0) handlePointerAction(e); // only while dragging or active touch
+    }, { passive: true });
+  }
+
+  spawnKanhaFootprint(x, y, angleDeg) {
+    const el = document.createElement('div');
+    el.className = 'kanha-footprint-trail';
+    el.style.setProperty('--angle', `${angleDeg}deg`);
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.innerHTML = VedicAssets.goldenFootprint;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1200);
+  }
+
+  showKeyboardRipple(keyName) {
+    const badge = document.createElement('div');
+    badge.className = 'key-mash-ripple';
+    badge.textContent = keyName === ' ' ? '⭐' : keyName.toUpperCase();
+    badge.style.left = `${Math.random() * 80 + 10}vw`;
+    badge.style.top = `${Math.random() * 60 + 20}vh`;
+    document.body.appendChild(badge);
+    setTimeout(() => badge.remove(), 700);
+  }
+
+  bindSafetyGestures() {
+    // Prevent accidental multi-finger browser zoom or pull-down reload
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
+    document.addEventListener('gesturechange', (e) => e.preventDefault());
+    document.addEventListener('gestureend', (e) => e.preventDefault());
+
+    // Disable long-press context menu on images and SVGs
+    window.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+
+  switchGame(key) {
+    if (!this.games[key]) return;
+
+    if (this.currentGame && typeof this.currentGame.stop === 'function') {
+      this.currentGame.stop();
+    }
+
+    this.currentGameKey = key;
+
+    this.tabs.forEach(t => {
+      t.classList.toggle('active', t.dataset.game === key);
+    });
+
+    window.toddlerAudio.playTempleBell(880);
+
+    const GameClass = this.games[key];
+    this.currentGame = new GameClass(this.stage);
+    this.currentGame.start();
+
+    const welcomePhrases = {
+      bubbles: { hi: "माखन मटकी और दही मथानी!", en: "Pop the sweet Makhan pots and churn fresh butter!" },
+      peekaboo: { hi: "गऊ धाम! हम्बा और नन्हा बछड़ा!", en: "Vrindavan Gau-Dham! Meet the holy cow and calf!" },
+      xylophone: { hi: "कान्हा की बांसुरी और जल तरंग!", en: "Let's play Krishna's Bansuri and Jal Tarang!" },
+      aarti: { hi: "संध्या आरती! कोई भी बटन दबाएं!", en: "Sandhya Aarti! Press any key or trace circles!" },
+      shapes: { hi: "पुष्पार्चना! कान्हा को पुष्प अर्पित करें!", en: "Pushparchana! Offer sacred flowers to Kanha!" },
+      sparkles: { hi: "दीपक ज्योति से दिव्य रंगोली बनाएं!", en: "Draw with glowing Divya Rangoli!" },
+      shringar: { hi: "कान्हा श्रृंगार और माखन सेवा! बाल गोपाला को सजाएं!", en: "Kanha Shringar! Adorn little Krishna with love!" }
+    };
+
+    setTimeout(() => {
+      if (welcomePhrases[key]) {
+        window.toddlerAudio.speak(welcomePhrases[key]);
+      }
+    }, 300);
+  }
+
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.warn("Fullscreen request error:", err);
+      });
+      this.fullscreenBtn.textContent = '✖';
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      this.fullscreenBtn.textContent = '⛶';
+    }
+  }
+}
+
+// Start app when DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+  window.app = new ToddlerApp();
+});

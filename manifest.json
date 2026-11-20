@@ -1,0 +1,37 @@
+{
+  "name": "Bala Gopala: Sandipani Gurukul - 16 Kalas & 64 Vidhyas",
+  "short_name": "Bala Gopala",
+  "description": "A sacred, commercial-grade Vedic sensory game for toddlers, rooted in Guru Sandipani's 64 Vidhyas and Sri Krishna's 16 Kalas.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFDF5",
+  "theme_color": "#F59E0B",
+  "categories": ["education", "kids", "games", "lifestyle"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Makhan Pop",
+      "url": "./index.html#bubbles"
+    },
+    {
+      "name": "Gau-Seva",
+      "url": "./index.html#peekaboo"
+    },
+    {
+      "name": "Bansuri & Jal",
+      "url": "./index.html#xylophone"
+    },
+    {
+      "name": "Sandhya Aarti",
+      "url": "./index.html#aarti"
+    }
+  ]
+}

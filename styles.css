@@ -1,0 +1,2029 @@
+/* ==========================================================================
+   BALA GOPALA & SANDIPANI GURUKUL - Stylesheet (Enhanced Edition)
+   Vedic & Hindu devotional design for toddlers (~2.5 years old)
+   ========================================================================== */
+
+:root {
+  --vedic-saffron: #F59E0B;
+  --vedic-marigold: #FBBF24;
+  --vedic-sindoor: #DC2626;
+  --vedic-peacock-blue: #0284C7;
+  --vedic-peacock-teal: #0D9488;
+  --vedic-lotus-pink: #EC4899;
+  --vedic-tulsi-green: #10B981;
+  --vedic-chandan-cream: #FFFDF5;
+  --vedic-gold-glow: 0 0 20px rgba(245, 158, 11, 0.45);
+  --font-family: 'Fredoka', 'Quicksand', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family);
+  background: var(--vedic-chandan-cream);
+  color: #1E293B;
+  transition: background 0.8s ease;
+}
+
+#app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  transition: filter 0.8s ease;
+}
+
+/* Bedtime Shanti Mode (Nidra Kala) */
+#app-container.shanti-mode {
+  filter: brightness(0.82) contrast(0.95);
+  background: #0B0F19;
+}
+#app-container.shanti-mode .top-navbar {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom-color: #334155;
+}
+#app-container.shanti-mode .tab-btn {
+  background: #1E293B;
+  color: #FDE68A;
+}
+#app-container.shanti-mode .tab-btn.active {
+  background: #7C3AED;
+  border-color: #6D28D9;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+}
+
+/* Top Navigation Bar */
+.top-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: rgba(255, 253, 245, 0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid #FDE68A;
+  z-index: 100;
+  min-height: 64px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--vedic-sindoor);
+  text-shadow: 1px 1px 0 #FFF;
+}
+
+.brand-icon {
+  font-size: 1.9rem;
+  animation: float-gentle 2.2s ease-in-out infinite;
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Game Tabs */
+.game-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+  scrollbar-width: none;
+}
+.game-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #FEF3C7;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #78350F;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+
+.tab-btn:hover, .tab-btn:active {
+  transform: scale(1.05);
+}
+
+.tab-btn.active {
+  background: var(--vedic-saffron);
+  color: #FFF;
+  border-color: #D97706;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5);
+  transform: scale(1.06);
+}
+
+.tab-icon {
+  font-size: 1.3rem;
+}
+
+/* Nav Controls */
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctrl-btn {
+  background: #FFF;
+  border: 2px solid #FDE68A;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: transform 0.15s ease;
+}
+
+.ctrl-btn:active {
+  transform: scale(0.9);
+  background: #FEF3C7;
+}
+
+.ctrl-btn.active-glow {
+  background: #7C3AED;
+  color: #FFF;
+  border-color: #6D28D9;
+  box-shadow: 0 0 12px #8B5CF6;
+}
+
+.lang-pill-btn {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #92400E;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Game Stage */
+#game-stage {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 64px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   GAME 1: MAKHAN & MOR PANKH POP
+   ========================================================================== */
+.game-bubble-pop.vedic-theme {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(180deg, #FEF08A 0%, #FED7AA 40%, #BAE6FD 100%);
+  overflow: hidden;
+}
+
+.sky-background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.interactive-sun {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  width: 85px;
+  height: 85px;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.5));
+  z-index: 10;
+}
+
+.sun-wiggle {
+  animation: diya-radiate 1s ease-in-out infinite;
+}
+
+@keyframes diya-radiate {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(12deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.05));
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+.cloud-1 {
+  width: 130px;
+  height: 42px;
+  top: 45px;
+  left: 8%;
+  animation: cloud-float 35s linear infinite;
+}
+.cloud-1::before { width: 55px; height: 55px; top: -24px; left: 20px; }
+.cloud-1::after { width: 44px; height: 44px; top: -16px; right: 20px; }
+
+.cloud-2 {
+  width: 160px;
+  height: 50px;
+  top: 110px;
+  left: 60%;
+  animation: cloud-float 45s linear infinite reverse;
+}
+.cloud-2::before { width: 65px; height: 65px; top: -30px; left: 30px; }
+.cloud-2::after { width: 50px; height: 50px; top: -20px; right: 30px; }
+
+@keyframes cloud-float {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(35px); }
+  100% { transform: translateX(0); }
+}
+
+.pop-stats-pill {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #78350F;
+  border: 2px solid #FDE68A;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.rush-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--vedic-saffron);
+  border: 4px solid #D97706;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #FFF;
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.4);
+  cursor: pointer;
+  z-index: 20;
+  transition: transform 0.15s ease;
+  white-space: nowrap;
+}
+.rush-btn:active {
+  transform: translateX(-50%) scale(0.94);
+}
+
+.bubble-play-area {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.bubble-item {
+  position: absolute;
+  bottom: -150px;
+  cursor: pointer;
+  animation: bubble-rise linear forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes bubble-rise {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  35% { transform: translateY(-40vh) translateX(25px) rotate(5deg); }
+  75% { transform: translateY(-80vh) translateX(-25px) rotate(-5deg); }
+  100% { transform: translateY(-135vh) translateX(15px) rotate(8deg); }
+}
+
+.vedic-matka-bubble {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  filter: drop-shadow(0 6px 12px rgba(124, 45, 18, 0.35));
+}
+
+.floating-kala-tag {
+  position: absolute;
+  top: 15%;
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.soap-bubble-body {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 240, 138, 0.3) 50%, rgba(255, 255, 255, 0.05) 85%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bubble-reflection {
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 25%;
+  height: 25%;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.bubble-inner-sparkle {
+  font-size: 2.2rem;
+}
+
+/* Burst Container */
+.burst-container {
+  position: fixed;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.pop-reward-emoji {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  animation: reward-rise 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+}
+
+@keyframes reward-rise {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+  50% { transform: translate(-50%, -90%) scale(1.4); opacity: 1; }
+  100% { transform: translate(-50%, -140%) scale(1.1); opacity: 0; }
+}
+
+.burst-particle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: particle-fly 0.65s ease-out forwards;
+}
+
+@keyframes particle-fly {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity: 0; }
+}
+
+/* ==========================================================================
+   GAME 2: GAU SEVA & VRINDAVAN FRIENDS
+   ========================================================================== */
+.game-peekaboo.vedic-theme {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #FEF3C7 0%, #FDE68A 50%, #A7F3D0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.peekaboo-header h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #78350F;
+  text-align: center;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 24px;
+  border-radius: 999px;
+  border: 2px solid #FDE68A;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+}
+
+/* Gau Seva Station */
+.gau-seva-station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  border: 3px solid #FDE68A;
+  border-radius: 28px;
+  padding: 12px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 650px;
+}
+
+.gau-calf-avatar {
+  width: 110px;
+  height: 110px;
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gau-calf-avatar.calf-delighted {
+  animation: calf-happy 0.8s ease-in-out;
+}
+
+@keyframes calf-happy {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  30% { transform: scale(1.15) rotate(-8deg); }
+  70% { transform: scale(1.15) rotate(8deg); }
+}
+
+.gau-actions-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gau-tool-btn {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #78350F;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+  transition: transform 0.15s ease;
+}
+.gau-tool-btn:active {
+  transform: scale(0.92);
+  background: #FDE68A;
+}
+
+.peekaboo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.peekaboo-spot {
+  position: relative;
+  height: 180px;
+  background: #FFFDF5;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  border: 4px solid #FEF3C7;
+  transition: transform 0.2s ease;
+}
+
+.peekaboo-spot:active {
+  transform: scale(0.97);
+}
+
+.spot-inside {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #FEF9C3 0%, #FEF08A 100%);
+  padding: 10px;
+}
+
+.toddler-svg {
+  width: 95px;
+  height: 95px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animal-speech-bubble {
+  margin-top: 4px;
+  background: #FFF;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #78350F;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.spot-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+
+.spot-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+
+.spot-label {
+  margin-top: 6px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFF;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.vedic-kunj { background: #DC2626; }
+.vedic-gaushala { background: #D97706; }
+.vedic-kadamba { background: #059669; }
+.vedic-sarovar { background: #0284C7; }
+
+.peekaboo-spot.revealed .spot-cover {
+  transform: translateY(-105%);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.peekaboo-spot.revealed .toddler-svg {
+  animation: animal-bounce-joy 0.6s ease-in-out;
+}
+
+@keyframes animal-bounce-joy {
+  0% { transform: scale(0.6) translateY(25px); }
+  60% { transform: scale(1.15) translateY(-8px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.floating-peek-heart {
+  position: fixed;
+  font-size: 2.2rem;
+  pointer-events: none;
+  z-index: 999;
+  animation: float-peek-heart 1s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+@keyframes float-peek-heart {
+  0% { transform: translate(-50%, 0) scale(0.4); opacity: 1; }
+  100% { transform: translate(-50%, -100px) scale(1.3); opacity: 0; }
+}
+
+/* ==========================================================================
+   GAME 3: DIVYA BANSURI & JAL TARANG
+   ========================================================================== */
+.game-xylophone.vedic-theme {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 18px 16px;
+  position: relative;
+}
+
+.xylo-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 900px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.instrument-switch {
+  display: flex;
+  gap: 8px;
+}
+
+.switch-inst-btn {
+  background: #FFF;
+  border: 2px solid #FDE68A;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #78350F;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.switch-inst-btn.active {
+  background: #F59E0B;
+  color: #FFF;
+  border-color: #D97706;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.magic-melody-btn {
+  background: #FFF;
+  border: 3px solid #F59E0B;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #B45309;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.magic-melody-btn.active {
+  background: var(--vedic-saffron);
+  border-color: #D97706;
+  color: #FFF;
+}
+
+.drums-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 650px;
+  margin: 6px 0;
+}
+
+.drum-pad {
+  flex: 1;
+  max-width: 150px;
+  height: 95px;
+  background: #FFF;
+  border: 4px solid #FDE68A;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+}
+
+.drum-face { font-size: 2.2rem; }
+.drum-name { font-size: 0.88rem; font-weight: 800; color: #78350F; }
+
+.drum-pad.hit {
+  transform: scale(0.88);
+  background: #FEF08A;
+}
+
+.instrument-stage {
+  width: 100%;
+  max-width: 950px;
+  height: 52%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bansuri Board */
+.xylophone-board {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  background: #FEF3C7;
+  border: 4px solid #FDE68A;
+  border-radius: 28px;
+  padding: 12px;
+}
+
+.xylo-bar {
+  flex: 1;
+  max-width: 95px;
+  background: var(--bar-color);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+.xylo-bar:active, .xylo-bar.played {
+  transform: scale(0.94);
+  filter: brightness(1.25);
+}
+
+.xylo-bar-screw { font-size: 0.95rem; }
+.note-letter { font-size: 1.5rem; font-weight: 900; color: #FFF; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+.note-solfege { font-size: 1.3rem; margin-top: 4px; }
+
+/* Jal Tarang Board */
+.jaltarang-board {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, #E0F2FE 0%, #BAE6FD 100%);
+  border: 4px solid #38BDF8;
+  border-radius: 28px;
+  padding: 16px;
+}
+
+.jaltarang-item {
+  width: 90px;
+  height: 90px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.12s ease;
+}
+.jaltarang-item.hit-bowl {
+  transform: scale(1.15);
+}
+.bowl-note-tag {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0284C7;
+  color: #FFF;
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.floating-music-note {
+  position: fixed;
+  font-size: 2.8rem;
+  pointer-events: none;
+  z-index: 999;
+  animation: float-note-up 1.2s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes float-note-up {
+  0% { transform: translate(-50%, 0) scale(0.6); opacity: 1; }
+  100% { transform: translate(-50%, -140px) scale(1.4); opacity: 0; }
+}
+
+/* ==========================================================================
+   GAME 4: SANDHYA AARTI & DIYA
+   ========================================================================== */
+.game-aarti.vedic-theme {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 40%, #FEF08A 0%, #F59E0B 45%, #7C2D12 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  position: relative;
+}
+
+.aarti-header h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #FFF;
+  background: rgba(120, 53, 15, 0.85);
+  padding: 8px 24px;
+  border-radius: 999px;
+  border: 2px solid #FDE68A;
+  text-align: center;
+}
+
+.aarti-stage-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex: 1;
+}
+
+.altar-deity {
+  width: 130px;
+  height: 130px;
+  position: relative;
+  z-index: 5;
+}
+
+.deity-radiance {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.6) 0%, rgba(245, 158, 11, 0) 70%);
+  animation: deity-pulse 2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes deity-pulse {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+.aarti-plate-wrapper {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: grab;
+  touch-action: none;
+}
+.aarti-plate-wrapper:active {
+  cursor: grabbing;
+}
+
+.aarti-plate-body {
+  width: 130px;
+  height: 130px;
+  transition: transform 0.05s linear;
+}
+
+.aarti-guide-circle {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #FEF3C7;
+  margin-top: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+
+.aarti-flower-taps {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.aarti-sprinkle-btn {
+  background: #FFFDF5;
+  border: 3px solid #F59E0B;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #78350F;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+.aarti-sprinkle-btn:active {
+  transform: scale(0.92);
+}
+
+/* ==========================================================================
+   GAME 5 & 6: PUSHPARCHANA & RANGOLI
+   ========================================================================== */
+.game-shape-match.vedic-theme {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #FEF3C7 0%, #FED7AA 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.match-banner h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #78350F;
+  background: #FFF;
+  border: 2px solid #FDE68A;
+  padding: 10px 28px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
+  text-align: center;
+}
+
+.shape-targets-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 900px;
+  flex-wrap: wrap;
+}
+
+.target-slot {
+  width: 140px;
+  height: 160px;
+  border-radius: 24px;
+  background: #FFF;
+  border: 4px dashed var(--slot-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.slot-ghost-emoji {
+  font-size: 3.5rem;
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.slot-text-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #78350F;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.target-slot.matched {
+  border-style: solid;
+  border-width: 4px;
+  animation: slot-celebrate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.target-slot.matched .slot-text-label {
+  color: #FFF;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+@keyframes slot-celebrate {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.shape-pieces-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 900px;
+  flex-wrap: wrap;
+}
+
+.shape-card {
+  width: 140px;
+  height: 150px;
+  border-radius: 24px;
+  background: var(--shape-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.shape-visual-icon { font-size: 3.8rem; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)); }
+.shape-card-title { font-size: 1rem; font-weight: 800; color: #FFF; margin-top: 4px; }
+
+.game-sparkle-canvas.vedic-theme {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #0F172A;
+  overflow: hidden;
+}
+
+#sensory-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.stamp-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(30, 41, 59, 0.92);
+  backdrop-filter: blur(12px);
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(245, 158, 11, 0.4);
+  z-index: 20;
+  max-width: 95vw;
+}
+
+.stamps-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.stamp-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 3px solid transparent;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 1.8rem;
+  color: #FFF;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stamp-btn.selected {
+  background: var(--vedic-saffron);
+  border-color: #FBBF24;
+  color: #FFF;
+  transform: scale(1.1);
+}
+
+.stamp-label { font-size: 0.75rem; font-weight: 700; }
+
+.clear-canvas-btn {
+  background: var(--vedic-peacock-blue);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFF;
+  cursor: pointer;
+}
+
+/* Modals */
+.overlay-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.overlay-modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.start-card {
+  background: #FFFDF5;
+  border: 4px solid #F59E0B;
+  border-radius: 36px;
+  padding: 32px 24px;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(245, 158, 11, 0.3);
+}
+
+.bouncing-mascot {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+  animation: mascot-wiggle 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes mascot-wiggle {
+  0% { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.1) translateY(-10px); }
+}
+
+.start-card h1 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--vedic-sindoor);
+  margin-bottom: 8px;
+}
+
+.subheading {
+  font-size: 1.05rem;
+  color: #78350F;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.big-start-btn {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFF;
+  border: none;
+  border-radius: 999px;
+  padding: 16px 36px;
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.4);
+}
+
+.parent-card {
+  background: #FFFDF5;
+  border: 4px solid #FDE68A;
+  border-radius: 32px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.parent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: #FEF3C7;
+  border-bottom: 2px solid #FDE68A;
+}
+
+.parent-header h2 { font-size: 1.3rem; font-weight: 800; color: #78350F; }
+.modal-close-btn { background: none; border: none; font-size: 2rem; color: #78350F; cursor: pointer; }
+.parent-content { padding: 24px; overflow-y: auto; line-height: 1.6; }
+
+.age-badge {
+  display: inline-block;
+  background: #FEE2E2;
+  color: #991B1B;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+  .top-navbar { padding: 6px 10px; min-height: 54px; }
+  .app-brand { font-size: 1.1rem; }
+  .tab-btn { padding: 6px 12px; font-size: 0.85rem; }
+  .target-slot, .shape-card { width: 105px; height: 125px; }
+  .slot-ghost-emoji, .shape-visual-icon { font-size: 2.8rem; }
+  .xylophone-board { height: 48%; }
+  .xylo-bar { max-width: 44px; }
+  .drum-pad { height: 80px; }
+  .drum-face { font-size: 1.8rem; }
+}
+
+/* Baby Mash Keyboard Floating Badge */
+.key-mash-ripple {
+  position: fixed;
+  transform: translate(-50%, -50%) scale(0.6);
+  font-size: 3rem;
+  font-weight: 900;
+  color: #FFF;
+  background: radial-gradient(circle, #F59E0B 0%, #EA580C 100%);
+  border: 4px solid #FEF08A;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.7);
+  pointer-events: none;
+  z-index: 99999;
+  animation: key-mash-pop 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+}
+
+@keyframes key-mash-pop {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+  50% { transform: translate(-50%, -80%) scale(1.3); opacity: 1; }
+  100% { transform: translate(-50%, -130%) scale(1.1); opacity: 0; }
+}
+
+/* =========================================================================
+   YASHODA MAIYA'S BUTTER CHURNER & VRINDAVAN ANIMAL SOUNDBOARD STYLES
+   ========================================================================= */
+
+/* Yashoda Maiya's Churning Pot */
+.churning-station {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  z-index: 25;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.15));
+  transition: transform 0.15s ease;
+}
+.churning-station:active {
+  transform: scale(0.92);
+}
+
+.churner-visual {
+  width: 90px;
+  height: 90px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.churner-visual.churning-active {
+  animation: churn-wiggle 0.4s ease-in-out infinite;
+}
+
+@keyframes churn-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1.05); }
+  25% { transform: rotate(-8deg) scale(1.1); }
+  75% { transform: rotate(8deg) scale(1.1); }
+}
+
+.churner-label {
+  margin-top: 4px;
+  background: #FFFDF0;
+  border: 2px solid #F59E0B;
+  color: #78350F;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Gau-Mata Barn & Dual Avatars */
+.gau-barn-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 12px;
+}
+
+.cow-avatar-card, .calf-avatar-card {
+  background: #FFFDF5;
+  border: 4px solid #FDE68A;
+  border-radius: 32px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cow-avatar-card:active, .calf-avatar-card:active {
+  transform: scale(0.94);
+}
+
+.cow-avatar-card {
+  width: 170px;
+  height: 190px;
+}
+.calf-avatar-card {
+  width: 135px;
+  height: 160px;
+  align-self: flex-end;
+}
+
+.cow-avatar-card.cow-nodding {
+  animation: cow-nod 0.8s ease-in-out;
+}
+
+@keyframes cow-nod {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-6deg) scale(1.08); }
+  50% { transform: rotate(6deg) scale(1.1); }
+  75% { transform: rotate(-3deg) scale(1.05); }
+}
+
+.animal-tap-hint {
+  margin-top: 6px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #78350F;
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* 6-Button Vrindavan Sound Sanctuary Soundboard */
+.animal-soundboard-panel {
+  width: 100%;
+  max-width: 750px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #FDE68A;
+  border-radius: 28px;
+  padding: 14px 18px;
+  margin: 12px 0 16px 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.soundboard-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #78350F;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.soundboard-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .soundboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .cow-avatar-card { width: 140px; height: 160px; }
+  .calf-avatar-card { width: 110px; height: 135px; }
+}
+
+.sound-card-btn {
+  background: #FEF3C7;
+  border: 3px solid #F59E0B;
+  border-radius: 20px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15);
+  transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.1s;
+}
+
+.sound-card-btn:hover, .sound-card-btn:active {
+  transform: scale(1.08);
+  background: #FDE68A;
+}
+
+.sound-card-btn.snd-hit {
+  transform: scale(0.88);
+  background: #F59E0B;
+}
+.sound-card-btn.snd-hit .snd-label, .sound-card-btn.snd-hit .snd-tag {
+  color: #FFF;
+}
+
+.snd-icon {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+.snd-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #78350F;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+.snd-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #B45309;
+}
+
+/* Kanha's Magic Ghungroo Footprint Trails */
+.kanha-footprint-trail {
+  position: fixed;
+  transform: translate(-50%, -50%) rotate(var(--angle, 0deg));
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: footprint-fade 1.2s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes footprint-fade {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; filter: drop-shadow(0 0 10px #F59E0B); }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+}
+
+/* ==========================================================================
+   COMMERCIAL-GRADE EXTENSIONS: CHILD LOCK, PARENT GATE & SCREEN TIME
+   ========================================================================== */
+
+/* Child Lock Navbar Behavior */
+#app-container.child-locked .top-navbar {
+  transform: translateY(-100%);
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.top-navbar {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Floating Unlock Button (When Child Lock is Active) */
+.floating-unlock {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  color: #FEF08A;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: 2px solid #F59E0B;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+
+.floating-unlock.holding {
+  background: #DC2626;
+  border-color: #FEF08A;
+  transform: scale(1.08);
+  box-shadow: 0 0 20px #DC2626;
+  animation: pulse-unlock 0.4s infinite alternate;
+}
+
+@keyframes pulse-unlock {
+  from { transform: scale(1.04); }
+  to { transform: scale(1.12); }
+}
+
+/* Timer Status Pill */
+.timer-pill {
+  background: #FEF3C7;
+  border-color: #F59E0B;
+  color: #92400E;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  animation: gentle-glow 2.5s infinite alternate;
+}
+
+@keyframes gentle-glow {
+  from { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); }
+  to { box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
+}
+
+/* Tap anywhere hint on Start Screen */
+.tap-anywhere-hint {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #D97706;
+  animation: pulse-text 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+/* Parent Gate Modal */
+.parent-gate-card {
+  background: #FFFDF5;
+  border: 4px solid #F59E0B;
+  border-radius: 28px;
+  padding: 24px 30px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  animation: pop-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.gate-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #78350F;
+}
+
+.gate-prompt {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #64748B;
+  margin-bottom: 10px;
+}
+
+.gate-math-display {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #DC2626;
+  background: #FEF2F2;
+  border: 2px dashed #F87171;
+  border-radius: 16px;
+  padding: 8px 16px;
+  margin-bottom: 18px;
+}
+
+.gate-keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.gate-num-btn {
+  font-family: var(--font-family);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #78350F;
+  background: #FEF3C7;
+  border: 3px solid #FDE68A;
+  border-radius: 16px;
+  padding: 12px 0;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.1s;
+}
+.gate-num-btn:active {
+  transform: scale(0.92);
+  background: #F59E0B;
+  color: #FFF;
+}
+.gate-num-btn.wrong {
+  animation: shake 0.4s ease;
+  background: #FEE2E2;
+  border-color: #EF4444;
+  color: #DC2626;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* Screen Time Timer Modal */
+.timer-card {
+  background: #FFFDF5;
+  border: 4px solid #F59E0B;
+  border-radius: 28px;
+  padding: 24px 30px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.timer-desc {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.5;
+  margin: 12px 0 18px;
+}
+
+.timer-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.timer-opt-btn {
+  font-family: var(--font-family);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 14px 10px;
+  background: #FFFBEB;
+  border: 3px solid #FDE68A;
+  border-radius: 18px;
+  color: #92400E;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s;
+}
+.timer-opt-btn:hover {
+  background: #FEF3C7;
+  transform: translateY(-2px);
+}
+.timer-opt-btn.active {
+  background: #F59E0B;
+  border-color: #D97706;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+.timer-opt-btn.cancel-timer-btn {
+  grid-column: span 2;
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+  color: #475569;
+}
+.timer-opt-btn.cancel-timer-btn.active {
+  background: #64748B;
+  border-color: #475569;
+  color: #FFF;
+}
+
+/* Bedtime / Screen Time Finished Modal */
+.bedtime-card {
+  background: linear-gradient(135deg, #0B0F19 0%, #1E1B4B 100%);
+  border: 3px solid #6366F1;
+  border-radius: 32px;
+  padding: 36px 28px;
+  max-width: 440px;
+  width: 90%;
+  text-align: center;
+  color: #F8FAFC;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: pop-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bedtime-mascot {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
+.bedtime-card h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #FDE68A;
+  margin-bottom: 10px;
+}
+
+.bedtime-message {
+  font-size: 1.05rem;
+  color: #CBD5E1;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.bedtime-sanskrit {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #A78BFA;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+
+.soft-resume-btn {
+  font-family: var(--font-family);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #E2E8F0;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.soft-resume-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.04);
+}
+
+/* iOS Safe Area Insets for Edge-to-Edge Displays */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .top-navbar {
+    padding-top: calc(8px + env(safe-area-inset-top));
+    padding-left: calc(16px + env(safe-area-inset-left));
+    padding-right: calc(16px + env(safe-area-inset-right));
+  }
+}
+
+/* ==========================================================================
+   NEW FEATURES & ANIMATIONS: BALA GOPALA ENHANCEMENTS
+   ========================================================================== */
+
+/* Frothy Butter Splatter Drops */
+.butter-froth-drop {
+  position: fixed;
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle, #FFFFFF 60%, #FEF08A 100%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  animation: froth-fly 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+@keyframes froth-fly {
+  0% { transform: scale(0.6) translateY(0); opacity: 1; }
+  50% { transform: scale(1.4) translateY(-35px); opacity: 0.9; }
+  100% { transform: scale(0.8) translateY(20px); opacity: 0; }
+}
+
+/* Jal Tarang Water Wave Rings */
+.bowl-water-ripple {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 20px;
+  height: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: water-ring 0.6s ease-out forwards;
+}
+@keyframes water-ring {
+  0% { width: 15px; height: 8px; opacity: 1; }
+  100% { width: 75px; height: 35px; opacity: 0; }
+}
+
+/* Xylophone Guide Note Aura */
+.xylo-bar.guide-glow {
+  box-shadow: 0 0 22px #FEF08A, inset 0 0 12px #FFF;
+  transform: translateY(-8px) scale(1.04);
+  border: 2px solid #FFF;
+  animation: guide-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes guide-pulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.25); }
+}
+
+.bhajan-select-btn {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #92400E;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s, background 0.15s;
+}
+.bhajan-select-btn:active {
+  transform: scale(0.95);
+  background: #FDE68A;
+}
+
+/* Altar Agarbatti (Incense Stick) */
+.altar-agarbatti-wrap {
+  position: absolute;
+  bottom: 25px;
+  right: 24%;
+  width: 55px;
+  height: 80px;
+  cursor: pointer;
+  z-index: 15;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+  transition: transform 0.2s ease;
+}
+.altar-agarbatti-wrap:hover {
+  transform: scale(1.1);
+}
+.incense-touch-hint {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #78350F;
+  background: rgba(254, 240, 138, 0.9);
+  border-radius: 999px;
+  padding: 2px 6px;
+  text-align: center;
+  margin-top: -6px;
+}
+.incense-smoke-puff {
+  position: fixed;
+  font-size: 1.4rem;
+  pointer-events: none;
+  z-index: 999;
+  animation: smoke-drift 1.2s ease-out forwards;
+}
+@keyframes smoke-drift {
+  0% { transform: translateY(0) scale(0.8); opacity: 0.8; }
+  100% { transform: translateY(-70px) scale(1.6); opacity: 0; }
+}
+
+/* Mandala Symmetry Toggle */
+.mandala-toggle-btn {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #92400E;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.mandala-toggle-btn.active {
+  background: #10B981;
+  color: #FFF;
+  border-color: #059669;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+}
+
+/* ==========================================================================
+   GAME 7: KANHA SHRINGAR & SEVA
+   ========================================================================== */
+.game-shringar.vedic-theme {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% 35%, #FEF9C3 0%, #FEF08A 45%, #FDE68A 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.shringar-header {
+  text-align: center;
+  padding: 10px 16px 4px;
+  z-index: 10;
+}
+.shringar-header h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #B45309;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
+}
+
+.shringar-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 10px;
+}
+
+.shringar-avatar-wrap {
+  width: min(320px, 60vw);
+  max-height: 52vh;
+  position: relative;
+  cursor: pointer;
+  filter: drop-shadow(0 12px 28px rgba(217, 119, 6, 0.35));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.shringar-avatar-wrap:hover {
+  transform: scale(1.03);
+}
+.shringar-avatar-wrap.avatar-happy {
+  animation: kanha-joy 0.6s ease-in-out;
+}
+.shringar-avatar-wrap.avatar-celebrate {
+  animation: kanha-dance 1.2s ease-in-out infinite;
+}
+
+@keyframes kanha-joy {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  30% { transform: scale(1.12) rotate(-5deg); }
+  70% { transform: scale(1.12) rotate(5deg); }
+}
+@keyframes kanha-dance {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-12px) rotate(-4deg); }
+  75% { transform: translateY(-8px) rotate(4deg); }
+}
+
+.shringar-tickle-hint {
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #92400E;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.shringar-layer.hidden {
+  display: none !important;
+}
+
+.shringar-tray {
+  background: rgba(255, 253, 245, 0.95);
+  border-top: 3px solid #F59E0B;
+  padding: 10px 16px;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+  z-index: 20;
+}
+
+.tray-title {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #78350F;
+  margin-bottom: 8px;
+}
+
+.tray-items-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.shringar-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFF;
+  border: 2.5px solid #FDE68A;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #78350F;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.shringar-item-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+.shringar-item-btn:active {
+  transform: scale(0.95);
+}
+.shringar-item-btn.adorned {
+  background: #ECFDF5;
+  border-color: #10B981;
+  color: #065F46;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+.shringar-item-btn .item-icon {
+  font-size: 1.25rem;
+}
+.shringar-item-btn .item-status {
+  font-size: 0.85rem;
+}
+
+.floating-shringar-sparkle {
+  position: fixed;
+  font-size: 1.5rem;
+  pointer-events: none;
+  z-index: 999;
+  animation: sparkle-burst 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+@keyframes sparkle-burst {
+  0% { transform: scale(0.5) translateY(0); opacity: 1; }
+  100% { transform: scale(1.4) translateY(-40px); opacity: 0; }
+}
+

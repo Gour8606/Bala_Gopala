@@ -1,0 +1,27 @@
+{
+  "name": "bala-gopala-gurukul",
+  "version": "2.1.0",
+  "description": "Commercial-grade Vedic sensory & educational game for toddlers (~2-3 years old) rooted in Maharishi Sandipani's 16 Kalas & 64 Vidhyas.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js",
+    "check": "node -c audio.js vedic-assets.js games.js app.js server.js sw.js test.js"
+  },
+  "keywords": [
+    "toddler",
+    "montessori",
+    "sensory-play",
+    "vedic",
+    "krishna",
+    "sandipani-gurukul",
+    "educational-games",
+    "pwa",
+    "offline-first"
+  ],
+  "author": "Bala Gopala Gurukul Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=6.0.0"
+  }
+}
