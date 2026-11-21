@@ -91,7 +91,10 @@ try {
     'mindfulKrishna',
     'decoratedMatka',
     'govardhanHill',
-    'panchaBhutaEmblem'
+    'panchaBhutaEmblem',
+    'goldenJhula',
+    'saraswatiVeena',
+    'mridangam'
   ];
 
   expectedAssets.forEach((assetKey) => {
@@ -118,7 +121,9 @@ const expectedGames = [
   'PrakritiGame',
   'DhyanaGame',
   'MatkiTowerGame',
-  'PanchaBhutaGame'
+  'PanchaBhutaGame',
+  'UtsavaGame',
+  'VadyaGame'
 ];
 
 expectedGames.forEach((gameClass) => {
@@ -160,6 +165,10 @@ assert(gamesCode.includes('matki-selection-tray-zone'), 'games.js MatkiTowerGame
 assert(gamesCode.includes('tower-stone-pedestal'), 'games.js MatkiTowerGame implements stone pedestal base');
 assert(gamesCode.includes('bhuta-hero-card'), 'games.js PanchaBhutaGame implements interactive 5-element sanctuary card');
 assert(gamesCode.includes('bhuta-elements-tray'), 'games.js PanchaBhutaGame implements 5-element selector navigation tray');
+assert(gamesCode.includes('utsava-stage-center'), 'games.js UtsavaGame implements Indian festivals celebration stage');
+assert(gamesCode.includes('jhula-interactive-container'), 'games.js UtsavaGame implements Janmashtami golden floral swing');
+assert(gamesCode.includes('vadya-stage-center'), 'games.js VadyaGame implements sacred Indian instruments stage');
+assert(gamesCode.includes('vadya-instruments-grid'), 'games.js VadyaGame implements 6 traditional instrument selection grid');
 
 // Test ElementPool unit functionality
 try {
@@ -189,6 +198,10 @@ assert(audioCode.includes('playNightCrickets()'), 'audio.js implements playNight
 assert(audioCode.includes('playForestBirdsChirp()'), 'audio.js implements playForestBirdsChirp() procedural birds sound');
 assert(audioCode.includes('playOmChant()'), 'audio.js implements playOmChant() sacred 136.1Hz meditative vocal drone');
 assert(audioCode.includes('playSingingBowl('), 'audio.js implements playSingingBowl() 432Hz rich harmonic overtone resonance');
+assert(audioCode.includes('playVeenaPluck('), 'audio.js implements playVeenaPluck() Saraswati Veena microtonal pluck');
+assert(audioCode.includes('playMridangaDha('), 'audio.js implements playMridangaDha() Mridangam resonant bass Dha');
+assert(audioCode.includes('playMridangaTa('), 'audio.js implements playMridangaTa() Mridangam crisp treble Ta');
+assert(audioCode.includes('playJhulaChime('), 'audio.js implements playJhulaChime() Janmashtami floral swing chime');
 assert(audioCode.includes('stopAllSounds()'), 'audio.js implements stopAllSounds() panic stop for stuck drones');
 assert(audioCode.includes('speakLetter('), 'audio.js implements speakLetter() phonics letter speaker');
 assert(audioCode.includes('speakNumber('), 'audio.js implements speakNumber() phonics counting speaker');
@@ -207,6 +220,8 @@ assert(appCode.includes('prakriti: PrakritiGame'), 'app.js registers PrakritiGam
 assert(appCode.includes('dhyana: DhyanaGame'), 'app.js registers DhyanaGame module');
 assert(appCode.includes('matki: MatkiTowerGame'), 'app.js registers MatkiTowerGame module');
 assert(appCode.includes('bhuta: PanchaBhutaGame'), 'app.js registers PanchaBhutaGame module');
+assert(appCode.includes('utsava: UtsavaGame'), 'app.js registers UtsavaGame module');
+assert(appCode.includes('vadya: VadyaGame'), 'app.js registers VadyaGame module');
 assert(appCode.includes('this.footprintPool'), 'app.js uses memory pool for Kanha ghungroo footprints');
 assert(appCode.includes('class ToddlerInputFilter'), 'app.js defines ToddlerInputFilter for palm-slap rejection');
 assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');

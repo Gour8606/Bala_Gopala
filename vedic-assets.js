@@ -940,6 +940,104 @@ VedicAssets.panchaBhutaEmblem = `
   </svg>
 `;
 
+// Sacred Golden Floral Swing (Janmashtami & Utsava Jhula)
+VedicAssets.goldenJhula = `
+  <svg viewBox="0 0 120 120" class="toddler-svg vedic-golden-jhula">
+    <defs>
+      <linearGradient id="jhulaGold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FEF08A"/>
+        <stop offset="50%" stop-color="#F59E0B"/>
+        <stop offset="100%" stop-color="#B45309"/>
+      </linearGradient>
+    </defs>
+    <!-- Top Support Beam -->
+    <rect x="10" y="10" width="100" height="8" rx="4" fill="url(#jhulaGold)" stroke="#78350F" stroke-width="1.5"/>
+    <!-- Left Floral Hanging Rope -->
+    <line x1="28" y1="18" x2="34" y2="76" stroke="#D97706" stroke-width="3" stroke-dasharray="4,2"/>
+    <circle cx="30" cy="34" r="4" fill="#F59E0B"/>
+    <circle cx="32" cy="54" r="4" fill="#EF4444"/>
+    <!-- Right Floral Hanging Rope -->
+    <line x1="92" y1="18" x2="86" y2="76" stroke="#D97706" stroke-width="3" stroke-dasharray="4,2"/>
+    <circle cx="90" cy="34" r="4" fill="#F59E0B"/>
+    <circle cx="88" cy="54" r="4" fill="#EF4444"/>
+    <!-- Velvet Swing Seat (Jhula Plank) -->
+    <rect x="22" y="74" width="76" height="12" rx="6" fill="#DC2626" stroke="#991B1B" stroke-width="2"/>
+    <rect x="26" y="76" width="68" height="4" rx="2" fill="#FEF08A"/>
+    <!-- Hanging Floral Bells & Tassels -->
+    <path d="M 30 86 L 26 94 L 34 94 Z" fill="#F59E0B"/>
+    <path d="M 60 86 L 56 94 L 64 94 Z" fill="#F59E0B"/>
+    <path d="M 90 86 L 86 94 L 94 94 Z" fill="#F59E0B"/>
+    <!-- Auspicious Kalash Finials on Beam -->
+    <circle cx="14" cy="14" r="5" fill="#F59E0B"/>
+    <circle cx="106" cy="14" r="5" fill="#F59E0B"/>
+  </svg>
+`;
+
+// Sacred Classical Saraswati Veena (Divine Stringed Instrument)
+VedicAssets.saraswatiVeena = `
+  <svg viewBox="0 0 140 100" class="toddler-svg vedic-saraswati-veena">
+    <defs>
+      <linearGradient id="veenaWood" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#B45309"/>
+        <stop offset="50%" stop-color="#78350F"/>
+        <stop offset="100%" stop-color="#451A03"/>
+      </linearGradient>
+    </defs>
+    <!-- Main Resonator Gourd (Kudam) on Right -->
+    <ellipse cx="105" cy="58" rx="28" ry="32" fill="url(#veenaWood)" stroke="#292524" stroke-width="2"/>
+    <ellipse cx="105" cy="58" rx="22" ry="24" fill="#92400E"/>
+    <!-- Bridge (Kudurai) -->
+    <rect x="96" y="52" width="6" height="18" rx="2" fill="#FEF08A" stroke="#78350F" stroke-width="1.5"/>
+    <!-- Long Dandi / Fretboard -->
+    <rect x="24" y="56" width="82" height="10" rx="3" fill="url(#veenaWood)" stroke="#292524" stroke-width="1.5"/>
+    <!-- Brass Frets -->
+    <line x1="40" y1="56" x2="40" y2="66" stroke="#FDE68A" stroke-width="1.5"/>
+    <line x1="52" y1="56" x2="52" y2="66" stroke="#FDE68A" stroke-width="1.5"/>
+    <line x1="64" y1="56" x2="64" y2="66" stroke="#FDE68A" stroke-width="1.5"/>
+    <line x1="76" y1="56" x2="76" y2="66" stroke="#FDE68A" stroke-width="1.5"/>
+    <line x1="88" y1="56" x2="88" y2="66" stroke="#FDE68A" stroke-width="1.5"/>
+    <!-- Secondary Gourd on Left Base -->
+    <circle cx="48" cy="74" r="14" fill="url(#veenaWood)" stroke="#292524" stroke-width="1.5"/>
+    <!-- Carved Yali / Peacock Head at Top Left -->
+    <path d="M 24 60 C 14 58 10 46 16 38 C 22 42 24 50 24 60 Z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5"/>
+    <!-- 4 Playing Strings -->
+    <line x1="20" y1="58" x2="102" y2="58" stroke="#FFFDF5" stroke-width="1"/>
+    <line x1="20" y1="61" x2="102" y2="61" stroke="#FFFDF5" stroke-width="1"/>
+    <line x1="20" y1="64" x2="102" y2="64" stroke="#FFFDF5" stroke-width="1"/>
+  </svg>
+`;
+
+// Sacred Classical Mridangam / Dholak (Auspicious Percussion Drum)
+VedicAssets.mridangam = `
+  <svg viewBox="0 0 120 90" class="toddler-svg vedic-mridangam">
+    <defs>
+      <linearGradient id="mridangamClay" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#D97706"/>
+        <stop offset="50%" stop-color="#92400E"/>
+        <stop offset="100%" stop-color="#78350F"/>
+      </linearGradient>
+    </defs>
+    <!-- Barrel Body -->
+    <path d="M 22 25 Q 60 14 98 25 L 98 65 Q 60 76 22 65 Z" fill="url(#mridangamClay)" stroke="#451A03" stroke-width="2"/>
+    <!-- Left Bass Head (Bayan) -->
+    <ellipse cx="22" cy="45" rx="10" ry="20" fill="#FEF3C7" stroke="#78350F" stroke-width="2"/>
+    <ellipse cx="22" cy="45" rx="5" ry="10" fill="#1C1917"/>
+    <!-- Right Treble Head (Dayan with Siyaahi) -->
+    <ellipse cx="98" cy="45" rx="10" ry="20" fill="#FEF3C7" stroke="#78350F" stroke-width="2"/>
+    <ellipse cx="98" cy="45" rx="6" ry="12" fill="#0C0A09"/>
+    <!-- Leather Tension Straps (Woven Braids) -->
+    <g stroke="#FDE68A" stroke-width="1.5" opacity="0.85">
+      <line x1="22" y1="30" x2="98" y2="40"/>
+      <line x1="22" y1="40" x2="98" y2="50"/>
+      <line x1="22" y1="50" x2="98" y2="60"/>
+      <line x1="22" y1="60" x2="98" y2="30"/>
+      <line x1="22" y1="35" x2="98" y2="55"/>
+    </g>
+    <!-- Sacred Red Cloth Ring (Gaddi) -->
+    <path d="M 50 68 Q 60 72 70 68" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+`;
+
 // Attach to window object for global access across scripts
 if (typeof window !== 'undefined') {
   window.VedicAssets = VedicAssets;

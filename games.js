@@ -4027,6 +4027,608 @@ class PanchaBhutaGame {
   }
 }
 
+// ==========================================
+// 13. UTSAVA & JHULA (INDIAN FESTIVALS CELEBRATION)
+// Cultural Heritage: Janmashtami, Phoolon ki Holi, Diwali & Sankranti
+// ==========================================
+class UtsavaGame {
+  constructor(container) {
+    this.container = container;
+    this.currentFestivalId = 'janmashtami';
+    this.diwaliLitCount = 0;
+    this.mashStep = 0;
+    this.petalShower = (typeof CelebrationPetalShower !== 'undefined') ? new CelebrationPetalShower() : null;
+
+    // 4 Traditional Festivals of Indian Heritage
+    this.festivals = [
+      {
+        id: 'janmashtami',
+        icon: '🪢',
+        name: { hi: 'जन्माष्टमी (कान्हा झूला)', en: 'Janmashtami (Golden Jhula)' },
+        sutra: { hi: 'नन्द के आनन्द भयो, जय कन्हैया लाल की!', en: 'Gently swing little Kanha in the divine golden floral swing!' },
+        tagline: { hi: 'झूला झुलाएं', en: 'Rock the Swing' },
+        heroArt: VedicAssets.goldenJhula || '🪢',
+        bgGradient: 'radial-gradient(circle, #FFFBEB 0%, #FEF3C7 100%)',
+        accentColor: '#D97706'
+      },
+      {
+        id: 'holi',
+        icon: '🌸',
+        name: { hi: 'फूलों की होली (वृन्दावन)', en: 'Phoolon ki Holi (Flower Petals)' },
+        sutra: { hi: 'सुगंधित गुलाब और गेंदा पुष्पों की दिव्य होली!', en: 'Celebrate fragrant Vrindavan Holi with pure sacred flower petals!' },
+        tagline: { hi: 'पुष्प वर्षा करें', en: 'Shower Petals' },
+        heroArt: VedicAssets.kamal || '🌸',
+        bgGradient: 'radial-gradient(circle, #FDF2F8 0%, #FCE7F3 100%)',
+        accentColor: '#DB2777'
+      },
+      {
+        id: 'diwali',
+        icon: '🪔',
+        name: { hi: 'दीपावली (दीपोत्सव)', en: 'Deepavali (Festival of Lights)' },
+        sutra: { hi: 'घर-घर जले मंगल दीप, शुभ प्रकाश और ज्ञान!', en: 'Light sacred earthen diyas to illuminate hearts with divine light!' },
+        tagline: { hi: 'दीपक जलाएं', en: 'Light Diyas' },
+        heroArt: VedicAssets.diya || '🪔',
+        bgGradient: 'radial-gradient(circle, #FFF7ED 0%, #FFEDD5 100%)',
+        accentColor: '#EA580C'
+      },
+      {
+        id: 'sankranti',
+        icon: '🪁',
+        name: { hi: 'मकर संक्रांति (पतंग उत्सव)', en: 'Makar Sankranti (Flying Kites)' },
+        sutra: { hi: 'नीले आकाश में उड़ती रंग-बिरंगी पतंग और सूर्य नमन!', en: 'Fly colorful kites in the azure sky and welcome the warming sun!' },
+        tagline: { hi: 'पतंग उड़ाएं', en: 'Fly Kites' },
+        heroArt: VedicAssets.mayur || '🪁',
+        bgGradient: 'radial-gradient(circle, #F0F9FF 0%, #E0F2FE 100%)',
+        accentColor: '#0284C7'
+      }
+    ];
+  }
+
+  start() {
+    this.render();
+    this.bindUtsavaEvents();
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(880);
+      window.toddlerAudio.speak({
+        hi: "भारत के दिव्य उत्सव! कान्हा का झूला झुलाएं और फूलों की होली खेलें!",
+        en: "Festivals of India! Gently rock Kanha's swing and celebrate with fragrant flowers!"
+      });
+    }
+  }
+
+  stop() {
+    if (this.petalShower && typeof this.petalShower.cleanup === 'function') {
+      this.petalShower.cleanup();
+    }
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const activeFest = this.festivals.find(f => f.id === this.currentFestivalId) || this.festivals[0];
+    const festName = activeFest.name[lang] || activeFest.name.en;
+    const festSutra = activeFest.sutra[lang] || activeFest.sutra.en;
+    const actionLabel = activeFest.tagline[lang] || activeFest.tagline.en;
+
+    this.container.innerHTML = `
+      <div class="game-stage-wrapper game-utsava">
+        <!-- Center Interactive Festival Stage -->
+        <section class="utsava-stage-center">
+          <div class="utsava-card fest-${activeFest.id}"
+               id="utsava-hero-card"
+               style="background: ${activeFest.bgGradient}; --fest-accent: ${activeFest.accentColor};">
+            <!-- Dynamic Festival Hero Visual -->
+            <div class="utsava-hero-visual-wrap" id="utsava-visual-wrap">
+              ${this.renderFestivalInteractiveCenter(activeFest.id)}
+            </div>
+
+            <!-- Festival Ribbon Info -->
+            <div class="utsava-ribbon-badge">
+              <span class="utsava-badge-icon">${activeFest.icon}</span>
+              <span class="utsava-badge-title">${festName}</span>
+            </div>
+            <p class="utsava-sutra-text">${festSutra}</p>
+
+            <!-- Big Action Trigger Button -->
+            <button class="utsava-action-btn" id="utsava-action-trigger" style="--btn-color: ${activeFest.accentColor};">
+              <span class="btn-action-icon">${activeFest.icon}</span>
+              <span class="btn-action-text">${actionLabel}</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Bottom Festival Selector Navigation Pills -->
+        <section class="utsava-nav-zone">
+          <div class="utsava-pills-tray">
+            ${this.festivals.map(fest => {
+              const isActive = (fest.id === this.currentFestivalId);
+              const title = fest.name[lang] || fest.name.en;
+              return `
+                <button class="utsava-pill-btn ${isActive ? 'active-festival' : ''}"
+                        data-festival="${fest.id}"
+                        id="fest-pill-${fest.id}"
+                        style="--fest-color: ${fest.accentColor};">
+                  <span class="pill-fest-icon">${fest.icon}</span>
+                  <span class="pill-fest-label">${title.split(' ')[0]}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  renderFestivalInteractiveCenter(festId) {
+    if (festId === 'janmashtami') {
+      return `
+        <div class="jhula-interactive-container" id="jhula-container" title="Tap to swing little Kanha">
+          <div class="jhula-swing-element" id="jhula-swing-element">
+            <div class="jhula-svg-frame">${VedicAssets.goldenJhula || ''}</div>
+            <div class="jhula-baby-krishna">${VedicAssets.balaKrishna || '👶'}</div>
+          </div>
+        </div>
+      `;
+    } else if (festId === 'holi') {
+      return `
+        <div class="holi-meadow-container" id="holi-container" title="Tap to shower fragrant flower petals">
+          <div class="holi-avatar-box">${VedicAssets.mindfulKrishna || VedicAssets.balaKrishna || '👶'}</div>
+          <div class="holi-petal-splash" id="holi-petal-splash">🌸 🌼 🌹</div>
+        </div>
+      `;
+    } else if (festId === 'diwali') {
+      return `
+        <div class="diwali-temple-courtyard" id="diwali-courtyard" title="Tap diyas to illuminate them">
+          <div class="diwali-diyas-row">
+            <button class="diwali-diya-tap ${this.diwaliLitCount >= 1 ? 'diya-lit' : ''}" data-index="1">🪔</button>
+            <button class="diwali-diya-tap ${this.diwaliLitCount >= 2 ? 'diya-lit' : ''}" data-index="2">🪔</button>
+            <button class="diwali-diya-tap ${this.diwaliLitCount >= 3 ? 'diya-lit' : ''}" data-index="3">🪔</button>
+            <button class="diwali-diya-tap ${this.diwaliLitCount >= 4 ? 'diya-lit' : ''}" data-index="4">🪔</button>
+            <button class="diwali-diya-tap ${this.diwaliLitCount >= 5 ? 'diya-lit' : ''}" data-index="5">🪔</button>
+          </div>
+          <span class="diwali-glow-text">${this.diwaliLitCount}/5 दीप प्रज्वलित</span>
+        </div>
+      `;
+    } else {
+      // Sankranti
+      return `
+        <div class="sankranti-sky-container" id="sankranti-sky" title="Tap to fly colorful kites">
+          <div class="sankranti-sun-orb">☀️</div>
+          <div class="sankranti-kite-soar" id="sankranti-kite">🪁</div>
+        </div>
+      `;
+    }
+  }
+
+  bindUtsavaEvents() {
+    // 1. Festival Navigation Pills
+    const navTray = this.container.querySelector('.utsava-pills-tray');
+    if (navTray) {
+      navTray.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('.utsava-pill-btn');
+        if (!btn) return;
+        e.preventDefault();
+        const festId = btn.dataset.festival;
+        this.selectFestival(festId);
+      });
+    }
+
+    // 2. Action Trigger Button
+    const actionBtn = this.container.querySelector('#utsava-action-trigger');
+    if (actionBtn) {
+      actionBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.triggerFestivalAction();
+      });
+    }
+
+    // 3. Direct Tap on Festival Center Visual
+    const visualWrap = this.container.querySelector('#utsava-visual-wrap');
+    if (visualWrap) {
+      visualWrap.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.triggerFestivalAction();
+      });
+    }
+  }
+
+  selectFestival(festId) {
+    const fest = this.festivals.find(f => f.id === festId);
+    if (!fest) return;
+
+    this.currentFestivalId = festId;
+    this.render();
+    this.bindUtsavaEvents();
+
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(1046.5);
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const name = fest.name[lang] || fest.name.en;
+      const sutra = fest.sutra[lang] || fest.sutra.en;
+      window.toddlerAudio.speak(`${name}! ${sutra}`);
+    }
+  }
+
+  triggerFestivalAction() {
+    const festId = this.currentFestivalId;
+
+    if (festId === 'janmashtami') {
+      const swing = this.container.querySelector('#jhula-swing-element');
+      if (swing) {
+        swing.classList.remove('jhula-swinging');
+        void swing.offsetWidth;
+        swing.classList.add('jhula-swinging');
+      }
+      if (window.toddlerAudio) {
+        if (typeof window.toddlerAudio.playJhulaChime === 'function') {
+          window.toddlerAudio.playJhulaChime();
+        } else {
+          window.toddlerAudio.playTempleBell(1046.5);
+        }
+        setTimeout(() => {
+          if (window.toddlerAudio) window.toddlerAudio.playBabyGiggle();
+        }, 400);
+        window.toddlerAudio.speak({
+          hi: "झूलें नन्दलाल! नन्द घर आनन्द भयो!",
+          en: "Sweet Janmashtami! Little Kanha is happily swinging!"
+        });
+      }
+    } else if (festId === 'holi') {
+      if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
+        this.petalShower.celebrate(this.container);
+      }
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playBabyGiggle();
+        setTimeout(() => {
+          if (window.toddlerAudio) window.toddlerAudio.playCelebration();
+        }, 300);
+        window.toddlerAudio.speak({
+          hi: "रंग-बिरंगे फूल! वृन्दावन की फूलों की होली!",
+          en: "Sweet Flower Petal Holi in Vrindavan! Joyful fragrance!"
+        });
+      }
+    } else if (festId === 'diwali') {
+      this.diwaliLitCount = (this.diwaliLitCount % 5) + 1;
+      this.render();
+      this.bindUtsavaEvents();
+
+      if (window.toddlerAudio) {
+        if (typeof window.toddlerAudio.playSingingBowl === 'function') {
+          window.toddlerAudio.playSingingBowl(432 + this.diwaliLitCount * 40);
+        } else {
+          window.toddlerAudio.playAartiChimes();
+        }
+        if (this.diwaliLitCount === 5) {
+          setTimeout(() => {
+            if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
+              this.petalShower.celebrate(this.container);
+            }
+            if (window.toddlerAudio) {
+              window.toddlerAudio.playCelebration();
+              window.toddlerAudio.speak({
+                hi: "शुभ दीपावली! सब दीप जगमगा उठे! चारों ओर दिव्य प्रकाश!",
+                en: "Happy Deepavali! All sacred lamps are glowing with joy and light!"
+              });
+            }
+          }, 300);
+        } else {
+          window.toddlerAudio.speak({
+            hi: `दीपक जला! ${this.diwaliLitCount} दीप जगमगाए!`,
+            en: `Diya illuminated! ${this.diwaliLitCount} lamps glowing!`
+          });
+        }
+      }
+    } else {
+      // Sankranti
+      const kite = this.container.querySelector('#sankranti-kite');
+      if (kite) {
+        kite.classList.remove('kite-soaring-high');
+        void kite.offsetWidth;
+        kite.classList.add('kite-soaring-high');
+      }
+      if (window.toddlerAudio) {
+        if (typeof window.toddlerAudio.playKadambaBreeze === 'function') {
+          window.toddlerAudio.playKadambaBreeze();
+        } else {
+          window.toddlerAudio.playBansuri(523.25);
+        }
+        setTimeout(() => {
+          if (window.toddlerAudio) window.toddlerAudio.playGhungroo();
+        }, 300);
+        window.toddlerAudio.speak({
+          hi: "पतंग उड़ी आकाश में! मकर संक्रांति की शुभकामनाएं!",
+          en: "Kite flies high in the azure sky! Happy Makar Sankranti!"
+        });
+      }
+    }
+  }
+
+  handleAnyKey(key) {
+    this.mashStep++;
+    if (this.mashStep % 3 === 0) {
+      // Cycle festival every 3 mashes
+      const nextIdx = (this.festivals.findIndex(f => f.id === this.currentFestivalId) + 1) % this.festivals.length;
+      this.selectFestival(this.festivals[nextIdx].id);
+    } else {
+      this.triggerFestivalAction();
+    }
+  }
+}
+
+// ==========================================
+// 14. VADYA & TAAL (SACRED INDIAN MUSICAL INSTRUMENTS)
+// Classical & Folk Instruments: Veena, Mridangam, Bansuri, Manjira, Damru, Shankha
+// ==========================================
+class VadyaGame {
+  constructor(container) {
+    this.container = container;
+    this.currentVadyaId = 'veena';
+    this.mashCount = 0;
+
+    // 6 Traditional Indian Musical Instruments
+    this.instruments = [
+      {
+        id: 'veena',
+        icon: '🪕',
+        name: { hi: 'सरस्वती वीणा (Veena)', en: 'Saraswati Veena' },
+        description: { hi: 'ज्ञान व संगीत की देवी मां सरस्वती का दिव्य वाद्य', en: 'Sacred classical stringed instrument with divine meend resonance' },
+        bol: 'सा... रे... ग...',
+        heroSvg: VedicAssets.saraswatiVeena || '🪕',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playVeenaPluck === 'function') {
+              window.toddlerAudio.playVeenaPluck(220);
+            } else {
+              window.toddlerAudio.playBansuri(440);
+            }
+          }
+        },
+        accentColor: '#B45309',
+        bgGradient: 'radial-gradient(circle, #FFFBEB 0%, #FEF3C7 100%)'
+      },
+      {
+        id: 'mridangam',
+        icon: '🥁',
+        name: { hi: 'मृदंगम / ढोलक (Mridanga)', en: 'Mridangam Drum' },
+        description: { hi: 'भारतीय शास्त्रीय संगीत व कीर्तन का मुख्य ताल वाद्य', en: 'Ancient percussion drum with resonant bass Dha and crisp treble Ta' },
+        bol: 'धा... धिं... ता... ना...',
+        heroSvg: VedicAssets.mridangam || '🥁',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playMridangaDha === 'function') {
+              window.toddlerAudio.playMridangaDha();
+              setTimeout(() => {
+                if (window.toddlerAudio) window.toddlerAudio.playMridangaTa();
+              }, 250);
+            } else {
+              window.toddlerAudio.playDamru();
+            }
+          }
+        },
+        accentColor: '#D97706',
+        bgGradient: 'radial-gradient(circle, #FFF7ED 0%, #FFEDD5 100%)'
+      },
+      {
+        id: 'bansuri',
+        icon: '🪈',
+        name: { hi: 'कान्हा की बांसुरी (Bansuri)', en: 'Krishna\'s Bansuri' },
+        description: { hi: 'वृन्दावन में कान्हा द्वारा बजाई जाने वाली बांस की मधुर वंशी', en: 'Sweet sacred bamboo flute that enchants all Vrindavan cows and peacocks' },
+        bol: 'राधा-कृष्ण तराना',
+        heroSvg: VedicAssets.balaKrishna || '🪈',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playDivineFlutePhrase === 'function') {
+              window.toddlerAudio.playDivineFlutePhrase();
+            } else {
+              window.toddlerAudio.playBansuri(523.25);
+            }
+          }
+        },
+        accentColor: '#16A34A',
+        bgGradient: 'radial-gradient(circle, #F0FDF4 0%, #DCFCE7 100%)'
+      },
+      {
+        id: 'manjira',
+        icon: '🔔',
+        name: { hi: 'मंजीरा / करताल (Manjira)', en: 'Bronze Manjira Cymbals' },
+        description: { hi: 'भजन व संकीर्तन में बजने वाली मधुर कांसे की झांझ', en: 'Handheld bronze cymbals creating sparkling rhythmic high tones' },
+        bol: 'छन... छन... छन...',
+        heroSvg: VedicAssets.manjira || '🔔',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playManjira === 'function') {
+              window.toddlerAudio.playManjira();
+            } else {
+              window.toddlerAudio.playTempleBell(1046.5);
+            }
+          }
+        },
+        accentColor: '#EAB308',
+        bgGradient: 'radial-gradient(circle, #FEFCE8 0%, #FEF08A 100%)'
+      },
+      {
+        id: 'damru',
+        icon: '🪘',
+        name: { hi: 'शिव डमरू (Damru)', en: 'Mystic Damru Drum' },
+        description: { hi: 'नाद ब्रह्म और 14 माहेश्वर सूत्रों का उद्गम वाद्य', en: 'Sacred two-headed rattle drum of divine cosmic rhythm' },
+        bol: 'डिम-डिम... डम-डम...',
+        heroSvg: VedicAssets.decoratedMatka || '🪘',
+        sound: () => {
+          if (window.toddlerAudio) window.toddlerAudio.playDamru();
+        },
+        accentColor: '#EA580C',
+        bgGradient: 'radial-gradient(circle, #FFF7ED 0%, #FED7AA 100%)'
+      },
+      {
+        id: 'shankha',
+        icon: '🐚',
+        name: { hi: 'दिव्य शंख (Shankha)', en: 'Sacred Conch Shell' },
+        description: { hi: 'आरती व विजय के समय फूंका जाने वाला मंगलकारी शंख नाद', en: 'Auspicious ocean conch blown during aarti and morning temple puja' },
+        bol: 'ॐ शंख नाद',
+        heroSvg: VedicAssets.mangalKalash || '🐚',
+        sound: () => {
+          if (window.toddlerAudio) window.toddlerAudio.playShankha();
+        },
+        accentColor: '#0284C7',
+        bgGradient: 'radial-gradient(circle, #F0F9FF 0%, #BAE6FD 100%)'
+      }
+    ];
+  }
+
+  start() {
+    this.render();
+    this.bindVadyaEvents();
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(880);
+      window.toddlerAudio.speak({
+        hi: "भारतीय वाद्य संगीत! वीणा, मृदंग, बांसुरी और मंजीरा बजाएं!",
+        en: "Indian Classical & Sacred Instruments! Tap to play the Veena, Mridangam, Bansuri and Manjira!"
+      });
+    }
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const activeInst = this.instruments.find(i => i.id === this.currentVadyaId) || this.instruments[0];
+    const instName = activeInst.name[lang] || activeInst.name.en;
+    const instDesc = activeInst.description[lang] || activeInst.description.en;
+
+    this.container.innerHTML = `
+      <div class="game-stage-wrapper game-vadya">
+        <!-- Center Interactive Instrument Hero Card -->
+        <section class="vadya-stage-center">
+          <div class="vadya-hero-card"
+               id="vadya-hero-card"
+               style="background: ${activeInst.bgGradient}; --inst-color: ${activeInst.accentColor};"
+               title="Tap to play instrument">
+            <div class="vadya-sound-ripple-aura" id="vadya-ripple-aura"></div>
+            <div class="vadya-hero-svg" id="vadya-hero-svg">
+              ${activeInst.heroSvg}
+            </div>
+            <div class="vadya-title-badge">
+              <span class="badge-inst-icon">${activeInst.icon}</span>
+              <span class="badge-inst-name">${instName}</span>
+            </div>
+            <span class="vadya-bol-pill">${activeInst.bol}</span>
+            <p class="vadya-description-text">${instDesc}</p>
+
+            <button class="vadya-play-pulse-btn" id="vadya-play-trigger" style="--btn-color: ${activeInst.accentColor};">
+              🎵 ${lang === 'hi' ? 'वाद्य बजाएं (Play)' : 'Play Note'}
+            </button>
+          </div>
+        </section>
+
+        <!-- Bottom 6 Instrument Selection Cards Grid -->
+        <section class="vadya-instruments-selector-zone">
+          <div class="vadya-instruments-grid">
+            ${this.instruments.map(inst => {
+              const isActive = (inst.id === this.currentVadyaId);
+              const title = inst.name[lang] || inst.name.en;
+              return `
+                <button class="vadya-selector-btn ${isActive ? 'active-instrument' : ''}"
+                        data-vadya="${inst.id}"
+                        id="vadya-btn-${inst.id}"
+                        style="--inst-color: ${inst.accentColor};">
+                  <span class="inst-btn-icon">${inst.icon}</span>
+                  <span class="inst-btn-title">${title.split(' ')[0]}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  bindVadyaEvents() {
+    // 1. Instrument Selector Buttons
+    const grid = this.container.querySelector('.vadya-instruments-grid');
+    if (grid) {
+      grid.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('.vadya-selector-btn');
+        if (!btn) return;
+        e.preventDefault();
+        const vadyaId = btn.dataset.vadya;
+        this.selectInstrument(vadyaId);
+      });
+    }
+
+    // 2. Play Trigger Button
+    const playBtn = this.container.querySelector('#vadya-play-trigger');
+    if (playBtn) {
+      playBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.playActiveInstrument();
+      });
+    }
+
+    // 3. Direct Tap on Hero Card
+    const heroCard = this.container.querySelector('#vadya-hero-card');
+    if (heroCard) {
+      heroCard.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.playActiveInstrument();
+      });
+    }
+  }
+
+  selectInstrument(vadyaId) {
+    const inst = this.instruments.find(i => i.id === vadyaId);
+    if (!inst) return;
+
+    this.currentVadyaId = vadyaId;
+    this.render();
+    this.bindVadyaEvents();
+
+    this.playActiveInstrument();
+
+    if (window.toddlerAudio) {
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const title = inst.name[lang] || inst.name.en;
+      window.toddlerAudio.speak(title);
+    }
+  }
+
+  playActiveInstrument() {
+    const inst = this.instruments.find(i => i.id === this.currentVadyaId);
+    if (!inst) return;
+
+    const heroSvg = this.container.querySelector('#vadya-hero-svg');
+    const heroCard = this.container.querySelector('#vadya-hero-card');
+
+    if (heroSvg) {
+      heroSvg.classList.remove('vadya-playing-vibrate');
+      void heroSvg.offsetWidth;
+      heroSvg.classList.add('vadya-playing-vibrate');
+    }
+
+    if (heroCard) {
+      heroCard.classList.remove('vadya-glow-pulse');
+      void heroCard.offsetWidth;
+      heroCard.classList.add('vadya-glow-pulse');
+    }
+
+    if (typeof inst.sound === 'function') {
+      inst.sound();
+    }
+  }
+
+  handleAnyKey(key) {
+    this.mashCount++;
+    if (this.mashCount % 4 === 0) {
+      // Cycle to next instrument
+      const nextIdx = (this.instruments.findIndex(i => i.id === this.currentVadyaId) + 1) % this.instruments.length;
+      this.selectInstrument(this.instruments[nextIdx].id);
+    } else {
+      this.playActiveInstrument();
+    }
+  }
+}
+
 // Global Exports
 if (typeof window !== 'undefined') {
   window.BubbleGame = BubbleGame;
@@ -4041,6 +4643,8 @@ if (typeof window !== 'undefined') {
   window.DhyanaGame = DhyanaGame;
   window.MatkiTowerGame = MatkiTowerGame;
   window.PanchaBhutaGame = PanchaBhutaGame;
+  window.UtsavaGame = UtsavaGame;
+  window.VadyaGame = VadyaGame;
   window.CelebrationPetalShower = CelebrationPetalShower;
 }
 
@@ -4058,6 +4662,8 @@ if (typeof module !== 'undefined' && module.exports) {
     DhyanaGame,
     MatkiTowerGame,
     PanchaBhutaGame,
+    UtsavaGame,
+    VadyaGame,
     CelebrationPetalShower,
     ToddlerPersistence,
     ElementPool

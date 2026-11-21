@@ -946,6 +946,122 @@ class ToddlerAudio {
     });
   }
 
+  // 14b. Saraswati Veena Pluck (Resonant String with Microtonal Meend)
+  playVeenaPluck(freq = 220) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(25);
+    const t = this.ctx.currentTime;
+    const dur = 1.6;
+
+    // Fundamental with subtle meend glide
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(freq, t);
+    osc1.frequency.linearRampToValueAtTime(freq * 1.02, t + 0.15);
+    osc1.frequency.linearRampToValueAtTime(freq, t + 0.35);
+
+    // Filter to simulate warm wooden resonator box (Kudam)
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(950, t);
+    filter.frequency.exponentialRampToValueAtTime(250, t + dur);
+
+    gain1.gain.setValueAtTime(0.001, t);
+    gain1.gain.linearRampToValueAtTime(0.35, t + 0.02);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+    // Sympathetic overtone drone (Tarab strings)
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(freq * 2, t);
+    gain2.gain.setValueAtTime(0.12, t);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+
+    osc1.connect(filter);
+    filter.connect(gain1);
+    gain1.connect(this.getDestination());
+
+    osc2.connect(gain2);
+    gain2.connect(this.getDestination());
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + dur + 0.05);
+    osc2.stop(t + 1.25);
+  }
+
+  // 14c. Mridangam / Dholak Bass Stroke (Dha / Ge)
+  playMridangaDha() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(40);
+    const t = this.ctx.currentTime;
+
+    // Deep pitched bass resonance
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(145, t);
+    osc.frequency.exponentialRampToValueAtTime(68, t + 0.28);
+
+    gain.gain.setValueAtTime(0.65, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+
+    osc.connect(gain);
+    gain.connect(this.getDestination());
+    osc.start(t);
+    osc.stop(t + 0.4);
+  }
+
+  // 14d. Mridangam / Dholak Treble Rim Stroke (Ta / Tin)
+  playMridangaTa() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(20);
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(540, t);
+    osc.frequency.exponentialRampToValueAtTime(320, t + 0.08);
+
+    gain.gain.setValueAtTime(0.45, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+
+    osc.connect(gain);
+    gain.connect(this.getDestination());
+    osc.start(t);
+    osc.stop(t + 0.14);
+  }
+
+  // 14e. Gentle Floral Jhula Swing Chime
+  playJhulaChime() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // Sa Ga Pa Sa
+    const t = this.ctx.currentTime;
+    notes.forEach((f, idx) => {
+      const delay = idx * 0.12;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, t + delay);
+
+      gain.gain.setValueAtTime(0.001, t + delay);
+      gain.gain.linearRampToValueAtTime(0.22, t + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + delay + 0.6);
+
+      osc.connect(gain);
+      gain.connect(this.getDestination());
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.65);
+    });
+  }
+
   // 15. Makhan Pot Pop (Playful Butter Splash)
   playMakhanPop() {
     if (this.isMuted || !this.ctx) return;

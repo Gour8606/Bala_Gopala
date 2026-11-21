@@ -49,7 +49,9 @@ class ToddlerApp {
       prakriti: PrakritiGame,
       dhyana: DhyanaGame,
       matki: MatkiTowerGame,
-      bhuta: PanchaBhutaGame
+      bhuta: PanchaBhutaGame,
+      utsava: UtsavaGame,
+      vadya: VadyaGame
     };
 
     // Commercial Memory Object Pools (Zero runtime GC stutter)
@@ -466,7 +468,9 @@ class ToddlerApp {
       prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care' },
       dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness' },
       matki: { hi: 'मटकी शिखर', en: 'Matki Tower' },
-      bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta' }
+      bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta' },
+      utsava: { hi: 'उत्सव व झूला', en: 'Festivals' },
+      vadya: { hi: 'दिव्य वाद्य', en: 'Instruments' }
     };
 
     if (this.tabs) {
@@ -692,7 +696,9 @@ class ToddlerApp {
       prakriti: { hi: "प्रकृति सेवा और पुष्प संगम! तुलसी मैया की सेवा करें!", en: "Prakriti Care & Nature Harmony! Nurture holy Tulsi and sort sacred flowers!" },
       dhyana: { hi: "ध्यान, प्राणायाम व नवरस! शांत मन और गहरी श्वास!", en: "Mindfulness, Pranayama & Emotions! Breathe deeply and find inner calm!" },
       matki: { hi: "गोपाला मटकी शिखर! सबसे बड़ा मटका नीचे रखकर शिखर बनाएं!", en: "Gopala's Butter Pot Tower! Build the tower by placing the largest pot at the bottom!" },
-      bhuta: { hi: "पंच महाभूत दर्शन! पृथ्वी, जल, अग्नि, वायु और आकाश का आदर करें!", en: "The Five Sacred Elements! Discover Earth, Water, Fire, Air and Space in harmony!" }
+      bhuta: { hi: "पंच महाभूत दर्शन! पृथ्वी, जल, अग्नि, वायु और आकाश का आदर करें!", en: "The Five Sacred Elements! Discover Earth, Water, Fire, Air and Space in harmony!" },
+      utsava: { hi: "भारत के दिव्य उत्सव! कान्हा का झूला झुलाएं और फूलों की होली खेलें!", en: "Festivals of India! Gently rock Kanha's swing and celebrate with fragrant flowers!" },
+      vadya: { hi: "भारतीय वाद्य संगीत! वीणा, मृदंग, बांसुरी और मंजीरा बजाएं!", en: "Indian Classical & Sacred Instruments! Tap to play the Veena, Mridangam, Bansuri and Manjira!" }
     };
 
     setTimeout(() => {
