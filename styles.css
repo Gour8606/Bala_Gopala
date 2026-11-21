@@ -2613,6 +2613,602 @@ html, body {
   }
 }
 
+/* ==================================================
+   GAME 9: PRAKRITI SEVA & MONTESSORI COLOR SORTING
+   ================================================== */
+.game-prakriti {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 900px;
+  height: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+.prakriti-sanctuary-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 740px;
+  margin-bottom: 8px;
+}
+
+.tulsi-display-card {
+  position: relative;
+  background: radial-gradient(circle, #F0FDF4 0%, #DCFCE7 100%);
+  border: 4px solid #86EFAC;
+  border-radius: 28px;
+  padding: 10px 18px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(22, 101, 52, 0.12);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-width: 160px;
+}
+
+.tulsi-display-card:active {
+  transform: scale(0.96);
+}
+
+.tulsi-svg-wrap {
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.tulsi-swaying {
+  animation: tulsi-gentle-breeze 0.8s ease-in-out;
+}
+
+@keyframes tulsi-gentle-breeze {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg) scale(1.05); }
+  75% { transform: rotate(6deg) scale(1.05); }
+}
+
+.tulsi-glowing-green {
+  filter: drop-shadow(0 0 16px #22C55E);
+}
+
+.tulsi-glowing-gold {
+  filter: drop-shadow(0 0 20px #F59E0B);
+}
+
+.tulsi-aura-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.aura-radiant-sun {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.6) 0%, rgba(245, 158, 11, 0) 70%);
+  animation: solar-pulse 1.2s ease-out;
+}
+
+@keyframes solar-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+.tulsi-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFDF0;
+  border: 2px solid #16A34A;
+  color: #14532D;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-top: 4px;
+}
+
+.prakriti-tools-tray {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prakriti-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FFFDF5;
+  border: 3px solid #FBBF24;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #78350F;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s;
+}
+
+.prakriti-tool-btn:hover, .prakriti-tool-btn:active {
+  transform: scale(1.06);
+  background: #FEF3C7;
+  border-color: #D97706;
+}
+
+.tool-icon-svg {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-emoji {
+  font-size: 1.6rem;
+}
+
+/* Sorting Zone */
+.prakriti-sorting-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 840px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border: 3px solid #E2E8F0;
+  border-radius: 28px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.sorting-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.sorting-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.sorting-counter-pill {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  color: #92400E;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 3px 12px;
+  border-radius: 999px;
+}
+
+.color-baskets-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.color-basket-slot {
+  background: #FFFDF5;
+  border: 3px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+}
+
+.color-basket-slot:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+}
+
+.basket-rim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  border-bottom: 3px dashed transparent;
+  padding-bottom: 4px;
+}
+
+.basket-flower-icon {
+  font-size: 1.8rem;
+  margin-bottom: 2px;
+}
+
+.basket-color-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.basket-subtitle {
+  font-size: 0.75rem;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.basket-count-badge {
+  margin-top: 4px;
+  background: #F1F5F9;
+  border: 1.5px solid #CBD5E1;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.basket-correct-pop {
+  animation: basket-snap-celebrate 0.5s ease-out;
+}
+
+@keyframes basket-snap-celebrate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.18); filter: drop-shadow(0 0 12px #22C55E); }
+  100% { transform: scale(1); }
+}
+
+.basket-shake {
+  animation: basket-wobble-friendly 0.5s ease-in-out;
+}
+
+@keyframes basket-wobble-friendly {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px) rotate(-3deg); }
+  75% { transform: translateX(6deg) rotate(3deg); }
+}
+
+/* Loose Flowers Meadow */
+.loose-flowers-meadow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  min-height: 60px;
+  padding: 6px;
+  background: #F8FAFC;
+  border: 2px dashed #CBD5E1;
+  border-radius: 18px;
+}
+
+.loose-flower-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 2.5px solid var(--flower-color, #F59E0B);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s;
+}
+
+.loose-flower-card:hover, .loose-flower-card:active {
+  transform: scale(1.12);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+
+.loose-flower-card.flower-selected {
+  transform: scale(1.18);
+  border-width: 3.5px;
+  box-shadow: 0 0 16px var(--flower-color, #F59E0B);
+  background: #FFFDF5;
+  animation: flower-selected-pulse 1s ease-in-out infinite;
+}
+
+@keyframes flower-selected-pulse {
+  0%, 100% { transform: scale(1.18); }
+  50% { transform: scale(1.24); }
+}
+
+.flower-icon {
+  font-size: 1.4rem;
+}
+
+.flower-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+/* ==================================================
+   GAME 10: DHYANA & PRANAYAMA (MINDFULNESS & EMOTIONS)
+   ================================================== */
+.game-dhyana {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  height: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+.dhyana-stage-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  width: 100%;
+  max-width: 720px;
+  margin: auto 0;
+}
+
+.dhyana-avatar-wrap {
+  position: relative;
+  background: radial-gradient(circle, #F8FAFC 0%, #EFF6FF 100%);
+  border: 4px solid #93C5FD;
+  border-radius: 36px;
+  padding: 16px 20px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  min-width: 190px;
+}
+
+.dhyana-avatar-wrap:active {
+  transform: scale(0.96);
+}
+
+.dhyana-krishna-svg {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dhyana-halo-ring {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--halo-color, #38BDF8) 0%, transparent 70%);
+  opacity: 0.45;
+  filter: blur(10px);
+  transition: background 0.4s ease, opacity 0.4s ease;
+}
+
+.aura-shanti {
+  border-color: #38BDF8;
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.35);
+}
+
+.aura-ananda {
+  border-color: #FBBF24;
+  box-shadow: 0 0 28px rgba(251, 191, 36, 0.35);
+}
+
+.aura-karuna {
+  border-color: #F472B6;
+  box-shadow: 0 0 28px rgba(244, 114, 182, 0.35);
+}
+
+.aura-vismaya {
+  border-color: #C084FC;
+  box-shadow: 0 0 28px rgba(192, 132, 252, 0.35);
+}
+
+.aura-dhairya {
+  border-color: #FB923C;
+  box-shadow: 0 0 28px rgba(251, 146, 60, 0.35);
+}
+
+.avatar-pulse {
+  animation: avatar-gentle-sway 0.8s ease-in-out;
+}
+
+@keyframes avatar-gentle-sway {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.emotion-ribbon-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.ribbon-icon {
+  font-size: 1.3rem;
+}
+
+.ribbon-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.ribbon-sutra {
+  font-size: 0.75rem;
+  color: #475569;
+  font-weight: 600;
+  max-width: 170px;
+  line-height: 1.2;
+}
+
+/* Breathing Lotus Rhythm Guide */
+.breathing-lotus-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 12px;
+}
+
+.breathing-lotus-visual {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1), filter 4s ease;
+}
+
+.lotus-expanding {
+  transform: scale(1.4);
+  filter: drop-shadow(0 0 24px #F472B6);
+}
+
+.lotus-holding {
+  transform: scale(1.35);
+  filter: drop-shadow(0 0 28px #FDE047);
+}
+
+.lotus-contracting {
+  transform: scale(0.85);
+  filter: drop-shadow(0 0 8px rgba(244, 114, 182, 0.2));
+}
+
+.lotus-tapped {
+  animation: lotus-tap-ring 0.6s ease-out;
+}
+
+@keyframes lotus-tap-ring {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.5); filter: drop-shadow(0 0 30px #FEF08A); }
+  100% { transform: scale(1.1); }
+}
+
+.breathing-cue-label {
+  margin-top: 10px;
+  background: #FFFDF0;
+  border: 2px solid #F472B6;
+  color: #9D174D;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(244, 114, 182, 0.15);
+  white-space: nowrap;
+}
+
+/* Navarasa Emotion Cards Tray */
+.navarasa-tray-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 820px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 3px solid #E2E8F0;
+  border-radius: 28px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.navarasa-header-bar {
+  margin-bottom: 8px;
+}
+
+.navarasa-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.navarasa-cards-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.navarasa-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 2.5px solid #CBD5E1;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s, box-shadow 0.15s;
+}
+
+.navarasa-card-btn:hover, .navarasa-card-btn:active {
+  transform: scale(1.08);
+  border-color: var(--emo-color, #38BDF8);
+}
+
+.navarasa-card-btn.active-emotion {
+  background: #FFFDF5;
+  border-color: var(--emo-color, #38BDF8);
+  border-width: 3px;
+  box-shadow: 0 0 16px var(--emo-color, #38BDF8);
+  transform: scale(1.12);
+}
+
+.emo-card-icon {
+  font-size: 1.3rem;
+}
+
+.emo-card-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+@media (max-width: 600px) {
+  .prakriti-sanctuary-zone {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .color-baskets-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dhyana-stage-center {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
 
 
 

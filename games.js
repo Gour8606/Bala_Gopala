@@ -2779,6 +2779,748 @@ class AksharaGame {
   }
 }
 
+// ==========================================
+// 9. PRAKRITI SEVA & MONTESSORI SENSORIAL SORTING
+// Vrikshayurveda Botanical Care & Color Sorting
+// ==========================================
+class PrakritiGame {
+  constructor(container) {
+    this.container = container;
+    this.selectedFlowerIndex = null;
+    this.sortedCount = 0;
+    this.totalToCollect = 8;
+    this.tulsiLoveScore = 0;
+    this.mashStep = 0;
+    this.petalShower = (typeof CelebrationPetalShower !== 'undefined') ? new CelebrationPetalShower() : null;
+
+    // 4 Montessori Color Categories
+    this.basketCategories = [
+      { id: 'rakta', colorName: { hi: 'रक्त (लाल)', en: 'Red (Rakta)' }, flower: { hi: 'गुलाब', en: 'Rose' }, hex: '#EF4444', icon: '🌹', basketClass: 'basket-red' },
+      { id: 'pita', colorName: { hi: 'पीत (पीला)', en: 'Yellow (Pita)' }, flower: { hi: 'गेंदा', en: 'Marigold' }, hex: '#F59E0B', icon: '🌼', basketClass: 'basket-yellow' },
+      { id: 'nila', colorName: { hi: 'नील (नीला)', en: 'Blue (Nila)' }, flower: { hi: 'नील कमल', en: 'Blue Lotus' }, hex: '#3B82F6', icon: '🪷', basketClass: 'basket-blue' },
+      { id: 'shveta', colorName: { hi: 'श्वेत (सफेद)', en: 'White (Shveta)' }, flower: { hi: 'मोगरा / चमेली', en: 'Jasmine' }, hex: '#F8FAFC', icon: '🤍', basketClass: 'basket-white' }
+    ];
+
+    this.activeFlowers = [];
+    this.initMeadowFlowers();
+  }
+
+  initMeadowFlowers() {
+    this.activeFlowers = [];
+    this.sortedCount = 0;
+    this.selectedFlowerIndex = null;
+
+    // 8 flowers in the meadow to sort (2 of each color)
+    for (let i = 0; i < 8; i++) {
+      const cat = this.basketCategories[i % 4];
+      this.activeFlowers.push({
+        id: 'flw-' + i + '-' + Math.floor(Math.random() * 10000),
+        categoryId: cat.id,
+        colorHex: cat.hex,
+        icon: cat.icon,
+        name: cat.flower,
+        colorName: cat.colorName,
+        sorted: false
+      });
+    }
+
+    // Montessori pseudo-random shuffle
+    for (let i = this.activeFlowers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = this.activeFlowers[i];
+      this.activeFlowers[i] = this.activeFlowers[j];
+      this.activeFlowers[j] = temp;
+    }
+  }
+
+  start() {
+    this.render();
+    this.bindPrakritiEvents();
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(880);
+      window.toddlerAudio.speak({
+        hi: "तुलसी सेवा और पुष्प रंग संगम! तुलसी जी को सींचें और रंगीन फूलों को टोकरी में रखें!",
+        en: "Prakriti Care! Water holy Tulsi and sort sacred flowers by color into matching baskets!"
+      });
+    }
+  }
+
+  stop() {
+    if (this.petalShower && typeof this.petalShower.cleanup === 'function') {
+      this.petalShower.cleanup();
+    }
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    this.container.innerHTML = `
+      <div class="game-stage-wrapper game-prakriti">
+        <!-- Top Banner: Sacred Tulsi Sanctuary & Practical Life Care -->
+        <section class="prakriti-sanctuary-zone">
+          <div class="tulsi-display-card" id="tulsi-card">
+            <div class="tulsi-aura-ring" id="tulsi-aura"></div>
+            <div class="tulsi-svg-wrap" id="tulsi-plant-box">
+              ${VedicAssets.tulsiPlant || ''}
+            </div>
+            <div class="tulsi-title-badge">
+              <span class="badge-icon">🌿</span>
+              <span class="badge-text">${lang === 'hi' ? 'पवित्र तुलसी मैया' : 'Holy Tulsi Sanctuary'}</span>
+            </div>
+          </div>
+
+          <!-- Practical Life Care Tools Tray -->
+          <div class="prakriti-tools-tray">
+            <button class="prakriti-tool-btn tool-water" id="prakriti-tool-water" title="Water Tulsi with Yamuna Pitcher">
+              <div class="tool-icon-svg">${VedicAssets.waterPitcher || '💧'}</div>
+              <span class="tool-label">${lang === 'hi' ? 'यमुना जल' : 'Yamuna Water'}</span>
+            </button>
+
+            <button class="prakriti-tool-btn tool-sun" id="prakriti-tool-sun" title="Offer Morning Sun Rays">
+              <span class="tool-emoji">☀️</span>
+              <span class="tool-label">${lang === 'hi' ? 'सूर्य प्रकाश' : 'Sunlight'}</span>
+            </button>
+
+            <button class="prakriti-tool-btn tool-diya" id="prakriti-tool-diya" title="Offer Sacred Ghee Diya">
+              <div class="tool-icon-svg">${VedicAssets.diya || '🪔'}</div>
+              <span class="tool-label">${lang === 'hi' ? 'दीप दर्शन' : 'Holy Diya'}</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Bottom Section: Montessori Sensorial 4-Color Flower Sorting -->
+        <section class="prakriti-sorting-zone">
+          <div class="sorting-header-bar">
+            <span class="sorting-title">🌸 ${lang === 'hi' ? 'पुष्प वर्ण संगम (Montessori Color Sorting)' : 'Sacred Flower Color Sorting'}</span>
+            <span class="sorting-counter-pill" id="flower-counter-pill">🧺 ${this.sortedCount} / ${this.totalToCollect}</span>
+          </div>
+
+          <!-- 4 Montessori Color Coded Baskets -->
+          <div class="color-baskets-grid">
+            ${this.basketCategories.map(b => {
+              const bName = b.colorName[lang] || b.colorName.en;
+              const fName = b.flower[lang] || b.flower.en;
+              const countInBasket = this.activeFlowers.filter(f => f.sorted && f.categoryId === b.id).length;
+              return `
+                <div class="color-basket-slot ${b.basketClass}" data-category="${b.id}" id="basket-${b.id}">
+                  <div class="basket-rim" style="border-color: ${b.hex};">
+                    <span class="basket-flower-icon">${b.icon}</span>
+                    <span class="basket-color-title" style="color: ${b.hex};">${bName}</span>
+                    <span class="basket-subtitle">${fName}</span>
+                    <span class="basket-count-badge">${countInBasket}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Loose Flowers in Meadow to Sort -->
+          <div class="loose-flowers-meadow" id="loose-flowers-container">
+            ${this.activeFlowers.map((flw, idx) => {
+              if (flw.sorted) return '';
+              const isSelected = (this.selectedFlowerIndex === idx);
+              const flwName = flw.name[lang] || flw.name.en;
+              return `
+                <button class="loose-flower-card ${isSelected ? 'flower-selected' : ''}"
+                        data-index="${idx}"
+                        id="flower-btn-${idx}"
+                        style="--flower-color: ${flw.colorHex};">
+                  <span class="flower-icon">${flw.icon}</span>
+                  <span class="flower-label">${flwName}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  bindPrakritiEvents() {
+    // 1. Tulsi Care Buttons
+    const btnWater = this.container.querySelector('#prakriti-tool-water');
+    if (btnWater) {
+      btnWater.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.nurtureTulsi('water');
+      });
+    }
+
+    const btnSun = this.container.querySelector('#prakriti-tool-sun');
+    if (btnSun) {
+      btnSun.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.nurtureTulsi('sun');
+      });
+    }
+
+    const btnDiya = this.container.querySelector('#prakriti-tool-diya');
+    if (btnDiya) {
+      btnDiya.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.nurtureTulsi('diya');
+      });
+    }
+
+    // Direct tap on Tulsi
+    const tulsiCard = this.container.querySelector('#tulsi-card');
+    if (tulsiCard) {
+      tulsiCard.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.nurtureTulsi('tap');
+      });
+    }
+
+    // 2. Loose Flowers Selection
+    const meadow = this.container.querySelector('#loose-flowers-container');
+    if (meadow) {
+      meadow.addEventListener('pointerdown', (e) => {
+        const flowerBtn = e.target.closest('.loose-flower-card');
+        if (!flowerBtn) return;
+        e.preventDefault();
+        const idx = parseInt(flowerBtn.dataset.index, 10);
+        this.selectFlower(idx);
+      });
+    }
+
+    // 3. Baskets Drop / Snap Target
+    const basketsGrid = this.container.querySelector('.color-baskets-grid');
+    if (basketsGrid) {
+      basketsGrid.addEventListener('pointerdown', (e) => {
+        const basketSlot = e.target.closest('.color-basket-slot');
+        if (!basketSlot) return;
+        e.preventDefault();
+        const categoryId = basketSlot.dataset.category;
+        this.sortIntoBasket(categoryId, basketSlot);
+      });
+    }
+  }
+
+  nurtureTulsi(action) {
+    const tulsiPlant = this.container.querySelector('#tulsi-plant-box');
+    const tulsiAura = this.container.querySelector('#tulsi-aura');
+
+    if (tulsiPlant) {
+      tulsiPlant.classList.remove('tulsi-swaying', 'tulsi-glowing-gold', 'tulsi-glowing-green');
+      void tulsiPlant.offsetWidth; // trigger reflow
+    }
+
+    if (action === 'water') {
+      if (tulsiPlant) tulsiPlant.classList.add('tulsi-swaying', 'tulsi-glowing-green');
+      if (window.toddlerAudio) {
+        if (typeof window.toddlerAudio.playYamunaStream === 'function') {
+          window.toddlerAudio.playYamunaStream();
+        } else {
+          window.toddlerAudio.playWaterSplash();
+        }
+        setTimeout(() => {
+          if (window.toddlerAudio) window.toddlerAudio.playGhungroo();
+        }, 300);
+        window.toddlerAudio.speak({
+          hi: "पवित्र यमुना जल! तुलसी मैया लहलहा उठीं!",
+          en: "Holy Yamuna water! Sacred Tulsi is lush and green!"
+        });
+      }
+    } else if (action === 'sun') {
+      if (tulsiPlant) tulsiPlant.classList.add('tulsi-glowing-gold');
+      if (tulsiAura) tulsiAura.classList.add('aura-radiant-sun');
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playTempleBell(1046.5);
+        window.toddlerAudio.speak({
+          hi: "सूर्य देव का आशीर्वाद! दिव्य प्रकाश!",
+          en: "Surya blessing! Golden warm sunshine!"
+        });
+      }
+      setTimeout(() => {
+        if (tulsiAura) tulsiAura.classList.remove('aura-radiant-sun');
+      }, 1200);
+    } else if (action === 'diya') {
+      if (tulsiPlant) tulsiPlant.classList.add('tulsi-swaying');
+      if (window.toddlerAudio) {
+        if (typeof window.toddlerAudio.playSingingBowl === 'function') {
+          window.toddlerAudio.playSingingBowl(528);
+        } else {
+          window.toddlerAudio.playAartiChimes();
+        }
+        window.toddlerAudio.speak({
+          hi: "शुभ दीप दर्शन! जय तुलसी महारानी!",
+          en: "Sacred Ghee lamp offering! Jai Tulsi Maharani!"
+        });
+      }
+    } else {
+      // Tap
+      if (tulsiPlant) tulsiPlant.classList.add('tulsi-swaying');
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playTempleBell(880);
+      }
+    }
+  }
+
+  selectFlower(idx) {
+    if (idx < 0 || idx >= this.activeFlowers.length) return;
+    const flw = this.activeFlowers[idx];
+    if (flw.sorted) return;
+
+    this.selectedFlowerIndex = idx;
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    // Highlight selected button
+    const allBtns = this.container.querySelectorAll('.loose-flower-card');
+    allBtns.forEach(btn => btn.classList.remove('flower-selected'));
+
+    const activeBtn = this.container.querySelector('#flower-btn-' + idx);
+    if (activeBtn) activeBtn.classList.add('flower-selected');
+
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playBansuri(523.25); // Sa
+      const flwName = flw.name[lang] || flw.name.en;
+      const cName = flw.colorName[lang] || flw.colorName.en;
+      window.toddlerAudio.speak(`${cName} ${flwName}`);
+    }
+  }
+
+  sortIntoBasket(categoryId, basketSlot) {
+    if (this.selectedFlowerIndex === null) {
+      // Prompt toddler to pick a flower first
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playTempleBell(659.25);
+        window.toddlerAudio.speak({
+          hi: "पहले नीचे से एक पुष्प चुनें!",
+          en: "Tap a flower first, then put it in the matching basket!"
+        });
+      }
+      return;
+    }
+
+    const flw = this.activeFlowers[this.selectedFlowerIndex];
+    if (!flw || flw.sorted) return;
+
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    if (flw.categoryId === categoryId) {
+      // Correct Montessori Match!
+      flw.sorted = true;
+      this.sortedCount++;
+      this.selectedFlowerIndex = null;
+
+      if (basketSlot) {
+        basketSlot.classList.add('basket-correct-pop');
+        setTimeout(() => basketSlot.classList.remove('basket-correct-pop'), 600);
+      }
+
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playTempleBell(1046.5);
+        if (typeof window.toddlerAudio.playAscendingPop === 'function') {
+          window.toddlerAudio.playAscendingPop(this.sortedCount);
+        }
+        const bCat = this.basketCategories.find(b => b.id === categoryId);
+        const bName = bCat ? (bCat.colorName[lang] || bCat.colorName.en) : '';
+        window.toddlerAudio.speak({
+          hi: `बहुत सुंदर! ${bName} टोकरी में!`,
+          en: `Splendid! Perfect match in ${bName} basket!`
+        });
+      }
+
+      // Check for completion
+      if (this.sortedCount >= this.totalToCollect) {
+        setTimeout(() => {
+          if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
+            this.petalShower.celebrate(this.container);
+          }
+          if (window.toddlerAudio) {
+            window.toddlerAudio.playCelebration();
+            window.toddlerAudio.speak({
+              hi: "अद्भुत! सब दिव्य पुष्प सज गए! कान्हा और प्रकृति प्रसन्न!",
+              en: "Wonderful! All sacred flowers gathered in harmony for Kanha!"
+            });
+          }
+          // Refresh flowers after celebration
+          setTimeout(() => {
+            this.initMeadowFlowers();
+            this.render();
+            this.bindPrakritiEvents();
+          }, 3600);
+        }, 400);
+      } else {
+        // Re-render meadow to update remaining items
+        this.render();
+        this.bindPrakritiEvents();
+      }
+    } else {
+      // Self-correcting Montessori feedback (No negative buzzer, gentle instructive chime)
+      if (basketSlot) {
+        basketSlot.classList.add('basket-shake');
+        setTimeout(() => basketSlot.classList.remove('basket-shake'), 600);
+      }
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playBansuri(329.63); // Gentle Ga
+        const targetCat = this.basketCategories.find(b => b.id === flw.categoryId);
+        const correctColor = targetCat ? (targetCat.colorName[lang] || targetCat.colorName.en) : '';
+        window.toddlerAudio.speak({
+          hi: `यह पुष्प ${correctColor} है! उस टोकरी में रखें!`,
+          en: `This flower belongs in the ${correctColor} basket!`
+        });
+      }
+    }
+  }
+
+  handleAnyKey(key) {
+    this.mashStep++;
+    // Alternates between nurturing Tulsi and automatically selecting/sorting flowers
+    if (this.mashStep % 2 === 1) {
+      const actions = ['water', 'sun', 'diya'];
+      const act = actions[(this.mashStep >> 1) % actions.length];
+      this.nurtureTulsi(act);
+    } else {
+      const unsortedIndices = [];
+      for (let i = 0; i < this.activeFlowers.length; i++) {
+        if (!this.activeFlowers[i].sorted) unsortedIndices.push(i);
+      }
+      if (unsortedIndices.length > 0) {
+        const nextIdx = unsortedIndices[0];
+        const flw = this.activeFlowers[nextIdx];
+        this.selectFlower(nextIdx);
+        setTimeout(() => {
+          const basketSlot = this.container.querySelector('#basket-' + flw.categoryId);
+          this.sortIntoBasket(flw.categoryId, basketSlot);
+        }, 300);
+      } else {
+        this.nurtureTulsi('water');
+      }
+    }
+  }
+}
+
+// ==========================================
+// 10. DHYANA & PRANAYAMA (MINDFULNESS & EMOTIONS)
+// Patanjali Breath Rhythm & Natya Shastra Navarasa
+// ==========================================
+class DhyanaGame {
+  constructor(container) {
+    this.container = container;
+    this.currentEmotionId = 'shanti';
+    this.breathCycleTimer = null;
+    this.breathState = 'in'; // 'in', 'hold', 'out'
+    this.mashCounter = 0;
+
+    // 5 Navarasa Sacred Emotions (Montessori / IB Early Childhood Social-Emotional Learning)
+    this.emotions = [
+      {
+        id: 'shanti',
+        icon: '🕊️',
+        title: { hi: 'शान्ति', en: 'Peace / Shanti' },
+        sutra: { hi: 'शान्त मन, निर्मल चित्त', en: 'Calm breath, quiet peaceful mind' },
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playSingingBowl === 'function') {
+              window.toddlerAudio.playSingingBowl(432);
+            } else {
+              window.toddlerAudio.playOmChant();
+            }
+          }
+        },
+        auraColor: '#38BDF8',
+        glowClass: 'aura-shanti'
+      },
+      {
+        id: 'ananda',
+        icon: '🌟',
+        title: { hi: 'आनन्द', en: 'Joy / Ananda' },
+        sutra: { hi: 'कान्हा की मुस्कान और हर्ष', en: 'Joyful happiness and sweet laughter' },
+        sound: () => {
+          if (window.toddlerAudio) {
+            window.toddlerAudio.playBabyGiggle();
+            setTimeout(() => {
+              if (window.toddlerAudio) window.toddlerAudio.playDivineFlutePhrase();
+            }, 300);
+          }
+        },
+        auraColor: '#FBBF24',
+        glowClass: 'aura-ananda'
+      },
+      {
+        id: 'karuna',
+        icon: '💖',
+        title: { hi: 'करुणा व प्रेम', en: 'Love & Compassion' },
+        sutra: { hi: 'गऊ माता और बछड़े का दुलार', en: 'Gentle loving care for cow, calf and all life' },
+        sound: () => {
+          if (window.toddlerAudio) {
+            window.toddlerAudio.playCalfMoo();
+            setTimeout(() => {
+              if (window.toddlerAudio) window.toddlerAudio.playTempleBell(1046.5);
+            }, 300);
+          }
+        },
+        auraColor: '#F472B6',
+        glowClass: 'aura-karuna'
+      },
+      {
+        id: 'vismaya',
+        icon: '😲',
+        title: { hi: 'विस्मय', en: 'Wonder & Awe' },
+        sutra: { hi: 'मुख में ब्रह्माण्ड दर्शन!', en: 'Wonder of seeing the sparkling cosmos' },
+        sound: () => {
+          if (window.toddlerAudio) window.toddlerAudio.playAartiChimes();
+        },
+        auraColor: '#A855F7',
+        glowClass: 'aura-vismaya'
+      },
+      {
+        id: 'dhairya',
+        icon: '🦁',
+        title: { hi: 'धैर्य व शौर्य', en: 'Courage / Dhairya' },
+        sutra: { hi: 'निडर बाल कान्हा', en: 'Brave, courageous and loving protector' },
+        sound: () => {
+          if (window.toddlerAudio) {
+            window.toddlerAudio.playShankha();
+            setTimeout(() => {
+              if (window.toddlerAudio) window.toddlerAudio.playDamru();
+            }, 400);
+          }
+        },
+        auraColor: '#EA580C',
+        glowClass: 'aura-dhairya'
+      }
+    ];
+  }
+
+  start() {
+    this.render();
+    this.bindDhyanaEvents();
+    this.startBreathingEngine();
+
+    if (window.toddlerAudio) {
+      if (typeof window.toddlerAudio.playOmChant === 'function') {
+        window.toddlerAudio.playOmChant();
+      } else {
+        window.toddlerAudio.playTempleBell(880);
+      }
+      window.toddlerAudio.speak({
+        hi: "ध्यान और शांत श्वास! कमल के साथ गहरी सांस लें और भावनाएं पहचानें!",
+        en: "Mindfulness and Deep Breath! Breathe gently with the lotus and explore sacred emotions!"
+      });
+    }
+  }
+
+  stop() {
+    if (this.breathCycleTimer) {
+      clearInterval(this.breathCycleTimer);
+      this.breathCycleTimer = null;
+    }
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const activeEmotion = this.emotions.find(e => e.id === this.currentEmotionId) || this.emotions[0];
+    const emoTitle = activeEmotion.title[lang] || activeEmotion.title.en;
+    const emoSutra = activeEmotion.sutra[lang] || activeEmotion.sutra.en;
+
+    this.container.innerHTML = `
+      <div class="game-stage-wrapper game-dhyana">
+        <!-- Main Mindfulness Stage -->
+        <section class="dhyana-stage-center">
+          <!-- Mindful Krishna Meditation Seat with Emotion Aura Halo -->
+          <div class="dhyana-avatar-wrap ${activeEmotion.glowClass}" id="dhyana-avatar-card">
+            <div class="dhyana-halo-ring" id="dhyana-halo" style="--halo-color: ${activeEmotion.auraColor};"></div>
+            <div class="dhyana-krishna-svg">
+              ${VedicAssets.mindfulKrishna || ''}
+            </div>
+            <!-- Emotion Ribbon Banner -->
+            <div class="emotion-ribbon-badge" id="emotion-ribbon-badge">
+              <span class="ribbon-icon">${activeEmotion.icon}</span>
+              <span class="ribbon-text">${emoTitle}</span>
+              <span class="ribbon-sutra">${emoSutra}</span>
+            </div>
+          </div>
+
+          <!-- Pranayama Breathing Lotus Rhythm Guide -->
+          <div class="breathing-lotus-wrap" id="breathing-lotus-wrap" title="Tap to chant Om">
+            <div class="breathing-lotus-visual lotus-expanding" id="breathing-lotus">
+              ${VedicAssets.kamal || '🪷'}
+            </div>
+            <div class="breathing-cue-label" id="breathing-cue-label">
+              ${lang === 'hi' ? 'श्वास लें (Inhale) 🌸' : 'Breathe In 🌸'}
+            </div>
+          </div>
+        </section>
+
+        <!-- Bottom Emotional Literacy Cards Tray (IB PYP "Who We Are") -->
+        <section class="navarasa-tray-zone">
+          <div class="navarasa-header-bar">
+            <span class="navarasa-title">🕊️ ${lang === 'hi' ? 'नवरस भाव बोध (Emotional Literacy)' : 'Sacred Feelings & Emotional Literacy'}</span>
+          </div>
+          <div class="navarasa-cards-tray">
+            ${this.emotions.map(emo => {
+              const isActive = (emo.id === this.currentEmotionId);
+              const title = emo.title[lang] || emo.title.en;
+              return `
+                <button class="navarasa-card-btn ${isActive ? 'active-emotion' : ''}"
+                        data-emotion="${emo.id}"
+                        id="emo-btn-${emo.id}"
+                        style="--emo-color: ${emo.auraColor};">
+                  <span class="emo-card-icon">${emo.icon}</span>
+                  <span class="emo-card-title">${title}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  bindDhyanaEvents() {
+    // 1. Emotion Cards Click/Tap
+    const tray = this.container.querySelector('.navarasa-cards-tray');
+    if (tray) {
+      tray.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('.navarasa-card-btn');
+        if (!btn) return;
+        e.preventDefault();
+        const emoId = btn.dataset.emotion;
+        this.selectEmotion(emoId);
+      });
+    }
+
+    // 2. Breathing Lotus Tap -> Om Chant
+    const lotusWrap = this.container.querySelector('#breathing-lotus-wrap');
+    if (lotusWrap) {
+      lotusWrap.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        lotusWrap.classList.add('lotus-tapped');
+        setTimeout(() => lotusWrap.classList.remove('lotus-tapped'), 800);
+        if (window.toddlerAudio) {
+          if (typeof window.toddlerAudio.playOmChant === 'function') {
+            window.toddlerAudio.playOmChant();
+          } else {
+            window.toddlerAudio.playTempleBell(880);
+          }
+        }
+      });
+    }
+
+    // 3. Krishna Avatar Tap -> Shanti Mode / Flute
+    const avatarCard = this.container.querySelector('#dhyana-avatar-card');
+    if (avatarCard) {
+      avatarCard.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        avatarCard.classList.add('avatar-pulse');
+        setTimeout(() => avatarCard.classList.remove('avatar-pulse'), 800);
+        if (window.toddlerAudio) {
+          window.toddlerAudio.playBansuri(523.25);
+          setTimeout(() => {
+            if (window.toddlerAudio) window.toddlerAudio.playGhungroo();
+          }, 300);
+        }
+      });
+    }
+  }
+
+  selectEmotion(emoId) {
+    const emo = this.emotions.find(e => e.id === emoId);
+    if (!emo) return;
+    this.currentEmotionId = emoId;
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    // Update active state on emotion buttons
+    const allBtns = this.container.querySelectorAll('.navarasa-card-btn');
+    allBtns.forEach(btn => btn.classList.remove('active-emotion'));
+
+    const activeBtn = this.container.querySelector('#emo-btn-' + emoId);
+    if (activeBtn) activeBtn.classList.add('active-emotion');
+
+    // Update avatar aura & ribbon badge
+    const avatarCard = this.container.querySelector('#dhyana-avatar-card');
+    if (avatarCard) {
+      this.emotions.forEach(e => avatarCard.classList.remove(e.glowClass));
+      avatarCard.classList.add(emo.glowClass);
+    }
+
+    const halo = this.container.querySelector('#dhyana-halo');
+    if (halo) halo.style.setProperty('--halo-color', emo.auraColor);
+
+    const ribbon = this.container.querySelector('#emotion-ribbon-badge');
+    if (ribbon) {
+      const title = emo.title[lang] || emo.title.en;
+      const sutra = emo.sutra[lang] || emo.sutra.en;
+      ribbon.innerHTML = `
+        <span class="ribbon-icon">${emo.icon}</span>
+        <span class="ribbon-text">${title}</span>
+        <span class="ribbon-sutra">${sutra}</span>
+      `;
+    }
+
+    // Play emotion sound & bilingual guidance
+    if (typeof emo.sound === 'function') emo.sound();
+
+    if (window.toddlerAudio) {
+      const phrase = {
+        hi: `${emo.title.hi}! ${emo.sutra.hi}`,
+        en: `${emo.title.en}! ${emo.sutra.en}`
+      };
+      window.toddlerAudio.speak(phrase);
+    }
+  }
+
+  startBreathingEngine() {
+    if (this.breathCycleTimer) clearInterval(this.breathCycleTimer);
+
+    let phaseIndex = 0;
+    // 3 Phases: Inhale (4s), Hold (2s), Exhale (4s) -> Total 10s cycle
+    const phases = [
+      { name: 'in', dur: 4000, label: { hi: 'श्वास लें (Inhale) 🌸', en: 'Breathe In 🌸' }, css: 'lotus-expanding' },
+      { name: 'hold', dur: 2000, label: { hi: 'विश्राम (Gentle Pause) ✨', en: 'Gentle Pause ✨' }, css: 'lotus-holding' },
+      { name: 'out', dur: 4000, label: { hi: 'श्वास छोड़ें (Exhale) 🍃', en: 'Breathe Out 🍃' }, css: 'lotus-contracting' }
+    ];
+
+    const applyPhase = (p) => {
+      this.breathState = p.name;
+      const lotus = this.container.querySelector('#breathing-lotus');
+      const cue = this.container.querySelector('#breathing-cue-label');
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+      if (lotus) {
+        lotus.classList.remove('lotus-expanding', 'lotus-holding', 'lotus-contracting');
+        lotus.classList.add(p.css);
+      }
+
+      if (cue) {
+        cue.textContent = p.label[lang] || p.label.en;
+      }
+
+      // Subtle soft audio cue on breath phase
+      if (window.toddlerAudio && !window.toddlerAudio.isMuted) {
+        if (p.name === 'in') {
+          window.toddlerAudio.playBansuri(392.0); // Gentle Pa
+        } else if (p.name === 'out') {
+          if (typeof window.toddlerAudio.playSingingBowl === 'function') {
+            window.toddlerAudio.playSingingBowl(324);
+          }
+        }
+      }
+    };
+
+    const runNext = () => {
+      const cur = phases[phaseIndex];
+      applyPhase(cur);
+      phaseIndex = (phaseIndex + 1) % phases.length;
+      this.breathCycleTimer = setTimeout(runNext, cur.dur);
+    };
+
+    runNext();
+  }
+
+  handleAnyKey(key) {
+    this.mashCounter++;
+    // Cycle to next emotion
+    const nextIdx = this.mashCounter % this.emotions.length;
+    const nextEmotion = this.emotions[nextIdx];
+    this.selectEmotion(nextEmotion.id);
+  }
+}
+
 // Global Exports
 if (typeof window !== 'undefined') {
   window.BubbleGame = BubbleGame;
@@ -2789,6 +3531,8 @@ if (typeof window !== 'undefined') {
   window.SparkleCanvasGame = SparkleCanvasGame;
   window.ShringarGame = ShringarGame;
   window.AksharaGame = AksharaGame;
+  window.PrakritiGame = PrakritiGame;
+  window.DhyanaGame = DhyanaGame;
   window.CelebrationPetalShower = CelebrationPetalShower;
 }
 
@@ -2802,6 +3546,8 @@ if (typeof module !== 'undefined' && module.exports) {
     SparkleCanvasGame,
     ShringarGame,
     AksharaGame,
+    PrakritiGame,
+    DhyanaGame,
     CelebrationPetalShower,
     ToddlerPersistence,
     ElementPool

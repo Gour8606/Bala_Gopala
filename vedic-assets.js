@@ -733,6 +733,118 @@ VedicAssets.krishnaShringarAvatar = `
   </svg>
 `;
 
+// Sacred Vrindavan Tulsi Plant with Altar Pot
+VedicAssets.tulsiPlant = `
+    <svg viewBox="0 0 120 120" class="toddler-svg vedic-tulsi-pot">
+      <defs>
+        <linearGradient id="tulsiPotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F59E0B"/>
+          <stop offset="50%" stop-color="#D97706"/>
+          <stop offset="100%" stop-color="#92400E"/>
+        </linearGradient>
+      </defs>
+      <!-- Sacred Altar Pot (Tulsi Chaura / Vrindavan Pot) -->
+      <path d="M 38 68 L 82 68 L 74 105 L 46 105 Z" fill="url(#tulsiPotGrad)" stroke="#78350F" stroke-width="2"/>
+      <rect x="34" y="62" width="52" height="8" rx="3" fill="#FBBF24" stroke="#92400E" stroke-width="1.5"/>
+      <!-- Sacred Om on Pot -->
+      <text x="60" y="90" font-size="14" font-weight="bold" fill="#FEF08A" text-anchor="middle" font-family="sans-serif">ॐ</text>
+      <!-- Holy Stem & Branches -->
+      <path d="M 60 62 Q 58 40 60 25" stroke="#166534" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 60 48 Q 45 42 38 35" stroke="#166534" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 60 44 Q 75 38 82 30" stroke="#166534" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 60 32 Q 48 24 45 15" stroke="#166534" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M 60 30 Q 72 20 75 12" stroke="#166534" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Manjari & Leaves -->
+      <ellipse cx="60" cy="18" rx="6" ry="10" fill="#15803D"/>
+      <ellipse cx="36" cy="32" rx="7" ry="5" fill="#16A34A" transform="rotate(-25 36 32)"/>
+      <ellipse cx="84" cy="28" rx="7" ry="5" fill="#16A34A" transform="rotate(25 84 28)"/>
+      <ellipse cx="44" cy="14" rx="6" ry="4" fill="#22C55E" transform="rotate(-35 44 14)"/>
+      <ellipse cx="76" cy="10" rx="6" ry="4" fill="#22C55E" transform="rotate(35 76 10)"/>
+      <ellipse cx="50" cy="38" rx="6" ry="4.5" fill="#15803D" transform="rotate(-15 50 38)"/>
+      <ellipse cx="70" cy="35" rx="6" ry="4.5" fill="#15803D" transform="rotate(15 70 35)"/>
+      <!-- Manjari Spikes -->
+      <circle cx="60" cy="10" r="2.5" fill="#A855F7"/>
+      <circle cx="60" cy="6" r="2" fill="#C084FC"/>
+    </svg>
+`;
+
+// Sacred Water Pitcher (Kamandalu / Jhari)
+VedicAssets.waterPitcher = `
+    <svg viewBox="0 0 100 100" class="toddler-svg vedic-pitcher">
+      <defs>
+        <linearGradient id="brassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FEF08A"/>
+          <stop offset="50%" stop-color="#F59E0B"/>
+          <stop offset="100%" stop-color="#B45309"/>
+        </linearGradient>
+      </defs>
+      <!-- Pitcher Body (Kamandalu / Jhari) -->
+      <circle cx="50" cy="60" r="24" fill="url(#brassGrad)" stroke="#78350F" stroke-width="2"/>
+      <!-- Spout -->
+      <path d="M 68 52 Q 86 44 88 32 L 82 32 Q 74 42 64 48 Z" fill="url(#brassGrad)" stroke="#78350F" stroke-width="1.5"/>
+      <!-- Neck & Rim -->
+      <rect x="42" y="24" width="16" height="15" rx="2" fill="url(#brassGrad)" stroke="#78350F" stroke-width="1.5"/>
+      <ellipse cx="50" cy="24" rx="12" ry="4" fill="#FDE68A" stroke="#78350F" stroke-width="1.5"/>
+      <!-- Handle -->
+      <path d="M 32 46 Q 16 54 28 72 Q 32 75 36 72" fill="none" stroke="#B45309" stroke-width="5" stroke-linecap="round"/>
+      <!-- Water Droplets Sprouting -->
+      <ellipse cx="90" cy="28" rx="2.5" ry="4" fill="#38BDF8"/>
+      <ellipse cx="94" cy="36" rx="2" ry="3.5" fill="#38BDF8"/>
+    </svg>
+`;
+
+// Mindful Seated Bala Krishna in Dhyana Mudra with Golden Prana Aura
+VedicAssets.mindfulKrishna = `
+    <svg viewBox="0 0 140 140" class="toddler-svg vedic-mindful-krishna">
+      <defs>
+        <radialGradient id="auraGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#F59E0B" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="mkSkin" cx="45%" cy="40%" r="55%">
+          <stop offset="0%" stop-color="#A5F3FC"/>
+          <stop offset="55%" stop-color="#38BDF8"/>
+          <stop offset="100%" stop-color="#0284C7"/>
+        </radialGradient>
+      </defs>
+      <!-- Golden Prana Aura -->
+      <circle cx="70" cy="70" r="60" fill="url(#auraGlow)"/>
+      <!-- Topknot Juda & Mor Pankh -->
+      <g transform="translate(80, 18) rotate(22)">
+        <path d="M 0 35 C -15 25 -18 5 0 0 C 18 5 15 25 0 35 Z" fill="#059669" stroke="#10B981" stroke-width="1.5"/>
+        <ellipse cx="0" cy="14" rx="4" ry="6" fill="#38BDF8"/>
+        <circle cx="0" cy="14" r="2.5" fill="#F59E0B"/>
+      </g>
+      <circle cx="70" cy="38" r="14" fill="#0F172A"/>
+      <circle cx="70" cy="30" r="3" fill="#FEF08A"/>
+      <!-- Head -->
+      <ellipse cx="70" cy="62" rx="32" ry="28" fill="url(#mkSkin)"/>
+      <!-- Curly Locks -->
+      <path d="M 40 54 C 34 65 36 78 44 76" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 100 54 C 106 65 104 78 96 76" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round"/>
+      <!-- Kasturi Tilak -->
+      <path d="M 66 46 L 74 46 L 72 56 C 70 58 68 58 68 56 Z" fill="#FEF08A"/>
+      <line x1="70" y1="48" x2="70" y2="55" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- Peaceful Meditating Closed Eyes -->
+      <path d="M 52 64 Q 60 70 66 64" fill="none" stroke="#0F172A" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 74 64 Q 80 70 88 64" fill="none" stroke="#0F172A" stroke-width="3" stroke-linecap="round"/>
+      <!-- Peaceful Gentle Smile -->
+      <path d="M 63 76 Q 70 82 77 76" fill="none" stroke="#BE123C" stroke-width="3" stroke-linecap="round"/>
+      <!-- Cheeks -->
+      <ellipse cx="50" cy="72" rx="6" ry="4" fill="#F472B6" opacity="0.6"/>
+      <ellipse cx="90" cy="72" rx="6" ry="4" fill="#F472B6" opacity="0.6"/>
+      <!-- Crossed Lotus Legs & Hands in Chin-Mudra -->
+      <ellipse cx="70" cy="115" rx="42" ry="16" fill="#FBBF24" stroke="#D97706" stroke-width="2"/>
+      <ellipse cx="70" cy="100" rx="24" ry="18" fill="url(#mkSkin)"/>
+      <!-- Chin Mudra Hands -->
+      <circle cx="52" cy="104" r="6" fill="#38BDF8"/>
+      <circle cx="88" cy="104" r="6" fill="#38BDF8"/>
+      <!-- Pearl Mala -->
+      <path d="M 54 88 Q 70 102 86 88" stroke="#FEF9C3" stroke-width="3.5" stroke-dasharray="2,5" fill="none" stroke-linecap="round"/>
+    </svg>
+  `;
+
 // Attach to window object for global access across scripts
 if (typeof window !== 'undefined') {
   window.VedicAssets = VedicAssets;

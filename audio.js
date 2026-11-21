@@ -1257,6 +1257,39 @@ class ToddlerAudio {
     });
   }
 
+  // 17g. Sacred Tibetan / Vedic Singing Bowl (432Hz Rich Harmonic Resonance)
+  playSingingBowl(freq = 432) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(30);
+    const t = this.ctx.currentTime;
+    const dur = 3.2;
+
+    // Bronze singing bowl harmonic overtone series (non-integer partials)
+    const partials = [
+      { ratio: 1.0, gain: 0.35, decay: 3.2 },
+      { ratio: 2.76, gain: 0.18, decay: 2.6 },
+      { ratio: 5.40, gain: 0.08, decay: 1.8 },
+      { ratio: 8.92, gain: 0.03, decay: 1.2 }
+    ];
+
+    partials.forEach(p => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq * p.ratio, t);
+
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(p.gain, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + p.decay);
+
+      osc.connect(gain);
+      gain.connect(this.getDestination());
+      osc.start(t);
+      osc.stop(t + p.decay + 0.05);
+    });
+  }
+
   // 18. Meditative Tanpura Drone (432Hz Sa-Pa)
   startTanpuraDrone() {
     if (this.isMuted || !this.ctx) return;

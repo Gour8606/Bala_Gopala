@@ -45,7 +45,9 @@ class ToddlerApp {
       shapes: ShapeMatchGame,
       sparkles: SparkleCanvasGame,
       shringar: ShringarGame,
-      akshara: AksharaGame
+      akshara: AksharaGame,
+      prakriti: PrakritiGame,
+      dhyana: DhyanaGame
     };
 
     // Commercial Memory Object Pools (Zero runtime GC stutter)
@@ -458,7 +460,9 @@ class ToddlerApp {
       shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana' },
       sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli' },
       shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' },
-      akshara: { hi: 'दिव्य अक्षर', en: 'Akshara' }
+      akshara: { hi: 'दिव्य अक्षर', en: 'Akshara' },
+      prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care' },
+      dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness' }
     };
 
     if (this.tabs) {
@@ -538,6 +542,8 @@ class ToddlerApp {
         if (e.key === '6') { this.switchGame('sparkles'); return; }
         if (e.key === '7') { this.switchGame('shringar'); return; }
         if (e.key === '8') { this.switchGame('akshara'); return; }
+        if (e.key === '9') { this.switchGame('prakriti'); return; }
+        if (e.key === '0') { this.switchGame('dhyana'); return; }
       }
 
       this.mashCount++;
@@ -548,8 +554,8 @@ class ToddlerApp {
         this.showKeyboardRipple(e.key);
       }
 
-      // Every 5th key mash, play a delightful surprise animal vocalization (except in Akshara game so phonics & chants stay crystal clear)
-      if (this.mashCount % 5 === 0 && this.currentGameKey !== 'akshara') {
+      // Every 5th key mash, play a delightful surprise animal vocalization (except in Akshara/Dhyana so phonics & mindfulness stay tranquil)
+      if (this.mashCount % 5 === 0 && this.currentGameKey !== 'akshara' && this.currentGameKey !== 'dhyana') {
         const surpriseSounds = [
           () => window.toddlerAudio.playCowMoo(),
           () => window.toddlerAudio.playCalfMoo(),
@@ -672,7 +678,9 @@ class ToddlerApp {
       shapes: { hi: "पुष्पार्चना! कान्हा को पुष्प अर्पित करें!", en: "Pushparchana! Offer sacred flowers to Kanha!" },
       sparkles: { hi: "दीपक ज्योति से दिव्य रंगोली बनाएं!", en: "Draw with glowing Divya Rangoli!" },
       shringar: { hi: "कान्हा श्रृंगार और माखन सेवा! बाल गोपाला को सजाएं!", en: "Kanha Shringar! Adorn little Krishna with love!" },
-      akshara: { hi: "दिव्य अक्षर और प्राकृत स्वर! कोई भी कुंजी दबाएं!", en: "Alphabet & Phonics! Press any letter key or tap to hear it speak!" }
+      akshara: { hi: "दिव्य अक्षर और प्राकृत स्वर! कोई भी कुंजी दबाएं!", en: "Alphabet & Phonics! Press any letter key or tap to hear it speak!" },
+      prakriti: { hi: "प्रकृति सेवा और पुष्प संगम! तुलसी मैया की सेवा करें!", en: "Prakriti Care & Nature Harmony! Nurture holy Tulsi and sort sacred flowers!" },
+      dhyana: { hi: "ध्यान, प्राणायाम व नवरस! शांत मन और गहरी श्वास!", en: "Mindfulness, Pranayama & Emotions! Breathe deeply and find inner calm!" }
     };
 
     setTimeout(() => {
