@@ -132,6 +132,9 @@ assert(gamesCode.includes('class ElementPool'), 'games.js defines ElementPool fo
 assert(gamesCode.includes('ToddlerPersistence'), 'games.js defines ToddlerPersistence for toy-box state saving');
 assert(gamesCode.includes('magnetic-active'), 'games.js implements magnetic-active proximity snapping');
 assert(gamesCode.includes('shringar-reset-btn'), 'games.js implements Kanha fresh Snana reset action');
+assert(gamesCode.includes('class CelebrationPetalShower'), 'games.js defines CelebrationPetalShower for celebration particle cascade');
+assert(gamesCode.includes('numbersList ='), 'games.js AksharaGame defines numbersList for 1-10 counting phonics');
+assert(gamesCode.includes('playLetterChantOrSound('), 'games.js AksharaGame implements playLetterChantOrSound for authentic letter sounds');
 
 // Test ElementPool unit functionality
 try {
@@ -159,7 +162,12 @@ assert(audioCode.includes('playKadambaBreeze()'), 'audio.js implements playKadam
 assert(audioCode.includes('playMonsoonRain()'), 'audio.js implements playMonsoonRain() procedural rain sound');
 assert(audioCode.includes('playNightCrickets()'), 'audio.js implements playNightCrickets() procedural crickets sound');
 assert(audioCode.includes('playForestBirdsChirp()'), 'audio.js implements playForestBirdsChirp() procedural birds sound');
+assert(audioCode.includes('playOmChant()'), 'audio.js implements playOmChant() sacred 136.1Hz meditative vocal drone');
+assert(audioCode.includes('stopAllSounds()'), 'audio.js implements stopAllSounds() panic stop for stuck drones');
 assert(audioCode.includes('speakLetter('), 'audio.js implements speakLetter() phonics letter speaker');
+assert(audioCode.includes('speakNumber('), 'audio.js implements speakNumber() phonics counting speaker');
+assert(audioCode.includes('registerVoice('), 'audio.js implements registerVoice() soft priority voice-stealing DSP');
+assert(audioCode.includes('triggerHaptic('), 'audio.js implements triggerHaptic() multi-tier vibration engine');
 assert(!/\?\./.test(audioCode), 'audio.js is free of optional chaining (?.)');
 assert(!/\?\?/.test(audioCode), 'audio.js is free of nullish coalescing (??)');
 
@@ -170,6 +178,7 @@ assert(appCode.includes('updateLanguageUI()'), 'app.js implements updateLanguage
 assert(appCode.includes('getGameFromHash()'), 'app.js implements getGameFromHash() for PWA shortcut deep-links');
 assert(appCode.includes('restoreSavedPreferences()'), 'app.js implements restoreSavedPreferences() for session state');
 assert(appCode.includes('this.footprintPool'), 'app.js uses memory pool for Kanha ghungroo footprints');
+assert(appCode.includes('class ToddlerInputFilter'), 'app.js defines ToddlerInputFilter for palm-slap rejection');
 assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');
 assert(!/\?\?/.test(appCode), 'app.js is free of nullish coalescing (??)');
 

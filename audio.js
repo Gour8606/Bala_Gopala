@@ -19,6 +19,8 @@ class ToddlerAudio {
     this.isTanpuraPlaying = false;
     this.scaleMode = 'bhupali';
     this.cachedVoices = [];
+    this.activeVoices = [];
+    this.maxVoices = 24; // Polyphony ceiling to avoid CPU spikes during simultaneous toddler mashing
     this.initAudioContext();
     this.initSpeechVoices();
     this.bindLifecycleListeners();
@@ -113,6 +115,52 @@ class ToddlerAudio {
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try { navigator.vibrate(pattern); } catch (e) {}
     }
+  }
+
+  // Commercial Haptic Feedback Engine (Zero crash on unsupported devices)
+  triggerHaptic(type = 'light') {
+    if (typeof navigator === 'undefined' || !('vibrate' in navigator)) return;
+    try {
+      if (type === 'light') {
+        navigator.vibrate(15);
+      } else if (type === 'medium') {
+        navigator.vibrate(28);
+      } else if (type === 'heavy') {
+        navigator.vibrate(48);
+      } else if (type === 'celebration') {
+        navigator.vibrate([30, 40, 30, 40, 75]);
+      } else if (typeof type === 'number' || Array.isArray(type)) {
+        navigator.vibrate(type);
+      }
+    } catch (e) {}
+  }
+
+  // Commercial Voice Allocation & Priority Stealing (DSP protection against audio buffer saturation)
+  registerVoice(gainNode, priority = 5, duration = 1.0) {
+    if (!gainNode || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    
+    // Purge expired voices
+    this.activeVoices = this.activeVoices.filter(v => (now - v.startTime) < (v.duration + 0.05));
+
+    // If polyphony exceeds maximum limit, gracefully voice-steal the lowest priority voice
+    if (this.activeVoices.length >= this.maxVoices) {
+      this.activeVoices.sort((a, b) => a.priority - b.priority);
+      const victim = this.activeVoices.shift();
+      if (victim && victim.gainNode && victim.gainNode.gain) {
+        try {
+          victim.gainNode.gain.cancelScheduledValues(now);
+          victim.gainNode.gain.linearRampToValueAtTime(0.0001, now + 0.025);
+        } catch (e) {}
+      }
+    }
+
+    this.activeVoices.push({
+      gainNode: gainNode,
+      priority: priority,
+      startTime: now,
+      duration: duration
+    });
   }
 
   // Pure Yamuna Water Splash (Snana & Jal Khela)
@@ -1175,9 +1223,44 @@ class ToddlerAudio {
     });
   }
 
+  // 17f. Sacred Meditative Om Chant (AUM at 136.1Hz Vedic Frequency)
+  playOmChant() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+    const dur = 2.4;
+    const fundamental = 136.1; // Sacred Om resonance (Sadja frequency)
+
+    const partials = [
+      { f: fundamental, g: 0.36, type: 'sine' },
+      { f: fundamental * 2, g: 0.18, type: 'sine' },
+      { f: fundamental * 3, g: 0.09, type: 'triangle' },
+      { f: fundamental * 4, g: 0.04, type: 'sine' }
+    ];
+
+    partials.forEach(p => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = p.type;
+      osc.frequency.setValueAtTime(p.f, t);
+
+      // Warm vocal AUM swell and gentle peaceful resonance decay
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(p.g, t + 0.45);
+      gain.gain.setValueAtTime(p.g * 0.88, t + 1.2);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+      osc.connect(gain);
+      gain.connect(this.getDestination());
+      osc.start(t);
+      osc.stop(t + dur);
+    });
+  }
+
   // 18. Meditative Tanpura Drone (432Hz Sa-Pa)
   startTanpuraDrone() {
-    if (this.isMuted || !this.ctx || this.isTanpuraPlaying) return;
+    if (this.isMuted || !this.ctx) return;
+    this.stopTanpuraDrone(true); // Stop any prior drone immediately
     this.ensureContext();
 
     const t = this.ctx.currentTime;
@@ -1185,7 +1268,7 @@ class ToddlerAudio {
 
     this.tanpuraGain = this.ctx.createGain();
     this.tanpuraGain.gain.setValueAtTime(0.01, t);
-    this.tanpuraGain.gain.linearRampToValueAtTime(0.12, t + 2.0);
+    this.tanpuraGain.gain.linearRampToValueAtTime(0.12, t + 1.2);
     this.tanpuraGain.connect(this.getDestination());
 
     this.tanpuraOscs = notes.map((f, i) => {
@@ -1206,53 +1289,117 @@ class ToddlerAudio {
     this.isTanpuraPlaying = true;
   }
 
-  stopTanpuraDrone() {
-    if (!this.isTanpuraPlaying || !this.tanpuraGain) return;
-    const t = this.ctx.currentTime;
-    this.tanpuraGain.gain.linearRampToValueAtTime(0.001, t + 1.0);
-    setTimeout(() => {
-      if (this.tanpuraOscs) {
-        this.tanpuraOscs.forEach(o => { try { o.stop(); } catch(e){} });
-        this.tanpuraOscs = null;
-      }
-      this.isTanpuraPlaying = false;
-    }, 1100);
+  stopTanpuraDrone(immediate = false) {
+    if (this.tanpuraGain && this.ctx) {
+      try {
+        const t = this.ctx.currentTime;
+        this.tanpuraGain.gain.cancelScheduledValues(t);
+        if (immediate) {
+          this.tanpuraGain.gain.setValueAtTime(0.0001, t);
+        } else {
+          this.tanpuraGain.gain.linearRampToValueAtTime(0.0001, t + 0.15);
+        }
+      } catch (e) {}
+    }
+
+    if (this.tanpuraOscs) {
+      this.tanpuraOscs.forEach(o => {
+        try {
+          o.stop();
+          o.disconnect();
+        } catch (e) {}
+      });
+      this.tanpuraOscs = null;
+    }
+    this.isTanpuraPlaying = false;
   }
 
-  // 18. Bilingual Speech Synthesizer
-  speak(textObject) {
-    if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) return;
+  // Emergency Panic Stop (All continuous drones, oscillators & speech)
+  stopAllSounds() {
+    this.stopTanpuraDrone(true);
+    if (this.activeVoices && this.ctx) {
+      this.activeVoices.forEach(v => {
+        if (v && v.gainNode && v.gainNode.gain) {
+          try {
+            v.gainNode.gain.cancelScheduledValues(this.ctx.currentTime);
+            v.gainNode.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+          } catch (e) {}
+        }
+      });
+      this.activeVoices = [];
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {}
+    }
+  }
+
+  // 18. Bilingual Speech Synthesizer (Loud, Clear, Crystal-Sharp)
+  speak(textObject, onComplete) {
+    if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) {
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
 
     let textToSpeak = typeof textObject === 'string' ? textObject : (textObject[this.currentLanguage] || textObject['en']);
 
     try {
       window.speechSynthesis.cancel();
+      window.speechSynthesis.resume();
 
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.pitch = 1.25;
-      utterance.rate = 0.88;
-      utterance.volume = 0.95;
+      setTimeout(() => {
+        try {
+          const utterance = new SpeechSynthesisUtterance(textToSpeak);
+          utterance.pitch = 1.25;
+          utterance.rate = 0.88;
+          utterance.volume = 1.0; // Full clear volume
 
-      const voices = this.cachedVoices.length > 0 ? this.cachedVoices : window.speechSynthesis.getVoices();
-      if (voices && voices.length > 0) {
-        if (this.currentLanguage === 'hi') {
-          const hindiVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN'));
-          if (hindiVoice) utterance.voice = hindiVoice;
-        } else {
-          const engVoice = voices.find(v => v.lang.includes('IN') || v.lang.startsWith('en'));
-          if (engVoice) utterance.voice = engVoice;
+          const voices = this.cachedVoices.length > 0 ? this.cachedVoices : window.speechSynthesis.getVoices();
+          if (voices && voices.length > 0) {
+            if (this.currentLanguage === 'hi') {
+              const hindiVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN'));
+              if (hindiVoice) utterance.voice = hindiVoice;
+            } else {
+              const engVoice = voices.find(v => v.lang.startsWith('en-') || v.lang.startsWith('en') || v.lang.includes('IN'));
+              if (engVoice) utterance.voice = engVoice;
+            }
+          }
+
+          let done = false;
+          const triggerDone = () => {
+            if (!done) {
+              done = true;
+              if (typeof onComplete === 'function') onComplete();
+            }
+          };
+
+          utterance.onend = triggerDone;
+          utterance.onerror = () => {
+            try { window.speechSynthesis.resume(); } catch (err) {}
+            triggerDone();
+          };
+
+          window.speechSynthesis.speak(utterance);
+
+          // Fallback timer in case speech engine onend is delayed
+          setTimeout(triggerDone, 1800);
+        } catch (err) {
+          if (typeof onComplete === 'function') onComplete();
         }
-      }
-
-      window.speechSynthesis.speak(utterance);
+      }, 35);
     } catch (e) {
       console.warn("Speech synthesis error:", e);
+      if (typeof onComplete === 'function') onComplete();
     }
   }
 
-  // Speak Alphabet Letter with Phonics Word association
-  speakLetter(letter, wordPhrase) {
-    if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) return;
+  // Speak Alphabet Letter with Phonics Word association & optional follow-up chant/sound
+  speakLetter(letter, wordPhrase, onComplete) {
+    if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) {
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
     const lang = this.currentLanguage || 'hi';
     let text = letter;
     if (wordPhrase) {
@@ -1263,7 +1410,27 @@ class ToddlerAudio {
         text = letter + '! ' + phrase;
       }
     }
-    this.speak(text);
+    this.speak(text, onComplete);
+  }
+
+  // Speak Sacred Number & Phonics Counting
+  speakNumber(num, details, onComplete) {
+    if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) {
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
+    const lang = this.currentLanguage || 'hi';
+    let text = num;
+    if (details) {
+      if (typeof details === 'string') {
+        text = num + '! ' + details;
+      } else if (typeof details === 'object') {
+        const phrase = details.word ? (details.word[lang] || details.word.en || '') : '';
+        const sanskrit = details.sanskrit ? details.sanskrit : '';
+        text = num + '! ' + (sanskrit ? sanskrit + ', ' : '') + phrase;
+      }
+    }
+    this.speak(text, onComplete);
   }
 
   // 19. Gentle Vedic Lullaby (Gopala Lullaby for Screen-Time End & Shanti Mode)
@@ -1295,8 +1462,7 @@ class ToddlerAudio {
   toggleMute() {
     this.isMuted = !this.isMuted;
     if (this.isMuted) {
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-      if (this.isTanpuraPlaying) this.stopTanpuraDrone();
+      this.stopAllSounds();
     }
     return this.isMuted;
   }

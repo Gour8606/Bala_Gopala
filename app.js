@@ -4,6 +4,19 @@
  * Kanha's Ghungroo Footstep Trails, and Infant-Safe Multitouch Sensory Response.
  */
 
+// ==========================================================================
+// COMMERCIAL TODDLER INPUT FILTER (Palm Slap Rejection & Tremor Tolerance)
+// ==========================================================================
+class ToddlerInputFilter {
+  static isPalmSlap(e) {
+    if (!e) return false;
+    // Discard touch events where contact width/height indicates palm or wrist resting on screen
+    if (typeof e.width === 'number' && e.width > 65) return true;
+    if (typeof e.height === 'number' && e.height > 65) return true;
+    return false;
+  }
+}
+
 class ToddlerApp {
   constructor() {
     this.stage = document.getElementById('game-stage');
@@ -533,8 +546,8 @@ class ToddlerApp {
         this.showKeyboardRipple(e.key);
       }
 
-      // Every 5th key mash, play a delightful surprise animal vocalization!
-      if (this.mashCount % 5 === 0) {
+      // Every 5th key mash, play a delightful surprise animal vocalization (except in Akshara game so phonics & chants stay crystal clear)
+      if (this.mashCount % 5 === 0 && this.currentGameKey !== 'akshara') {
         const surpriseSounds = [
           () => window.toddlerAudio.playCowMoo(),
           () => window.toddlerAudio.playCalfMoo(),
@@ -552,6 +565,9 @@ class ToddlerApp {
   // Kanha's Magic Ghungroo Footstep Trails on Touch / Move
   bindKanhaGhungrooFootsteps() {
     const handlePointerAction = (e) => {
+      // Discard toddler palm / wrist slaps
+      if (ToddlerInputFilter.isPalmSlap(e)) return;
+
       // Don't trigger if tapping on navigation buttons or modals
       if (e.target.closest('button') || e.target.closest('.interactive-cow-bell') || e.target.closest('.overlay-modal:not(.hidden)')) {
         return;
@@ -618,6 +634,10 @@ class ToddlerApp {
       this.currentGame.stop();
     }
 
+    if (!this.isShantiMode && window.toddlerAudio) {
+      window.toddlerAudio.stopTanpuraDrone(true);
+    }
+
     this.currentGameKey = key;
 
     if (window.location.hash !== '#' + key) {
@@ -676,6 +696,14 @@ class ToddlerApp {
 }
 
 // Start app when DOM is ready
-window.addEventListener('DOMContentLoaded', () => {
-  window.app = new ToddlerApp();
-});
+if (typeof window !== 'undefined') {
+  window.ToddlerApp = ToddlerApp;
+  window.ToddlerInputFilter = ToddlerInputFilter;
+  window.addEventListener('DOMContentLoaded', () => {
+    window.app = new ToddlerApp();
+  });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { ToddlerApp, ToddlerInputFilter };
+}
