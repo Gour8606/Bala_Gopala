@@ -266,16 +266,17 @@ html, body {
 
 /* Left Vertical Games Library Drawer */
 .games-sidebar {
-  width: 340px;
-  max-width: 90vw;
+  width: 270px;
+  max-width: 85vw;
   height: 100%;
+  min-height: 0;
   background: #FFFDF7;
-  border-right: 3px solid #FDE68A;
-  box-shadow: 4px 0 20px rgba(245, 158, 11, 0.12);
+  border-right: 2px solid #FDE68A;
+  box-shadow: 3px 0 16px rgba(245, 158, 11, 0.1);
   display: flex;
   flex-direction: column;
   z-index: 160;
-  transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
   overflow: hidden;
 }
 
@@ -287,7 +288,7 @@ html, body {
     left: 0;
     bottom: 0;
     transform: translateX(-105%);
-    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.28);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
   }
   .games-sidebar.open {
     transform: translateX(0);
@@ -301,7 +302,7 @@ html, body {
   }
   .games-sidebar.collapsed {
     transform: translateX(-100%);
-    margin-right: -340px;
+    margin-right: -270px;
   }
 }
 
@@ -310,29 +311,30 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 8px 12px;
   background: linear-gradient(135deg, #FEF3C7 0%, #FFFDF5 100%);
-  border-bottom: 2px solid #FDE68A;
+  border-bottom: 1.5px solid #FDE68A;
+  flex-shrink: 0;
 }
 .sidebar-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.15rem;
+  gap: 6px;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #78350F;
 }
 .sidebar-title-icon {
-  font-size: 1.4rem;
+  font-size: 1.15rem;
 }
 .sidebar-close-btn {
   background: #FEE2E2;
-  border: 2px solid #F87171;
+  border: 1.5px solid #F87171;
   color: #DC2626;
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 800;
   cursor: pointer;
   display: flex;
@@ -344,27 +346,28 @@ html, body {
   transform: scale(1.1);
 }
 
-/* Guided Journey Hero Card */
+/* Guided Journey Hero Card - Compact */
 .journey-hero-card {
-  margin: 12px 14px 6px;
-  padding: 14px;
+  margin: 6px 10px 4px;
+  padding: 8px 10px;
   background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-  border: 2px solid #F59E0B;
-  border-radius: 18px;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.18);
+  border: 1.5px solid #F59E0B;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.12);
+  flex-shrink: 0;
 }
 .journey-card-badge {
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   font-weight: 800;
   color: #B45309;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .journey-card-desc {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   color: #78350F;
   font-weight: 600;
-  line-height: 1.35;
-  margin-bottom: 10px;
+  line-height: 1.25;
+  margin-bottom: 6px;
 }
 .journey-card-start-btn {
   width: 100%;
@@ -372,111 +375,132 @@ html, body {
   color: #FFF;
   border: none;
   border-radius: 999px;
-  padding: 10px;
+  padding: 6px 10px;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.35);
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
   transition: transform 0.15s ease;
 }
 .journey-card-start-btn:active {
   transform: scale(0.96);
 }
 
-/* Age Filter Bar */
+/* Age Filter Bar - Compact */
 .age-filter-bar {
   display: flex;
-  gap: 6px;
-  padding: 10px 14px 6px;
+  gap: 4px;
+  padding: 6px 10px 4px;
   overflow-x: auto;
   scrollbar-width: none;
+  flex-shrink: 0;
 }
 .age-filter-bar::-webkit-scrollbar {
   display: none;
 }
 .age-filter-pill {
   flex-shrink: 0;
-  padding: 6px 12px;
+  padding: 4px 8px;
   background: #F1F5F9;
-  border: 2px solid #E2E8F0;
+  border: 1.5px solid #E2E8F0;
   border-radius: 999px;
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: #475569;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 .age-filter-pill.active {
   background: var(--vedic-saffron);
   border-color: #D97706;
   color: #FFF;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
 }
 
-/* Sidebar Categorized Game Cards List */
+/* Sidebar Categorized Game Cards List - Scrollable & Compact */
 .sidebar-game-list {
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
-  padding: 8px 14px 20px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 4px 10px 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #F59E0B #FEF3C7;
 }
+
+.sidebar-game-list::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-game-list::-webkit-scrollbar-track {
+  background: #FEF3C7;
+  border-radius: 999px;
+}
+.sidebar-game-list::-webkit-scrollbar-thumb {
+  background: #F59E0B;
+  border-radius: 999px;
+}
+
 .sidebar-category-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 12px 6px 4px;
-  font-size: 0.84rem;
+  gap: 5px;
+  padding: 6px 4px 2px;
+  font-size: 0.74rem;
   font-weight: 800;
   color: #92400E;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
+  flex-shrink: 0;
 }
 .sidebar-category-header .cat-dot {
-  font-size: 1rem;
+  font-size: 0.88rem;
 }
 
-/* Vertical Tab Button in Sidebar */
+/* Vertical Tab Button in Sidebar - Compact Row */
 .tab-btn {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   background: #FFFDF5;
-  border: 2px solid #FDE68A;
-  border-radius: 18px;
-  padding: 10px 14px;
+  border: 1.5px solid #FDE68A;
+  border-radius: 12px;
+  padding: 6px 10px;
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   position: relative;
+  flex-shrink: 0;
 }
 .tab-btn:hover, .tab-btn:active {
-  transform: translateX(4px);
+  transform: translateX(3px);
   background: #FEF3C7;
   border-color: #F59E0B;
 }
 .tab-btn.active {
   background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
   border-color: #D97706;
-  border-width: 2.5px;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
-  transform: translateX(6px);
+  border-width: 2px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  transform: translateX(4px);
 }
 .tab-icon {
-  font-size: 1.8rem;
+  font-size: 1.25rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   background: #FEF9C3;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid #FDE047;
 }
 .tab-btn.active .tab-icon {
@@ -486,29 +510,31 @@ html, body {
 .tab-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   flex: 1;
   min-width: 0;
 }
 .tab-text {
-  font-size: 1.02rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: #78350F;
+  line-height: 1.2;
 }
 .tab-sub {
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: #A16207;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.1;
 }
 .tab-age-pill {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 800;
   background: #E0E7FF;
   color: #3730A3;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 999px;
   flex-shrink: 0;
 }
