@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "node test.js",
-    "check": "node -c audio.js vedic-assets.js games.js app.js server.js sw.js test.js"
+    "check": "node -e \"const fs=require('fs'),cp=require('child_process');fs.readdirSync('.').filter(f=>f.endsWith('.js')).forEach(f=>cp.execFileSync(process.execPath,['-c',f]));console.log('All JS files syntax check passed.');\""
   },
   "keywords": [
     "toddler",

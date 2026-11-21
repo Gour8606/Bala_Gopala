@@ -126,8 +126,42 @@ assert(!hasOptionalChaining, 'games.js is free of optional chaining (?.) for uni
 const hasNullishCoalescing = /\?\?/.test(gamesCode);
 assert(!hasNullishCoalescing, 'games.js is free of nullish coalescing (??) for universal tablet support');
 
-// 5. Test Live HTTP Server Endpoints
-console.log('\n🌐 5. Verifying HTTP Server Endpoints...');
+// Check commercial architecture features in games.js
+assert(gamesCode.includes('class ElementPool'), 'games.js defines ElementPool for zero-GC memory pooling');
+assert(gamesCode.includes('ToddlerPersistence'), 'games.js defines ToddlerPersistence for toy-box state saving');
+assert(gamesCode.includes('magnetic-active'), 'games.js implements magnetic-active proximity snapping');
+assert(gamesCode.includes('shringar-reset-btn'), 'games.js implements Kanha fresh Snana reset action');
+
+// Test ElementPool unit functionality
+try {
+  const { ElementPool, ToddlerPersistence } = require('./games.js');
+  let createCount = 0;
+  const mockPool = new ElementPool('test-item', 5, () => {
+    createCount++;
+    return { className: 'test-item', style: {} };
+  });
+  const el1 = mockPool.acquire();
+  assert(el1 && createCount === 1, 'ElementPool acquires new instance when empty');
+  mockPool.release(el1);
+  assert(mockPool.pool.length === 1, 'ElementPool releases instance back to pool');
+  const el2 = mockPool.acquire();
+  assert(el2 === el1 && createCount === 1, 'ElementPool reuses recycled instance without re-allocating');
+} catch (e) {
+  assert(false, `ElementPool unit test error: ${e.message}`);
+}
+
+// 5. Validate Application Controller & PWA Shortcuts
+console.log('\n⚙️ 5. Verifying App Controller Features...');
+const appCode = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
+assert(appCode.includes('updateLanguageUI()'), 'app.js implements updateLanguageUI() for bilingual tab text');
+assert(appCode.includes('getGameFromHash()'), 'app.js implements getGameFromHash() for PWA shortcut deep-links');
+assert(appCode.includes('restoreSavedPreferences()'), 'app.js implements restoreSavedPreferences() for session state');
+assert(appCode.includes('this.footprintPool'), 'app.js uses memory pool for Kanha ghungroo footprints');
+assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');
+assert(!/\?\?/.test(appCode), 'app.js is free of nullish coalescing (??)');
+
+// 6. Test Live HTTP Server Endpoints
+console.log('\n🌐 6. Verifying HTTP Server Endpoints...');
 const testEndpoints = [
   '/',
   '/manifest.json',

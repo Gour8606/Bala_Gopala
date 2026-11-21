@@ -1,8 +1,76 @@
 /**
- * Toddler Wonderland - Vedic Games Logic (Enhanced Edition)
+ * Toddler Wonderland - Vedic Games Logic (Enhanced Commercial Edition)
  * Featuring Authentic Cow Moo (Hambaaa), Baby Calf Moo, Animal Soundboard,
- * Yashoda Maiya's Butter Churner, and Baby Mash Any-Key Support.
+ * Yashoda Maiya's Butter Churner, Baby Mash Any-Key Support,
+ * Memory Element Pooling, and Toy-Box State Persistence.
  */
+
+// ==========================================================================
+// COMMERCIAL TOY-BOX PERSISTENCE & MEMORY OBJECT POOLING
+// ==========================================================================
+const ToddlerPersistence = {
+  get: function(key, defaultVal) {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const item = window.localStorage.getItem('bala_gopala_' + key);
+        return item !== null ? JSON.parse(item) : defaultVal;
+      }
+    } catch (e) {}
+    return defaultVal;
+  },
+  set: function(key, val) {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('bala_gopala_' + key, JSON.stringify(val));
+      }
+    } catch (e) {}
+  }
+};
+
+class ElementPool {
+  constructor(className, maxPoolSize, createFn) {
+    this.className = className;
+    this.maxPoolSize = maxPoolSize || 30;
+    this.createFn = createFn;
+    this.pool = [];
+  }
+
+  acquire() {
+    let el = this.pool.pop();
+    if (!el) {
+      el = this.createFn ? this.createFn() : document.createElement('div');
+    }
+    el.className = this.className;
+    el.style.display = '';
+    return el;
+  }
+
+  release(el) {
+    if (!el) return;
+    if (el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+    el.style.cssText = '';
+    el.className = this.className;
+    if (this.pool.length < this.maxPoolSize) {
+      this.pool.push(el);
+    }
+  }
+
+  releaseAfter(el, ms) {
+    setTimeout(() => {
+      this.release(el);
+    }, ms);
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.ToddlerPersistence = ToddlerPersistence;
+  window.ElementPool = ElementPool;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { ToddlerPersistence, ElementPool };
+}
 
 // ==========================================================================
 // 1. MAKHAN & MOR PANKH POP (Kala: Lila & Vidhya 46: Balakridanaka)
@@ -13,6 +81,9 @@ class BubbleGame {
     this.popCount = 0;
     this.timer = null;
     this.active = false;
+    this.burstContainerPool = new ElementPool('burst-container', 16);
+    this.burstParticlePool = new ElementPool('burst-particle', 80);
+    this.burstEmojiPool = new ElementPool('pop-reward-emoji', 16);
     this.kalas = [
       { name: 'Prem', label: { hi: 'प्रेम', en: 'Prem (Love)' }, col: '#FF4D6D' },
       { name: 'Shanti', label: { hi: 'शान्ति', en: 'Shanti (Peace)' }, col: '#38BDF8' },
@@ -25,6 +96,7 @@ class BubbleGame {
 
   start() {
     this.active = true;
+    this.popCount = window.ToddlerPersistence ? window.ToddlerPersistence.get('lifetime_makhan_pops', 0) : 0;
     this.render();
     this.spawnLoop();
   }
@@ -36,6 +108,11 @@ class BubbleGame {
   }
 
   render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const counterLabel = lang === 'hi' ? 'माखन' : 'Makhan';
+    const churnerLabel = lang === 'hi' ? '🥣 माखन मथें!' : '🥣 Churn Butter!';
+    const showerLabel = lang === 'hi' ? '✨ माखन वर्षा! ✨' : '✨ Makhan Shower! ✨';
+
     this.container.innerHTML = `
       <div class="game-bubble-pop vedic-theme">
         <div class="sky-background">
@@ -48,7 +125,7 @@ class BubbleGame {
 
         <div class="pop-stats-pill">
           <span class="star-icon">🦚</span>
-          <span id="pop-counter-text">Makhan: 0</span>
+          <span id="pop-counter-text">${counterLabel}: ${this.popCount}</span>
         </div>
 
         <!-- Yashoda Maiya's Interactive Butter Churner Pot -->
@@ -56,11 +133,11 @@ class BubbleGame {
           <div class="churner-visual" id="churner-visual">
             ${VedicAssets.dahiMathani}
           </div>
-          <div class="churner-label">🥣 Churn Butter!</div>
+          <div class="churner-label">${churnerLabel}</div>
         </div>
 
         <button class="rush-btn" id="makhan-rain-btn">
-          ✨ Makhan Shower! ✨
+          ${showerLabel}
         </button>
 
         <div class="bubble-play-area" id="bubble-area"></div>
@@ -239,8 +316,13 @@ class BubbleGame {
     }
 
     this.popCount++;
+    if (window.ToddlerPersistence) {
+      window.ToddlerPersistence.set('lifetime_makhan_pops', this.popCount);
+    }
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const counterLabel = lang === 'hi' ? 'माखन' : 'Makhan';
     const countEl = this.container.querySelector('#pop-counter-text');
-    if (countEl) countEl.textContent = `Makhan: ${this.popCount}`;
+    if (countEl) countEl.textContent = `${counterLabel}: ${this.popCount}`;
 
     if (this.popCount > 0 && this.popCount % 10 === 0) {
       window.toddlerAudio.playCelebration();
@@ -265,18 +347,19 @@ class BubbleGame {
   }
 
   createBurst(x, y, color, emoji) {
-    const burstContainer = document.createElement('div');
+    const burstContainer = this.burstContainerPool ? this.burstContainerPool.acquire() : document.createElement('div');
     burstContainer.className = 'burst-container';
     burstContainer.style.left = `${x}px`;
     burstContainer.style.top = `${y}px`;
 
-    const emojiEl = document.createElement('div');
+    const emojiEl = this.burstEmojiPool ? this.burstEmojiPool.acquire() : document.createElement('div');
     emojiEl.className = 'pop-reward-emoji';
     emojiEl.textContent = emoji || '🦚';
     burstContainer.appendChild(emojiEl);
 
+    const activeParticles = [];
     for (let i = 0; i < 8; i++) {
-      const p = document.createElement('div');
+      const p = this.burstParticlePool ? this.burstParticlePool.acquire() : document.createElement('div');
       p.className = 'burst-particle';
       const angle = (i / 8) * Math.PI * 2;
       const dist = 45 + Math.random() * 40;
@@ -284,10 +367,22 @@ class BubbleGame {
       p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
       p.style.backgroundColor = color || '#F59E0B';
       burstContainer.appendChild(p);
+      activeParticles.push(p);
     }
 
     document.body.appendChild(burstContainer);
-    setTimeout(() => burstContainer.remove(), 800);
+
+    setTimeout(() => {
+      if (this.burstEmojiPool) {
+        this.burstEmojiPool.release(emojiEl);
+        for (let j = 0; j < activeParticles.length; j++) {
+          this.burstParticlePool.release(activeParticles[j]);
+        }
+        this.burstContainerPool.release(burstContainer);
+      } else {
+        burstContainer.remove();
+      }
+    }, 800);
   }
 }
 
@@ -308,41 +403,50 @@ class PeekabooGame {
   }
 
   render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const headerTitle = lang === 'hi' ? 'वृन्दावन गऊ-धाम व पशु ध्वनि अभयारण्य! 🐮🦚' : 'Vrindavan Gau-Dham & Animal Sound Sanctuary! 🐮🦚';
+    const cowHint = lang === 'hi' ? '🐮 हम्बा सुनें!' : '🐮 Tap to Moo!';
+    const calfHint = lang === 'hi' ? '🐄 बछड़े की पुकार!' : '🐄 Baby Moo!';
+    const feedLabel = lang === 'hi' ? '🌾 हरी घास व लड्डू!' : '🌾 Grass & Laddu (Crunch!)';
+    const batheLabel = lang === 'hi' ? '💧 यमुना स्नान!' : '💧 Yamuna Snana (Bath)';
+    const malaLabel = lang === 'hi' ? '🌼 गेंदा माला!' : '🌼 Genda Mala (Garland)';
+    const soundboardTitle = lang === 'hi' ? '🎵 पशुओं को छूकर उनकी मधुर आवाजें सुनें!' : '🎵 Tap Any Animal to Hear It Sound!';
+
     this.container.innerHTML = `
       <div class="game-peekaboo vedic-theme">
         <div class="peekaboo-header">
-          <h2>Vrindavan Gau-Dham & Animal Sound Sanctuary! 🐮🦚</h2>
+          <h2>${headerTitle}</h2>
         </div>
 
         <!-- Main Interactive Gau-Mata & Calf Barn -->
         <div class="gau-barn-stage">
           <div class="cow-avatar-card" id="gau-cow-card" title="Tap Gau Mata to hear her loving Moo!">
             ${VedicAssets.gauMataLarge}
-            <div class="animal-tap-hint">🐮 Tap to Moo!</div>
+            <div class="animal-tap-hint">${cowHint}</div>
           </div>
 
           <div class="calf-avatar-card" id="gau-calf-card" title="Tap little calf to hear baby moo!">
             ${VedicAssets.littleCalf}
-            <div class="animal-tap-hint">🐄 Baby Moo!</div>
+            <div class="animal-tap-hint">${calfHint}</div>
           </div>
         </div>
 
         <!-- Gau Seva Care Tools -->
         <div class="gau-actions-row">
           <button class="gau-tool-btn" id="btn-feed" title="Feed Fresh Grass">
-            🌾 Grass & Laddu (Crunch!)
+            ${feedLabel}
           </button>
           <button class="gau-tool-btn" id="btn-bathe" title="Bathe with Yamuna Water">
-            💧 Yamuna Snana (Bath)
+            ${batheLabel}
           </button>
           <button class="gau-tool-btn" id="btn-mala" title="Adorn with Flower Garland">
-            🌼 Genda Mala (Garland)
+            ${malaLabel}
           </button>
         </div>
 
         <!-- 6-Button Vrindavan Sound Sanctuary Board -->
         <div class="animal-soundboard-panel">
-          <div class="soundboard-title">🎵 Tap Any Animal to Hear It Sound!</div>
+          <div class="soundboard-title">${soundboardTitle}</div>
           <div class="soundboard-grid">
             <button class="sound-card-btn" id="snd-cow" title="Cow Hambaaa">
               <span class="snd-icon">🐮</span>
@@ -741,21 +845,31 @@ class XylophoneGame {
   }
 
   render() {
-    const activeBhajanName = this.bhajans[this.selectedBhajanIdx].name[window.toddlerAudio.currentLanguage] || this.bhajans[this.selectedBhajanIdx].name.en;
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const activeBhajanName = this.bhajans[this.selectedBhajanIdx].name[lang] || this.bhajans[this.selectedBhajanIdx].name.en;
+    const bansuriLabel = lang === 'hi' ? '🪈 कान्हा की बांसुरी' : '🪈 Krishna Bansuri';
+    const jaltarangLabel = lang === 'hi' ? '🥣 जल तरंग' : '🥣 Jal Tarang (Water Bowls)';
+    const helperState = this.magicBhajanMode ? (lang === 'hi' ? 'चालू' : 'ON') : (lang === 'hi' ? 'बंद' : 'OFF');
+    const helperLabel = lang === 'hi' ? `🦚 भजन सहायक: ${helperState}` : `🦚 Bhajan Helper: ${helperState}`;
+    const bellName = lang === 'hi' ? 'मन्दिर घंटी' : 'Mandir Ghanti';
+    const damruName = lang === 'hi' ? 'शिव डमरू' : 'Shiva Damru';
+    const shankhaName = lang === 'hi' ? 'दिव्य शंख' : 'Divya Shankha';
+    const manjiraName = lang === 'hi' ? 'मंजीरा' : 'Manjira';
+
     this.container.innerHTML = `
       <div class="game-xylophone vedic-theme">
         <div class="xylo-top-bar">
           <div class="instrument-switch">
             <button class="switch-inst-btn ${this.mode === 'bansuri' ? 'active' : ''}" id="switch-bansuri">
-              🪈 Krishna Bansuri
+              ${bansuriLabel}
             </button>
             <button class="switch-inst-btn ${this.mode === 'jaltarang' ? 'active' : ''}" id="switch-jaltarang">
-              🥣 Jal Tarang (Water Bowls)
+              ${jaltarangLabel}
             </button>
           </div>
 
           <button class="magic-melody-btn ${this.magicBhajanMode ? 'active' : ''}" id="magic-melody-toggle">
-            🦚 Bhajan Helper: ${this.magicBhajanMode ? 'ON' : 'OFF'}
+            ${helperLabel}
           </button>
           <button class="bhajan-select-btn" id="bhajan-select-btn" title="Switch Bhajan Melody">
             🎶 ${activeBhajanName}
@@ -765,19 +879,19 @@ class XylophoneGame {
         <div class="drums-container">
           <div class="drum-pad drum-left" data-type="bell">
             <div class="drum-face">🔔</div>
-            <div class="drum-name">Mandir Ghanti</div>
+            <div class="drum-name">${bellName}</div>
           </div>
           <div class="drum-pad drum-center" data-type="damru">
             <div class="drum-face">🪘</div>
-            <div class="drum-name">Shiva Damru</div>
+            <div class="drum-name">${damruName}</div>
           </div>
           <div class="drum-pad drum-right" data-type="shankha">
             <div class="drum-face">🐚</div>
-            <div class="drum-name">Divya Shankha</div>
+            <div class="drum-name">${shankhaName}</div>
           </div>
           <div class="drum-pad drum-cymbal" data-type="manjira">
             <div class="drum-face">✨</div>
-            <div class="drum-name">Manjira</div>
+            <div class="drum-name">${manjiraName}</div>
           </div>
         </div>
 
@@ -1003,10 +1117,19 @@ class AartiGame {
   }
 
   render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const headerTitle = lang === 'hi' ? 'संध्या आरती: कान्हा के लिए आरती की थाली घुमाएं! 🪔✨' : 'Sandhya Aarti: Move the Diya Thali in Circles for Kanha! 🪔✨';
+    const incenseHint = lang === 'hi' ? '💨 अगरबत्ती' : '💨 Incense';
+    const circleHint = lang === 'hi' ? '⭕ गोल-गोल घुमाएं / कोई बटन दबाएं' : '⭕ Trace Circles / Press Any Key';
+    const roseLabel = lang === 'hi' ? '🌹 गुलाब की पंखुड़ियां' : '🌹 Rose Petals';
+    const marigoldLabel = lang === 'hi' ? '🌼 गेंदे के फूल' : '🌼 Marigolds';
+    const tulsiLabel = lang === 'hi' ? '🌿 तुलसी दल' : '🌿 Tulsi Dal';
+    const mograLabel = lang === 'hi' ? '🌸 मोगरा / कमल' : '🌸 Mogra / Kamal';
+
     this.container.innerHTML = `
       <div class="game-aarti vedic-theme">
         <div class="aarti-header">
-          <h2>Sandhya Aarti: Move the Diya Thali in Circles for Kanha! 🪔✨</h2>
+          <h2>${headerTitle}</h2>
         </div>
 
         <div class="aarti-stage-area">
@@ -1017,29 +1140,29 @@ class AartiGame {
 
           <div class="altar-agarbatti-wrap" id="agarbatti-stick" title="Touch Incense for Fragrant Smoke!">
             ${VedicAssets.agarbatti}
-            <div class="incense-touch-hint">💨 Incense</div>
+            <div class="incense-touch-hint">${incenseHint}</div>
           </div>
 
           <div class="aarti-plate-wrapper" id="aarti-plate-wrap">
             <div class="aarti-plate-body" id="aarti-plate">
               ${VedicAssets.aartiThali}
             </div>
-            <div class="aarti-guide-circle">⭕ Trace Circles / Press Any Key</div>
+            <div class="aarti-guide-circle">${circleHint}</div>
           </div>
         </div>
 
         <div class="aarti-flower-taps">
           <button class="aarti-sprinkle-btn" id="btn-sprinkle-rose">
-            🌹 Rose Petals
+            ${roseLabel}
           </button>
           <button class="aarti-sprinkle-btn" id="btn-sprinkle-marigold">
-            🌼 Marigolds
+            ${marigoldLabel}
           </button>
           <button class="aarti-sprinkle-btn" id="btn-sprinkle-tulsi">
-            🌿 Tulsi Dal
+            ${tulsiLabel}
           </button>
           <button class="aarti-sprinkle-btn" id="btn-sprinkle-mogra">
-            🌸 Mogra / Kamal
+            ${mograLabel}
           </button>
         </div>
       </div>
@@ -1204,6 +1327,8 @@ class ShapeMatchGame {
   }
 
   render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const headerTitle = lang === 'hi' ? 'पुष्पार्चना: कान्हा को पवित्र पुष्प व प्रतीक अर्पित करें! 🪷' : 'Pushparchana: Offer Sacred Flowers & Symbols to Kanha! 🪷';
     const roundShapes = this.rounds[this.currentRoundIdx % this.rounds.length];
     this.matchedCount = 0;
     const shuffled = [...roundShapes].sort(() => Math.random() - 0.5);
@@ -1211,7 +1336,7 @@ class ShapeMatchGame {
     this.container.innerHTML = `
       <div class="game-shape-match vedic-theme">
         <div class="match-banner">
-          <h2>Pushparchana: Offer Sacred Flowers & Symbols to Kanha! 🪷</h2>
+          <h2>${headerTitle}</h2>
         </div>
 
         <div class="shape-targets-row" id="targets-row">
@@ -1271,6 +1396,22 @@ class ShapeMatchGame {
             isDragging = true;
             card.classList.add('is-dragging');
             card.style.transform = `translate(${ev.clientX - startX}px, ${ev.clientY - startY}px) scale(1.12)`;
+
+            // Proximity magnetic hover detection
+            const id = card.dataset.shapeId;
+            const target = this.container.querySelector(`.target-slot[data-shape-id="${id}"]`);
+            if (target && !target.classList.contains('matched')) {
+              const tr = target.getBoundingClientRect();
+              const tcX = tr.left + tr.width / 2;
+              const tcY = tr.top + tr.height / 2;
+              const snapRadius = Math.max(tr.width, tr.height) * 1.15;
+              const targetDist = Math.hypot(ev.clientX - tcX, ev.clientY - tcY);
+              if (targetDist <= snapRadius) {
+                target.classList.add('magnetic-active');
+              } else {
+                target.classList.remove('magnetic-active');
+              }
+            }
           }
         };
 
@@ -1282,16 +1423,22 @@ class ShapeMatchGame {
           card.classList.remove('is-dragging');
           card.style.transform = '';
 
+          const allTargets = this.container.querySelectorAll('.target-slot');
+          allTargets.forEach(t => t.classList.remove('magnetic-active'));
+
           const id = card.dataset.shapeId;
           const target = this.container.querySelector(`.target-slot[data-shape-id="${id}"]`);
 
-          if (isDragging) {
-            if (target && !target.classList.contains('matched')) {
-              const tr = target.getBoundingClientRect();
-              if (ev.clientX >= tr.left && ev.clientX <= tr.right && ev.clientY >= tr.top && ev.clientY <= tr.bottom) {
-                this.matchShape(card, target);
-                return;
-              }
+          if (isDragging && target && !target.classList.contains('matched')) {
+            const tr = target.getBoundingClientRect();
+            const tcX = tr.left + tr.width / 2;
+            const tcY = tr.top + tr.height / 2;
+            const snapRadius = Math.max(tr.width, tr.height) * 0.95; // Generous toddler magnetic snap aura
+            const targetDist = Math.hypot(ev.clientX - tcX, ev.clientY - tcY);
+
+            if (targetDist <= snapRadius || (ev.clientX >= tr.left && ev.clientX <= tr.right && ev.clientY >= tr.top && ev.clientY <= tr.bottom)) {
+              this.matchShape(card, target);
+              return;
             }
           }
 
@@ -1395,26 +1542,31 @@ class SparkleCanvasGame {
   }
 
   render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const mandalaState = this.mandalaMode ? (lang === 'hi' ? 'चालू' : 'ON') : (lang === 'hi' ? 'बंद' : 'OFF');
+    const mandalaLabel = lang === 'hi' ? `🌸 मंडला: ${mandalaState}` : `🌸 Mandala: ${mandalaState}`;
+    const cleanLabel = lang === 'hi' ? '🌊 गंगा जल (स्वच्छ)' : '🌊 Ganga Jal (Clean)';
+
     this.container.innerHTML = `
       <div class="game-sparkle-canvas vedic-theme">
         <canvas id="sensory-canvas"></canvas>
 
         <div class="stamp-bar">
           <button class="mandala-toggle-btn ${this.mandalaMode ? 'active' : ''}" id="mandala-toggle" title="Toggle Symmetry Mandala Mode">
-            🌸 Mandala: ${this.mandalaMode ? 'ON' : 'OFF'}
+            ${mandalaLabel}
           </button>
 
           <div class="stamps-scroll">
             ${this.stamps.map((s, idx) => `
               <button class="stamp-btn ${idx === 0 ? 'selected' : ''}" data-stamp="${s.id}" data-emoji="${s.emoji}">
                 ${s.emoji}
-                <span class="stamp-label">${s.name[window.toddlerAudio.currentLanguage] || s.name.en}</span>
+                <span class="stamp-label">${s.name[lang] || s.name.en}</span>
               </button>
             `).join('')}
           </div>
 
           <button class="clear-canvas-btn" id="clear-btn">
-            🌊 Ganga Jal (Clean)
+            ${cleanLabel}
           </button>
         </div>
       </div>
@@ -1425,7 +1577,9 @@ class SparkleCanvasGame {
       e.preventDefault();
       this.mandalaMode = !this.mandalaMode;
       toggle.classList.toggle('active', this.mandalaMode);
-      toggle.textContent = "🌸 Mandala: " + (this.mandalaMode ? 'ON' : 'OFF');
+      const curLang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const curState = this.mandalaMode ? (curLang === 'hi' ? 'चालू' : 'ON') : (curLang === 'hi' ? 'बंद' : 'OFF');
+      toggle.textContent = curLang === 'hi' ? `🌸 मंडला: ${curState}` : `🌸 Mandala: ${curState}`;
       window.toddlerAudio.playAartiChimes();
       window.toddlerAudio.speak({
         hi: this.mandalaMode ? "दिव्य मंडला रंगोली सक्रिय!" : "मुक्त रंगोली सक्रिय!",
@@ -1478,9 +1632,28 @@ class SparkleCanvasGame {
 
   resizeCanvas() {
     if (!this.canvas) return;
+    const oldWidth = this.canvas.width;
+    const oldHeight = this.canvas.height;
+
+    // Preserve existing toddler artwork across orientation change or window resize
+    let backupCanvas = null;
+    if (oldWidth > 0 && oldHeight > 0) {
+      backupCanvas = document.createElement('canvas');
+      backupCanvas.width = oldWidth;
+      backupCanvas.height = oldHeight;
+      const bCtx = backupCanvas.getContext('2d');
+      if (bCtx) {
+        bCtx.drawImage(this.canvas, 0, 0);
+      }
+    }
+
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.fillBackground();
+
+    if (backupCanvas && this.ctx) {
+      this.ctx.drawImage(backupCanvas, 0, 0, Math.min(oldWidth, this.canvas.width), Math.min(oldHeight, this.canvas.height));
+    }
   }
 
   fillBackground() {
@@ -1644,7 +1817,12 @@ class ShringarGame {
   }
 
   start() {
-    this.adorned.clear();
+    const saved = window.ToddlerPersistence ? window.ToddlerPersistence.get('shringar_adorned', null) : null;
+    if (saved && Array.isArray(saved)) {
+      this.adorned = new Set(saved);
+    } else {
+      this.adorned.clear();
+    }
     this.render();
   }
 
@@ -1653,24 +1831,34 @@ class ShringarGame {
   }
 
   render() {
-    const lang = window.toddlerAudio.currentLanguage || 'hi';
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const headerTitle = lang === 'hi' ? 'कान्हा श्रृंगार व माखन सेवा: बाल गोपाला को सजाएं! 👑✨' : 'Kanha Shringar & Makhan Seva: Adorn Bala Gopala! 👑✨';
+    const tickleHint = lang === 'hi' ? '👶 कान्हा को गुदगुदी करें!' : '👶 Tap Kanha to tickle!';
+    const trayTitle = lang === 'hi' ? '✨ कान्हा के श्रृंगार के लिए वस्तुएं चुनें! ✨' : '✨ Tap items to adorn Little Kanha! ✨';
+    const resetLabel = lang === 'hi' ? '🛁 स्नान सेवा' : '🛁 Snana (Reset)';
+
     this.container.innerHTML = `
       <div class="game-shringar vedic-theme">
         <div class="shringar-header">
-          <h2>Kanha Shringar & Makhan Seva: Adorn Bala Gopala! 👑✨</h2>
+          <h2>${headerTitle}</h2>
         </div>
 
         <div class="shringar-stage">
           <!-- Central Interactive Baby Krishna -->
           <div class="shringar-avatar-wrap" id="shringar-krishna" title="Tap Kanha to tickle Him!">
             ${VedicAssets.krishnaShringarAvatar}
-            <div class="shringar-tickle-hint">👶 Tap Kanha to tickle!</div>
+            <div class="shringar-tickle-hint">${tickleHint}</div>
           </div>
         </div>
 
         <!-- Sacred Adornment Item Tray -->
         <div class="shringar-tray">
-          <div class="tray-title">✨ Tap items to adorn Little Kanha! ✨</div>
+          <div class="tray-title-row">
+            <div class="tray-title">${trayTitle}</div>
+            <button class="shringar-reset-btn" id="shringar-reset-btn" title="Give Kanha a fresh Snana (clean all adornments)">
+              ${resetLabel}
+            </button>
+          </div>
           <div class="tray-items-grid">
             ${this.items.map(item => `
               <button class="shringar-item-btn ${this.adorned.has(item.id) ? 'adorned' : ''}" data-id="${item.id}" title="${item.name[lang] || item.name.en}">
@@ -1698,6 +1886,24 @@ class ShringarGame {
         window.toddlerAudio.playGhungroo();
         this.spawnJoyParticles(e.clientX, e.clientY, '💖');
         setTimeout(() => avatar.classList.remove('avatar-happy'), 600);
+      });
+    }
+
+    const resetBtn = this.container.querySelector('#shringar-reset-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.adorned.clear();
+        if (window.ToddlerPersistence) {
+          window.ToddlerPersistence.set('shringar_adorned', []);
+        }
+        window.toddlerAudio.playWaterSplash();
+        window.toddlerAudio.playTempleBell(1046.5);
+        window.toddlerAudio.speak({
+          hi: "यमुना जल से कान्हा का दिव्य स्नान! जय श्री कृष्णा!",
+          en: "Fresh Yamuna water bath for little Krishna! All clean!"
+        });
+        this.render();
       });
     }
 
@@ -1756,6 +1962,10 @@ class ShringarGame {
       if (this.adorned.size === this.items.length) {
         setTimeout(() => this.celebrateFullShringar(), 700);
       }
+    }
+
+    if (window.ToddlerPersistence) {
+      window.ToddlerPersistence.set('shringar_adorned', Array.from(this.adorned));
     }
 
     this.updateLayers();
@@ -1834,10 +2044,26 @@ class ShringarGame {
 }
 
 // Global Exports
-window.BubbleGame = BubbleGame;
-window.PeekabooGame = PeekabooGame;
-window.XylophoneGame = XylophoneGame;
-window.AartiGame = AartiGame;
-window.ShapeMatchGame = ShapeMatchGame;
-window.SparkleCanvasGame = SparkleCanvasGame;
-window.ShringarGame = ShringarGame;
+if (typeof window !== 'undefined') {
+  window.BubbleGame = BubbleGame;
+  window.PeekabooGame = PeekabooGame;
+  window.XylophoneGame = XylophoneGame;
+  window.AartiGame = AartiGame;
+  window.ShapeMatchGame = ShapeMatchGame;
+  window.SparkleCanvasGame = SparkleCanvasGame;
+  window.ShringarGame = ShringarGame;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    BubbleGame,
+    PeekabooGame,
+    XylophoneGame,
+    AartiGame,
+    ShapeMatchGame,
+    SparkleCanvasGame,
+    ShringarGame,
+    ToddlerPersistence,
+    ElementPool
+  };
+}

@@ -41,8 +41,16 @@ const server = http.createServer((req, res) => {
     reqPath = '/index.html';
   }
 
-  const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
-  const filePath = path.join(PUBLIC_DIR, safePath);
+  // Robust path normalization & directory traversal prevention
+  const normalizedPath = path.normalize(reqPath);
+  const filePath = path.join(PUBLIC_DIR, normalizedPath);
+  const relPath = path.relative(PUBLIC_DIR, filePath);
+
+  if (relPath.startsWith('..') || path.isAbsolute(relPath)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=UTF-8' });
+    res.end('403 Forbidden');
+    return;
+  }
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
@@ -62,6 +70,8 @@ const server = http.createServer((req, res) => {
       'Content-Type': contentType,
       'Cache-Control': cacheHeader,
       'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'Referrer-Policy': 'no-referrer',
       'Access-Control-Allow-Origin': '*'
     });
 

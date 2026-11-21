@@ -34,11 +34,49 @@ class ToddlerApp {
       shringar: ShringarGame
     };
 
+    // Commercial Memory Object Pools (Zero runtime GC stutter)
+    this.footprintPool = (typeof ElementPool !== 'undefined') ? new ElementPool('kanha-footprint-trail', 25) : null;
+    this.ripplePool = (typeof ElementPool !== 'undefined') ? new ElementPool('key-mash-ripple', 16) : null;
+
     this.initElements();
+    this.restoreSavedPreferences();
+    this.updateLanguageUI();
     this.bindEvents();
+    this.bindHashRouting();
     this.bindBabyMashKeyboard();
     this.bindKanhaGhungrooFootsteps();
     this.bindSafetyGestures();
+  }
+
+  restoreSavedPreferences() {
+    if (!window.ToddlerPersistence) return;
+
+    // 1. Language preference
+    const savedLang = window.ToddlerPersistence.get('language', 'hi');
+    if (window.toddlerAudio) {
+      window.toddlerAudio.setLanguage(savedLang);
+    }
+
+    // 2. Audio Mute preference
+    const isMuted = window.ToddlerPersistence.get('audio_muted', false);
+    if (isMuted && window.toddlerAudio) {
+      window.toddlerAudio.isMuted = true;
+      if (this.muteBtn) {
+        this.muteBtn.textContent = '🔇';
+        this.muteBtn.title = 'Unmute Sound';
+      }
+    }
+
+    // 3. Screen Time Limit preference
+    const savedLimit = window.ToddlerPersistence.get('screen_time_limit', 0);
+    if (savedLimit > 0) {
+      this.timerMinutes = savedLimit;
+      const optBtns = this.timerModal ? this.timerModal.querySelectorAll('.timer-opt-btn') : [];
+      optBtns.forEach(btn => {
+        const mins = parseInt(btn.dataset.minutes, 10);
+        btn.classList.toggle('active', mins === savedLimit);
+      });
+    }
   }
 
   initElements() {
@@ -111,7 +149,10 @@ class ToddlerApp {
       const current = window.toddlerAudio.currentLanguage;
       const next = current === 'hi' ? 'en' : 'hi';
       window.toddlerAudio.setLanguage(next);
-      this.langIndicator.textContent = next === 'hi' ? '🇮🇳 हिन्दी' : '🌐 English';
+      this.updateLanguageUI();
+      if (window.ToddlerPersistence) {
+        window.ToddlerPersistence.set('language', next);
+      }
       window.toddlerAudio.playTempleBell(880);
 
       window.toddlerAudio.speak({
@@ -136,6 +177,9 @@ class ToddlerApp {
       const isMuted = window.toddlerAudio.toggleMute();
       this.muteBtn.textContent = isMuted ? '🔇' : '🔊';
       this.muteBtn.title = isMuted ? 'Unmute Sound' : 'Mute Sound';
+      if (window.ToddlerPersistence) {
+        window.ToddlerPersistence.set('audio_muted', isMuted);
+      }
     });
 
     // 6. Fullscreen Toggle
@@ -242,6 +286,9 @@ class ToddlerApp {
     }
 
     this.timerMinutes = minutes;
+    if (window.ToddlerPersistence) {
+      window.ToddlerPersistence.set('screen_time_limit', minutes);
+    }
     if (minutes <= 0) {
       this.timerStatusPill.classList.add('hidden');
       return;
@@ -385,6 +432,52 @@ class ToddlerApp {
     }
   }
 
+  updateLanguageUI() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const tabTranslations = {
+      bubbles: { hi: 'माखन मटकी', en: 'Makhan Pop' },
+      peekaboo: { hi: 'गऊ सेवा', en: 'Gau-Seva' },
+      xylophone: { hi: 'बांसुरी व जल', en: 'Bansuri & Jal' },
+      aarti: { hi: 'संध्या आरती', en: 'Sandhya Aarti' },
+      shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana' },
+      sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli' },
+      shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' }
+    };
+
+    if (this.tabs) {
+      this.tabs.forEach(tab => {
+        const gameKey = tab.dataset.game;
+        if (tabTranslations[gameKey]) {
+          const span = tab.querySelector('.tab-text');
+          if (span) {
+            span.textContent = tabTranslations[gameKey][lang] || tabTranslations[gameKey].en;
+          }
+        }
+      });
+    }
+
+    if (this.langIndicator) {
+      this.langIndicator.textContent = lang === 'hi' ? '🇮🇳 हिन्दी' : '🌐 English';
+    }
+  }
+
+  getGameFromHash() {
+    const hash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
+    if (hash && this.games[hash]) {
+      return hash;
+    }
+    return 'bubbles';
+  }
+
+  bindHashRouting() {
+    window.addEventListener('hashchange', () => {
+      const target = this.getGameFromHash();
+      if (target && target !== this.currentGameKey) {
+        this.switchGame(target);
+      }
+    });
+  }
+
   startGame() {
     window.toddlerAudio.ensureContext();
     window.toddlerAudio.playCelebration();
@@ -397,7 +490,8 @@ class ToddlerApp {
       });
     }, 500);
 
-    this.switchGame('bubbles');
+    const targetGame = this.getGameFromHash();
+    this.switchGame(targetGame);
   }
 
   // BABY MASH ANY-KEY LISTENER
@@ -476,24 +570,32 @@ class ToddlerApp {
   }
 
   spawnKanhaFootprint(x, y, angleDeg) {
-    const el = document.createElement('div');
+    const el = this.footprintPool ? this.footprintPool.acquire() : document.createElement('div');
     el.className = 'kanha-footprint-trail';
     el.style.setProperty('--angle', `${angleDeg}deg`);
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
     el.innerHTML = VedicAssets.goldenFootprint;
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1200);
+    if (this.footprintPool) {
+      this.footprintPool.releaseAfter(el, 1200);
+    } else {
+      setTimeout(() => el.remove(), 1200);
+    }
   }
 
   showKeyboardRipple(keyName) {
-    const badge = document.createElement('div');
+    const badge = this.ripplePool ? this.ripplePool.acquire() : document.createElement('div');
     badge.className = 'key-mash-ripple';
     badge.textContent = keyName === ' ' ? '⭐' : keyName.toUpperCase();
     badge.style.left = `${Math.random() * 80 + 10}vw`;
     badge.style.top = `${Math.random() * 60 + 20}vh`;
     document.body.appendChild(badge);
-    setTimeout(() => badge.remove(), 700);
+    if (this.ripplePool) {
+      this.ripplePool.releaseAfter(badge, 700);
+    } else {
+      setTimeout(() => badge.remove(), 700);
+    }
   }
 
   bindSafetyGestures() {
@@ -514,6 +616,18 @@ class ToddlerApp {
     }
 
     this.currentGameKey = key;
+
+    if (window.location.hash !== '#' + key) {
+      try {
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', '#' + key);
+        } else {
+          window.location.hash = key;
+        }
+      } catch (e) {
+        window.location.hash = key;
+      }
+    }
 
     this.tabs.forEach(t => {
       t.classList.toggle('active', t.dataset.game === key);
