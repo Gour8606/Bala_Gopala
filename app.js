@@ -174,7 +174,9 @@ class ToddlerApp {
         en: "English language selected. Welcome!"
       });
 
-      if (this.currentGame && typeof this.currentGame.render === 'function') {
+      if (this.currentGame && typeof this.currentGame.onLanguageChange === 'function') {
+        this.currentGame.onLanguageChange(next);
+      } else if (this.currentGame && typeof this.currentGame.render === 'function') {
         this.currentGame.render();
       }
     });

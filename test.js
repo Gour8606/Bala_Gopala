@@ -135,6 +135,8 @@ assert(gamesCode.includes('shringar-reset-btn'), 'games.js implements Kanha fres
 assert(gamesCode.includes('class CelebrationPetalShower'), 'games.js defines CelebrationPetalShower for celebration particle cascade');
 assert(gamesCode.includes('numbersList ='), 'games.js AksharaGame defines numbersList for 1-10 counting phonics');
 assert(gamesCode.includes('playLetterChantOrSound('), 'games.js AksharaGame implements playLetterChantOrSound for authentic letter sounds');
+assert(gamesCode.includes('onLanguageChange('), 'games.js AksharaGame implements onLanguageChange for instant bilingual state sync');
+assert(gamesCode.includes('orb-counted'), 'games.js AksharaGame tracks counting progression on orbs');
 
 // Test ElementPool unit functionality
 try {

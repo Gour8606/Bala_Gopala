@@ -2462,6 +2462,14 @@ html, body {
   box-shadow: 0 0 16px var(--orb-accent, #F59E0B);
 }
 
+.counter-orb-btn.orb-counted {
+  background: var(--orb-accent, #F59E0B);
+  color: #FFF;
+  border-color: #D97706;
+  box-shadow: 0 0 10px var(--orb-accent, #F59E0B);
+  transform: scale(1.08);
+}
+
 /* Vedic Flower Petal Particle Shower */
 .falling-vedic-petal {
   position: fixed;
