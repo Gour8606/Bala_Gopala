@@ -827,8 +827,10 @@ class XylophoneGame {
 
     this.bhajans = [
       { name: { hi: 'अच्युतं केशवं', en: 'Achyutam Keshavam' }, notes: [0, 0, 4, 4, 5, 5, 4, 3, 3, 2, 2, 1, 1, 0] },
-      { name: { hi: 'हरे कृष्ण', en: 'Hare Krishna' }, notes: [0, 2, 4, 2, 4, 5, 4, 2, 0, 2, 4, 2, 0, 0] },
-      { name: { hi: 'गोविन्द गोपाला', en: 'Govinda Gopala' }, notes: [4, 4, 5, 7, 7, 5, 4, 2, 0, 2, 4, 4, 2, 0] }
+      { name: { hi: 'हरे कृष्ण महामन्त्र', en: 'Hare Krishna' }, notes: [0, 2, 4, 2, 4, 5, 4, 2, 0, 2, 4, 2, 0, 0] },
+      { name: { hi: 'गोविन्द गोपाला', en: 'Govinda Gopala' }, notes: [4, 4, 5, 7, 7, 5, 4, 2, 0, 2, 4, 4, 2, 0] },
+      { name: { hi: 'राधे राधे गोविन्द', en: 'Radhe Radhe Govinda' }, notes: [0, 2, 4, 4, 5, 4, 2, 0, 2, 4, 5, 7, 5, 4] },
+      { name: { hi: 'छोटी छोटी गैयाँ', en: 'Chhoti Chhoti Gaiya' }, notes: [4, 4, 2, 2, 0, 0, 2, 4, 4, 5, 4, 2, 0, 0] }
     ];
     this.selectedBhajanIdx = 0;
     this.bhajan = this.bhajans[0].notes;
@@ -1067,7 +1069,18 @@ class XylophoneGame {
     let playIdx = clickedIdx;
     if (this.magicBhajanMode) {
       playIdx = this.bhajan[this.bhajanIndex];
-      this.bhajanIndex = (this.bhajanIndex + 1) % this.bhajan.length;
+      this.bhajanIndex = this.bhajanIndex + 1;
+      if (this.bhajanIndex >= this.bhajan.length) {
+        this.bhajanIndex = 0;
+        setTimeout(() => {
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('celebration');
+            window.toddlerAudio.playCelebration();
+            window.toddlerAudio.playRandomEncouragement();
+          }
+          CelebrationPetalShower.shower();
+        }, 350);
+      }
       this.updateGuideHighlight();
     }
 
@@ -1133,9 +1146,20 @@ class AartiGame {
         </div>
 
         <div class="aarti-stage-area">
+          <div class="altar-bell-rope" id="altar-bell-rope" title="Ring the Sacred Temple Bell!">
+            <div class="bell-chain"></div>
+            <div class="hanging-bell-icon">🔔</div>
+            <div class="incense-touch-hint">${lang === 'hi' ? '🔔 घंटी' : '🔔 Bell'}</div>
+          </div>
+
           <div class="altar-deity">
             ${VedicAssets.balaKrishna}
             <div class="deity-radiance"></div>
+          </div>
+
+          <div class="altar-shankha-wrap" id="altar-shankha" title="Blow the Sacred Conch Shell!">
+            <div class="shankha-icon">🐚</div>
+            <div class="incense-touch-hint">${lang === 'hi' ? '🐚 शंख' : '🐚 Shankha'}</div>
           </div>
 
           <div class="altar-agarbatti-wrap" id="agarbatti-stick" title="Touch Incense for Fragrant Smoke!">
@@ -1209,6 +1233,34 @@ class AartiGame {
       window.toddlerAudio.playAartiChimes();
       window.toddlerAudio.speak({ hi: "आरती कुंजबिहारी की! जय श्री कृष्णा!", en: "Aarti for Little Krishna!" });
     });
+
+    const bellRope = this.container.querySelector('#altar-bell-rope');
+    if (bellRope) {
+      bellRope.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        bellRope.classList.add('bell-swinging');
+        window.toddlerAudio.playTempleBell(880);
+        window.toddlerAudio.triggerHaptic('medium');
+        this.showerAltarPetals('✨');
+        setTimeout(() => bellRope.classList.remove('bell-swinging'), 1200);
+      });
+    }
+
+    const shankhaWrap = this.container.querySelector('#altar-shankha');
+    if (shankhaWrap) {
+      shankhaWrap.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        shankhaWrap.classList.add('shankha-blowing');
+        window.toddlerAudio.playShankha();
+        window.toddlerAudio.triggerHaptic('heavy');
+        window.toddlerAudio.speak({
+          hi: "पावन शंख नाद! जय श्री कृष्णा!",
+          en: "Divine Shankha Naad! Jai Shri Krishna!"
+        });
+        this.showerAltarPetals('🪷');
+        setTimeout(() => shankhaWrap.classList.remove('shankha-blowing'), 1400);
+      });
+    }
 
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', () => {

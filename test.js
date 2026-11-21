@@ -137,6 +137,9 @@ assert(gamesCode.includes('numbersList ='), 'games.js AksharaGame defines number
 assert(gamesCode.includes('playLetterChantOrSound('), 'games.js AksharaGame implements playLetterChantOrSound for authentic letter sounds');
 assert(gamesCode.includes('onLanguageChange('), 'games.js AksharaGame implements onLanguageChange for instant bilingual state sync');
 assert(gamesCode.includes('orb-counted'), 'games.js AksharaGame tracks counting progression on orbs');
+assert(gamesCode.includes('altar-bell-rope'), 'games.js AartiGame implements interactive altar hanging temple bell');
+assert(gamesCode.includes('altar-shankha'), 'games.js AartiGame implements interactive altar conch shell naad');
+assert(gamesCode.includes('Chhoti Chhoti Gaiya'), 'games.js XylophoneGame implements expanded traditional bhajan repertoire');
 
 // Test ElementPool unit functionality
 try {
