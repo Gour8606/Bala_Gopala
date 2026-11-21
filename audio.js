@@ -788,19 +788,24 @@ class ToddlerAudio {
   // SACRED TEMPLE & INSTRUMENTAL SOUNDS
   // =========================================================================
 
-  // 10. Mandir Ghanti (Temple Bell with Brass Overtones)
+  // 10. Mandir Ghanti (Temple Bell with Brass Overtones & Acoustic Shimmer)
   playTempleBell(freq = 1046.5) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(22);
 
     const t = this.ctx.currentTime;
+
+    // Authentic Ashtadhatu bronze bell harmonic overtones with subtle acoustic beating
+    // (Hum, Prime, Tierce, Quint, Nominal, Super-nominal)
     const partials = [
-      { f: freq * 1.0, g: 0.35, d: 2.6 },
-      { f: freq * 1.52, g: 0.22, d: 2.0 },
-      { f: freq * 2.1, g: 0.16, d: 1.6 },
-      { f: freq * 3.4, g: 0.08, d: 0.9 },
-      { f: freq * 0.5, g: 0.15, d: 2.8 }
+      { f: freq * 0.5, g: 0.18, d: 2.8 },    // Hum note (sub-octave)
+      { f: freq * 1.0, g: 0.32, d: 2.6 },    // Fundamental Prime
+      { f: freq * 1.003, g: 0.22, d: 2.4 },  // Dual interference beating partial (natural 3Hz acoustic shimmer)
+      { f: freq * 1.518, g: 0.18, d: 2.0 },  // Tierce (minor third overtone)
+      { f: freq * 2.08, g: 0.14, d: 1.5 },   // Quint (fifth overtone)
+      { f: freq * 2.76, g: 0.09, d: 1.1 },   // Nominal overtone
+      { f: freq * 3.42, g: 0.05, d: 0.8 }    // High bronze shimmer
     ];
 
     partials.forEach(p => {
@@ -819,72 +824,173 @@ class ToddlerAudio {
       osc.start(t);
       osc.stop(t + p.d + 0.1);
     });
+
+    // Metallic clapper strike transient (first 25ms)
+    const strike = this.ctx.createOscillator();
+    const strikeGain = this.ctx.createGain();
+    strike.type = 'triangle';
+    strike.frequency.setValueAtTime(freq * 3.8, t);
+    strike.frequency.exponentialRampToValueAtTime(freq * 1.2, t + 0.025);
+
+    strikeGain.gain.setValueAtTime(0.12, t);
+    strikeGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+
+    strike.connect(strikeGain);
+    strikeGain.connect(this.getDestination());
+    strike.start(t);
+    strike.stop(t + 0.035);
   }
 
-  // 11. Shankha (Sacred Conch Swell)
+  // 11. Shankha (Sacred Temple Conch Shell Naad)
   playShankha() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
+    this.vibrate(35);
 
     const t = this.ctx.currentTime;
+    const dur = 2.1;
+    const fundamental = 220; // Sacred Sa
+
+    // Lip buzz oscillator (sawtooth through resonant cavity formant filters)
     const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    const filter = this.ctx.createBiquadFilter();
-
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(220, t);
-    osc.frequency.linearRampToValueAtTime(262, t + 0.3);
-    osc.frequency.setValueAtTime(262, t + 1.0);
-    osc.frequency.exponentialRampToValueAtTime(200, t + 1.8);
+    osc.frequency.setValueAtTime(fundamental * 0.94, t);
+    osc.frequency.linearRampToValueAtTime(fundamental * 1.19, t + 0.4);
+    osc.frequency.setValueAtTime(fundamental * 1.19, t + 1.2);
+    osc.frequency.exponentialRampToValueAtTime(fundamental * 0.92, t + dur);
 
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(520, t);
-    filter.Q.setValueAtTime(4.0, t);
+    // Subtle embouchure lip pressure modulation (5.8Hz)
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.setValueAtTime(5.8, t);
+    lfoGain.gain.setValueAtTime(3.5, t);
+    lfo.connect(osc.frequency);
 
-    gain.gain.setValueAtTime(0.01, t);
-    gain.gain.linearRampToValueAtTime(0.4, t + 0.35);
-    gain.gain.setValueAtTime(0.38, t + 1.1);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
+    // Formant 1: Conch spiral cavity acoustic resonance (~520Hz)
+    const f1 = this.ctx.createBiquadFilter();
+    f1.type = 'bandpass';
+    f1.frequency.setValueAtTime(520, t);
+    f1.frequency.linearRampToValueAtTime(560, t + 0.4);
+    f1.Q.setValueAtTime(3.8, t);
 
-    osc.connect(filter);
-    filter.connect(gain);
+    // Formant 2: High horn flare overtone (~1040Hz)
+    const f2 = this.ctx.createBiquadFilter();
+    f2.type = 'peaking';
+    f2.frequency.setValueAtTime(1040, t);
+    f2.gain.setValueAtTime(6.0, t);
+    f2.Q.setValueAtTime(2.5, t);
+
+    // Main Swell Amplitude Envelope
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.42, t + 0.45);
+    gain.gain.setValueAtTime(0.40, t + 1.3);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    osc.connect(f1);
+    f1.connect(f2);
+    f2.connect(gain);
     gain.connect(this.getDestination());
 
+    // Air breath rush through shell
+    const breathSize = Math.floor(this.ctx.sampleRate * 0.4);
+    const breathBuf = this.ctx.createBuffer(1, breathSize, this.ctx.sampleRate);
+    const bData = breathBuf.getChannelData(0);
+    for (let i = 0; i < breathSize; i++) {
+      bData[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * (i / breathSize)) * 0.06;
+    }
+    const breathNoise = this.ctx.createBufferSource();
+    breathNoise.buffer = breathBuf;
+    const bFilter = this.ctx.createBiquadFilter();
+    bFilter.type = 'bandpass';
+    bFilter.frequency.setValueAtTime(800, t);
+    bFilter.Q.setValueAtTime(2.0, t);
+    breathNoise.connect(bFilter);
+    bFilter.connect(gain);
+
+    lfo.start(t);
     osc.start(t);
-    osc.stop(t + 1.85);
+    breathNoise.start(t);
+    lfo.stop(t + dur + 0.05);
+    osc.stop(t + dur + 0.05);
   }
 
-  // 12. Bansuri (Lord Krishna's Bamboo Flute with Meend Glide)
+  // 12. Bansuri (Lord Krishna's Bamboo Flute with Cane Resonance & Breath Chiff)
   playBansuri(freq = 440) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(18);
 
     const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sine';
+    const dur = 1.35;
 
-    osc.frequency.setValueAtTime(freq * 0.96, t);
-    osc.frequency.exponentialRampToValueAtTime(freq, t + 0.08);
+    // 1. Primary Bamboo Cane Resonance: Fundamental (Sine)
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = 'sine';
+    // Gentle initial meend portamento glide into note
+    osc1.frequency.setValueAtTime(freq * 0.97, t);
+    osc1.frequency.exponentialRampToValueAtTime(freq, t + 0.08);
 
+    // 2. Second Harmonic (Warm Octave Characteristic of Cylindrical Bamboo)
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(freq * 1.94, t);
+    osc2.frequency.exponentialRampToValueAtTime(freq * 2.0, t + 0.08);
+
+    // Natural human vibrato with delayed onset (~120ms attack)
     const lfo = this.ctx.createOscillator();
     const lfoGain = this.ctx.createGain();
-    lfo.frequency.setValueAtTime(5.5, t);
-    lfoGain.gain.setValueAtTime(freq * 0.015, t);
-    lfo.connect(osc.frequency);
+    lfo.frequency.setValueAtTime(5.4, t); // 5.4 Hz natural Indian vocal/flute vibrato
+    lfoGain.gain.setValueAtTime(0.001, t);
+    lfoGain.gain.setValueAtTime(0.001, t + 0.12);
+    lfoGain.gain.linearRampToValueAtTime(freq * 0.016, t + 0.38);
+    lfo.connect(osc1.frequency);
+    lfo.connect(osc2.frequency);
 
-    gain.gain.setValueAtTime(0.01, t);
-    gain.gain.linearRampToValueAtTime(0.35, t + 0.07);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+    // Flute Breath Chiff (Air passing over embouchure hole during initial attack)
+    const chiffDur = 0.14;
+    const chiffSize = Math.floor(this.ctx.sampleRate * chiffDur);
+    const chiffBuf = this.ctx.createBuffer(1, chiffSize, this.ctx.sampleRate);
+    const cData = chiffBuf.getChannelData(0);
+    for (let i = 0; i < chiffSize; i++) {
+      cData[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * (i / chiffSize)) * 0.09;
+    }
+    const chiff = this.ctx.createBufferSource();
+    chiff.buffer = chiffBuf;
+    const chiffFilter = this.ctx.createBiquadFilter();
+    chiffFilter.type = 'bandpass';
+    chiffFilter.frequency.setValueAtTime(freq * 1.4, t);
+    chiffFilter.Q.setValueAtTime(3.0, t);
+    chiff.connect(chiffFilter);
+    chiffFilter.connect(this.getDestination());
 
-    osc.connect(gain);
-    gain.connect(this.getDestination());
+    // Fundamental Envelope (Smooth flute swell and gentle breath release)
+    gain1.gain.setValueAtTime(0.001, t);
+    gain1.gain.linearRampToValueAtTime(0.36, t + 0.07);
+    gain1.gain.setValueAtTime(0.34, t + 0.9);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+    // 2nd Harmonic Envelope
+    gain2.gain.setValueAtTime(0.001, t);
+    gain2.gain.linearRampToValueAtTime(0.12, t + 0.07);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.85);
+
+    osc1.connect(gain1);
+    gain1.connect(this.getDestination());
+
+    osc2.connect(gain2);
+    gain2.connect(this.getDestination());
 
     lfo.start(t);
-    osc.start(t);
-    lfo.stop(t + 1.3);
-    osc.stop(t + 1.3);
+    osc1.start(t);
+    osc2.start(t);
+    chiff.start(t);
+
+    lfo.stop(t + dur + 0.05);
+    osc1.stop(t + dur + 0.05);
+    osc2.stop(t + dur + 0.05);
   }
 
   // 13. Jal Tarang (Porcelain Water Bowl Resonance - Udaka Vadya Art 12)
@@ -946,96 +1052,130 @@ class ToddlerAudio {
     });
   }
 
-  // 14b. Saraswati Veena Pluck (Resonant String with Microtonal Meend)
+  // 14b. Saraswati Veena Pluck (Resonant String with Curved Jawari Bridge Buzz)
   playVeenaPluck(freq = 220) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(25);
     const t = this.ctx.currentTime;
-    const dur = 1.6;
+    const dur = 1.8;
 
-    // Fundamental with subtle meend glide
+    // 1. Plucked String Oscillator with Microtonal Meend Glide
     const osc1 = this.ctx.createOscillator();
     const gain1 = this.ctx.createGain();
     osc1.type = 'sawtooth';
     osc1.frequency.setValueAtTime(freq, t);
-    osc1.frequency.linearRampToValueAtTime(freq * 1.02, t + 0.15);
-    osc1.frequency.linearRampToValueAtTime(freq, t + 0.35);
+    osc1.frequency.linearRampToValueAtTime(freq * 1.025, t + 0.15); // gentle initial meend
+    osc1.frequency.linearRampToValueAtTime(freq, t + 0.4);
 
-    // Filter to simulate warm wooden resonator box (Kudam)
+    // 2. Wooden Kudam Resonator Filter with dynamic Jawari overtone decay
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(950, t);
-    filter.frequency.exponentialRampToValueAtTime(250, t + dur);
+    filter.frequency.setValueAtTime(1400, t); // bright jawari buzz at attack
+    filter.frequency.exponentialRampToValueAtTime(320, t + 0.6); // warm hollow wood sustain
+    filter.Q.setValueAtTime(2.8, t);
 
     gain1.gain.setValueAtTime(0.001, t);
-    gain1.gain.linearRampToValueAtTime(0.35, t + 0.02);
+    gain1.gain.linearRampToValueAtTime(0.38, t + 0.015);
     gain1.gain.exponentialRampToValueAtTime(0.0001, t + dur);
 
-    // Sympathetic overtone drone (Tarab strings)
-    const osc2 = this.ctx.createOscillator();
-    const gain2 = this.ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(freq * 2, t);
-    gain2.gain.setValueAtTime(0.12, t);
-    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    // 3. Sympathetic Drone String Resonance (Tarab)
+    const oscTarab = this.ctx.createOscillator();
+    const gainTarab = this.ctx.createGain();
+    oscTarab.type = 'sine';
+    oscTarab.frequency.setValueAtTime(freq * 2.0, t);
+
+    gainTarab.gain.setValueAtTime(0.001, t);
+    gainTarab.gain.linearRampToValueAtTime(0.14, t + 0.08);
+    gainTarab.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
 
     osc1.connect(filter);
     filter.connect(gain1);
     gain1.connect(this.getDestination());
 
-    osc2.connect(gain2);
-    gain2.connect(this.getDestination());
+    oscTarab.connect(gainTarab);
+    gainTarab.connect(this.getDestination());
 
     osc1.start(t);
-    osc2.start(t);
+    oscTarab.start(t);
     osc1.stop(t + dur + 0.05);
-    osc2.stop(t + 1.25);
+    oscTarab.stop(t + 1.45);
   }
 
-  // 14c. Mridangam / Dholak Bass Stroke (Dha / Ge)
+  // 14c. Mridangam / Dholak Bass Stroke (Dha / Ge - Resonant Flour Paste Head)
   playMridangaDha() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
-    this.vibrate(40);
+    this.vibrate(35);
     const t = this.ctx.currentTime;
 
-    // Deep pitched bass resonance
+    // Bass body resonance with natural pitch glide from palm strike
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(145, t);
-    osc.frequency.exponentialRampToValueAtTime(68, t + 0.28);
+    osc.frequency.setValueAtTime(138, t);
+    osc.frequency.exponentialRampToValueAtTime(74, t + 0.24);
 
-    gain.gain.setValueAtTime(0.65, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.68, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.42);
+
+    // Subtle wooden shell hollow knock
+    const knock = this.ctx.createOscillator();
+    const knockGain = this.ctx.createGain();
+    knock.type = 'triangle';
+    knock.frequency.setValueAtTime(220, t);
+    knock.frequency.exponentialRampToValueAtTime(90, t + 0.04);
+    knockGain.gain.setValueAtTime(0.25, t);
+    knockGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
 
     osc.connect(gain);
     gain.connect(this.getDestination());
+    knock.connect(knockGain);
+    knockGain.connect(this.getDestination());
+
     osc.start(t);
-    osc.stop(t + 0.4);
+    knock.start(t);
+    osc.stop(t + 0.44);
+    knock.stop(t + 0.06);
   }
 
-  // 14d. Mridangam / Dholak Treble Rim Stroke (Ta / Tin)
+  // 14d. Mridangam / Dholak Treble Rim Stroke (Ta / Tin - Black Siyaahi Ring)
   playMridangaTa() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
-    this.vibrate(20);
+    this.vibrate(18);
     const t = this.ctx.currentTime;
 
+    // Metallic bell-like ring from the black center paste (Siyaahi)
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(540, t);
-    osc.frequency.exponentialRampToValueAtTime(320, t + 0.08);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520, t);
+    osc.frequency.exponentialRampToValueAtTime(460, t + 0.12);
 
-    gain.gain.setValueAtTime(0.45, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.48, t + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+    // Rim slap snap transient
+    const snap = this.ctx.createOscillator();
+    const snapGain = this.ctx.createGain();
+    snap.type = 'triangle';
+    snap.frequency.setValueAtTime(880, t);
+    snap.frequency.exponentialRampToValueAtTime(320, t + 0.03);
+    snapGain.gain.setValueAtTime(0.3, t);
+    snapGain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
 
     osc.connect(gain);
     gain.connect(this.getDestination());
+    snap.connect(snapGain);
+    snapGain.connect(this.getDestination());
+
     osc.start(t);
-    osc.stop(t + 0.14);
+    snap.start(t);
+    osc.stop(t + 0.24);
+    snap.stop(t + 0.04);
   }
 
   // 14e. Gentle Floral Jhula Swing Chime
@@ -1188,35 +1328,44 @@ class ToddlerAudio {
     }
   }
 
-  // 17b. Gentle Breeze through Kadamba Trees
+  // 17b. Gentle Breeze through Kadamba Trees (Organic Multi-Layer Wind & Leaf Rustle)
   playKadambaBreeze() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(15);
 
     const t = this.ctx.currentTime;
-    const dur = 1.6;
+    const dur = 1.9;
     const bufferSize = Math.floor(this.ctx.sampleRate * dur);
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
 
+    // Multi-pole pink/brown noise for warm organic air pressure
+    let b0 = 0, b1 = 0, b2 = 0;
     for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.998 * b0 + white * 0.055;
+      b1 = 0.993 * b1 + white * 0.075;
+      b2 = 0.96 * b2 + white * 0.15;
       const envelope = Math.sin(Math.PI * (i / bufferSize));
-      data[i] = (Math.random() * 2 - 1) * envelope;
+      // Organic turbulent modulation (swirling wind gusts)
+      const swell = 0.75 + 0.25 * Math.sin((i / bufferSize) * 14);
+      data[i] = (b0 + b1 + b2) * envelope * swell * 0.45;
     }
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = buffer;
 
+    // Dynamic wind filter sweeping from gentle to full rustle
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(320, t);
-    filter.frequency.linearRampToValueAtTime(680, t + 0.7);
-    filter.frequency.linearRampToValueAtTime(280, t + dur);
+    filter.frequency.setValueAtTime(260, t);
+    filter.frequency.linearRampToValueAtTime(620, t + 0.8);
+    filter.frequency.linearRampToValueAtTime(240, t + dur);
 
     const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.01, t);
-    gain.gain.linearRampToValueAtTime(0.28, t + 0.6);
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.32, t + 0.6);
     gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
 
     noise.connect(filter);
@@ -1280,62 +1429,79 @@ class ToddlerAudio {
     }
   }
 
-  // 17d. Peaceful Vrindavan Forest Crickets
+  // 17d. Peaceful Vrindavan Forest Crickets (Natural Multi-Pulse Wing Stridulation)
   playNightCrickets() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
 
     const t = this.ctx.currentTime;
-    for (let b = 0; b < 4; b++) {
-      const burstStart = t + b * 0.28;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
+    // 3 rhythmic chirps, each containing 3-4 natural wing-rub micro-pulses
+    for (let c = 0; c < 3; c++) {
+      const chirpStart = t + c * 0.38;
+      const baseFreq = 4800 + (c % 2) * 180;
 
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(4600 + (b % 2) * 200, burstStart);
+      for (let p = 0; p < 4; p++) {
+        const pulseStart = chirpStart + p * 0.024;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
 
-      gain.gain.setValueAtTime(0.001, burstStart);
-      gain.gain.linearRampToValueAtTime(0.12, burstStart + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, burstStart + 0.18);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, pulseStart);
 
-      osc.connect(gain);
-      gain.connect(this.getDestination());
+        gain.gain.setValueAtTime(0.001, pulseStart);
+        gain.gain.linearRampToValueAtTime(0.12, pulseStart + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.001, pulseStart + 0.018);
 
-      osc.start(burstStart);
-      osc.stop(burstStart + 0.19);
+        osc.connect(gain);
+        gain.connect(this.getDestination());
+
+        osc.start(pulseStart);
+        osc.stop(pulseStart + 0.022);
+      }
     }
   }
 
-  // 17e. Vrindavan Forest Songbirds Chirping
+  // 17e. Vrindavan Forest Songbirds Chirping (Dual Syrinx Harmonic Trill)
   playForestBirdsChirp() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
 
     const t = this.ctx.currentTime;
     const chirps = [
-      { start: 0.0, from: 2400, to: 3800, dur: 0.14 },
-      { start: 0.18, from: 3100, to: 4400, dur: 0.12 },
-      { start: 0.36, from: 2800, to: 4100, dur: 0.18 }
+      { start: 0.0, f1: 2600, f2: 3800, dur: 0.18, mod: 26 },
+      { start: 0.22, f1: 3200, f2: 4400, dur: 0.16, mod: 28 },
+      { start: 0.44, f1: 2800, f2: 4100, dur: 0.22, mod: 22 }
     ];
 
     chirps.forEach(c => {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
       const startTime = t + c.start;
 
+      // Syrinx dual note oscillator
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(c.from, startTime);
-      osc.frequency.exponentialRampToValueAtTime(c.to, startTime + c.dur * 0.8);
+      osc.frequency.setValueAtTime(c.f1, startTime);
+      osc.frequency.exponentialRampToValueAtTime(c.f2, startTime + c.dur * 0.7);
+      osc.frequency.exponentialRampToValueAtTime(c.f1 * 1.1, startTime + c.dur);
 
-      gain.gain.setValueAtTime(0.01, startTime);
-      gain.gain.linearRampToValueAtTime(0.25, startTime + 0.04);
+      // Sweet songbird frequency vibrato trill
+      const trill = this.ctx.createOscillator();
+      const trillGain = this.ctx.createGain();
+      trill.frequency.setValueAtTime(c.mod, startTime);
+      trillGain.gain.setValueAtTime(140, startTime);
+      trill.connect(osc.frequency);
+
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.linearRampToValueAtTime(0.24, startTime + 0.03);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + c.dur);
 
       osc.connect(gain);
       gain.connect(this.getDestination());
 
+      trill.start(startTime);
       osc.start(startTime);
-      osc.stop(startTime + c.dur + 0.01);
+      trill.stop(startTime + c.dur + 0.02);
+      osc.stop(startTime + c.dur + 0.02);
     });
   }
 
