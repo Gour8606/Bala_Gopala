@@ -222,6 +222,13 @@ assert(appCode.includes('matki: MatkiTowerGame'), 'app.js registers MatkiTowerGa
 assert(appCode.includes('bhuta: PanchaBhutaGame'), 'app.js registers PanchaBhutaGame module');
 assert(appCode.includes('utsava: UtsavaGame'), 'app.js registers UtsavaGame module');
 assert(appCode.includes('vadya: VadyaGame'), 'app.js registers VadyaGame module');
+assert(appCode.includes("this.switchGame('matki')"), 'app.js implements keyboard shortcut for MatkiTowerGame');
+assert(appCode.includes("this.switchGame('bhuta')"), 'app.js implements keyboard shortcut for PanchaBhutaGame');
+assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboard shortcut for UtsavaGame');
+assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
+assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
+const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
+assert(swCode.includes('bala-gopala-v3.0'), 'sw.js caches with updated v3.0 identifier');
 assert(appCode.includes('this.footprintPool'), 'app.js uses memory pool for Kanha ghungroo footprints');
 assert(appCode.includes('class ToddlerInputFilter'), 'app.js defines ToddlerInputFilter for palm-slap rejection');
 assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');

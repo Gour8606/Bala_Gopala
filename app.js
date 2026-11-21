@@ -552,6 +552,10 @@ class ToddlerApp {
         if (e.key === '8') { this.switchGame('akshara'); return; }
         if (e.key === '9') { this.switchGame('prakriti'); return; }
         if (e.key === '0') { this.switchGame('dhyana'); return; }
+        if (e.key === '-' || e.key.toLowerCase() === 'm') { this.switchGame('matki'); return; }
+        if (e.key === '=' || e.key.toLowerCase() === 'b') { this.switchGame('bhuta'); return; }
+        if (e.key === '[' || e.key.toLowerCase() === 'u') { this.switchGame('utsava'); return; }
+        if (e.key === ']' || e.key.toLowerCase() === 'v') { this.switchGame('vadya'); return; }
       }
 
       this.mashCount++;
@@ -562,8 +566,9 @@ class ToddlerApp {
         this.showKeyboardRipple(e.key);
       }
 
-      // Every 5th key mash, play a delightful surprise animal vocalization (except in Akshara/Dhyana so phonics & mindfulness stay tranquil)
-      if (this.mashCount % 5 === 0 && this.currentGameKey !== 'akshara' && this.currentGameKey !== 'dhyana') {
+      // Every 5th key mash, play a delightful surprise animal vocalization (except in Akshara, Dhyana, Xylophone, & Vadya so phonics, mindfulness, and sacred music stay uninterrupted)
+      const musicAndCalmGames = ['akshara', 'dhyana', 'xylophone', 'vadya'];
+      if (this.mashCount % 5 === 0 && musicAndCalmGames.indexOf(this.currentGameKey) === -1) {
         const surpriseSounds = [
           () => window.toddlerAudio.playCowMoo(),
           () => window.toddlerAudio.playCalfMoo(),

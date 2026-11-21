@@ -3305,7 +3305,7 @@ class DhyanaGame {
 
   stop() {
     if (this.breathCycleTimer) {
-      clearInterval(this.breathCycleTimer);
+      clearTimeout(this.breathCycleTimer);
       this.breathCycleTimer = null;
     }
     this.container.innerHTML = '';
@@ -3465,7 +3465,7 @@ class DhyanaGame {
   }
 
   startBreathingEngine() {
-    if (this.breathCycleTimer) clearInterval(this.breathCycleTimer);
+    if (this.breathCycleTimer) clearTimeout(this.breathCycleTimer);
 
     let phaseIndex = 0;
     // 3 Phases: Inhale (4s), Hold (2s), Exhale (4s) -> Total 10s cycle
