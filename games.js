@@ -91,7 +91,14 @@ class BubbleGame {
       { name: 'Karuna', label: { hi: 'करुणा', en: 'Karuna (Kindness)' }, col: '#10B981' },
       { name: 'Vidya', label: { hi: 'विद्या', en: 'Vidya (Wisdom)' }, col: '#A855F7' }
     ];
-    this.vedicItems = ['🦚', '🍯', '🪷', '🪈', '🕉️', '⭐', '🔔', '🐮'];
+    this.category = 'makhan'; // 'makhan', 'flowers', 'numbers', 'letters'
+    this.categories = {
+      makhan: ['🦚', '🍯', '🪷', '🪈', '🕉️', '⭐', '🔔', '🐮'],
+      flowers: ['🌸', '🪷', '🌼', '🌺', '🌹', '🌻', '🌿'],
+      numbers: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+      letters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'M', 'O', 'P', 'R', 'S']
+    };
+    this.vedicItems = this.categories.makhan;
   }
 
   start() {
@@ -128,6 +135,14 @@ class BubbleGame {
           <span id="pop-counter-text">${counterLabel}: ${this.popCount}</span>
         </div>
 
+        <!-- Sensory Category Selector Pills -->
+        <div class="bubble-category-bar">
+          <button class="bubble-cat-btn ${this.category === 'makhan' ? 'active' : ''}" data-cat="makhan">🍯 ${lang === 'hi' ? 'माखन' : 'Butter'}</button>
+          <button class="bubble-cat-btn ${this.category === 'flowers' ? 'active' : ''}" data-cat="flowers">🌸 ${lang === 'hi' ? 'पुष्प' : 'Flowers'}</button>
+          <button class="bubble-cat-btn ${this.category === 'numbers' ? 'active' : ''}" data-cat="numbers">🔢 ${lang === 'hi' ? 'संख्या' : '1-10'}</button>
+          <button class="bubble-cat-btn ${this.category === 'letters' ? 'active' : ''}" data-cat="letters">🔤 ${lang === 'hi' ? 'अक्षर' : 'A-Z'}</button>
+        </div>
+
         <!-- Yashoda Maiya's Interactive Butter Churner Pot -->
         <div class="churning-station" id="churner-pot" title="Tap to churn fresh butter!">
           <div class="churner-visual" id="churner-visual">
@@ -143,6 +158,18 @@ class BubbleGame {
         <div class="bubble-play-area" id="bubble-area"></div>
       </div>
     `;
+
+    // Category button toggles
+    const catBtns = this.container.querySelectorAll('.bubble-cat-btn');
+    catBtns.forEach(b => {
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.category = b.dataset.cat;
+        catBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.cat === this.category));
+        window.toddlerAudio.playAartiChimes();
+        window.toddlerAudio.triggerHaptic('light');
+      });
+    });
 
     // Tap Surya Diya
     const surya = this.container.querySelector('#surya-btn');
@@ -258,9 +285,10 @@ class BubbleGame {
     const existing = area.querySelectorAll('.bubble-item');
     if (existing.length > 20) existing[0].remove();
 
-    const isMatka = Math.random() > 0.45;
+    const isMatka = (this.category === 'makhan') ? (Math.random() > 0.45) : false;
     const kala = this.kalas[Math.floor(Math.random() * this.kalas.length)];
-    const symbol = this.vedicItems[Math.floor(Math.random() * this.vedicItems.length)];
+    const activeList = this.categories[this.category] || this.categories.makhan;
+    const symbol = activeList[Math.floor(Math.random() * activeList.length)];
     const size = isMatka ? (85 + Math.random() * 35) : (75 + Math.random() * 30);
 
     const el = document.createElement('div');
@@ -287,8 +315,9 @@ class BubbleGame {
       `;
     } else {
       el.innerHTML = `
-        <div class="soap-bubble-body" style="border-color: ${kala.col}; box-shadow: inset 0 0 15px ${kala.col};">
+        <div class="soap-bubble-body" style="border-color: ${kala.col}; box-shadow: inset 0 0 16px ${kala.col};">
           <div class="bubble-reflection"></div>
+          <div class="bubble-reflection-sub"></div>
           <span class="bubble-inner-sparkle">${symbol}</span>
         </div>
       `;
@@ -308,7 +337,16 @@ class BubbleGame {
     const symbol = el.dataset.symbol;
     const isMatka = el.dataset.type === 'matka';
 
-    if (isMatka) {
+    if (this.category === 'numbers') {
+      window.toddlerAudio.speak(symbol);
+      window.toddlerAudio.playAscendingPop(parseInt(symbol, 10) || 1);
+    } else if (this.category === 'letters') {
+      window.toddlerAudio.speakLetter(symbol);
+      window.toddlerAudio.playAscendingPop(this.popCount);
+    } else if (this.category === 'flowers') {
+      window.toddlerAudio.playAartiChimes();
+      CelebrationPetalShower.shower();
+    } else if (isMatka) {
       window.toddlerAudio.playMakhanPop();
       window.toddlerAudio.playGhungroo();
     } else {

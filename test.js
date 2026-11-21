@@ -140,6 +140,8 @@ assert(gamesCode.includes('orb-counted'), 'games.js AksharaGame tracks counting 
 assert(gamesCode.includes('altar-bell-rope'), 'games.js AartiGame implements interactive altar hanging temple bell');
 assert(gamesCode.includes('altar-shankha'), 'games.js AartiGame implements interactive altar conch shell naad');
 assert(gamesCode.includes('Chhoti Chhoti Gaiya'), 'games.js XylophoneGame implements expanded traditional bhajan repertoire');
+assert(gamesCode.includes('bubble-category-bar'), 'games.js BubbleGame implements multi-sensory educational category selector');
+assert(gamesCode.includes('bubble-reflection-sub'), 'games.js BubbleGame renders dual-specular iridescent reflection physics');
 
 // Test ElementPool unit functionality
 try {
