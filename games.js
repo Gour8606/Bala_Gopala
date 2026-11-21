@@ -3521,6 +3521,512 @@ class DhyanaGame {
   }
 }
 
+// ==========================================
+// 11. GOPALA'S MATKI TOWER (MONTESSORI SERIATION)
+// Size Discrimination & Balance (Montessori Pink Tower in Vrindavan)
+// ==========================================
+class MatkiTowerGame {
+  constructor(container) {
+    this.container = container;
+    this.mashStep = 0;
+    this.petalShower = (typeof CelebrationPetalShower !== 'undefined') ? new CelebrationPetalShower() : null;
+    this.initTowerState();
+  }
+
+  initTowerState() {
+    this.isCompleted = false;
+    this.stacked = []; // bottom to top (Size 5 down to 1)
+
+    // 5 Graded Earthen Butter Pots
+    this.allMatkis = [
+      {
+        id: 'matka-5',
+        size: 5,
+        widthPx: 120,
+        freq: 261.63, // Sa (Deep base resonance)
+        title: { hi: 'महा मटका (सबसे बड़ा)', en: 'Maha Matka (Largest)' },
+        tag: 'Maha'
+      },
+      {
+        id: 'matka-4',
+        size: 4,
+        widthPx: 102,
+        freq: 293.66, // Re
+        title: { hi: 'बड़ा मटका', en: 'Bada Matka (Large)' },
+        tag: 'Bada'
+      },
+      {
+        id: 'matka-3',
+        size: 3,
+        widthPx: 86,
+        freq: 329.63, // Ga
+        title: { hi: 'मध्यम मटका', en: 'Madhyam Matka (Medium)' },
+        tag: 'Madhyam'
+      },
+      {
+        id: 'matka-2',
+        size: 2,
+        widthPx: 70,
+        freq: 349.23, // Ma
+        title: { hi: 'छोटा मटका', en: 'Chhota Matka (Small)' },
+        tag: 'Chhota'
+      },
+      {
+        id: 'matka-1',
+        size: 1,
+        widthPx: 56,
+        freq: 392.00, // Pa (Highest sweet note)
+        title: { hi: 'लघु मटका (सबसे छोटा)', en: 'Laghu Matka (Tiny)' },
+        tag: 'Laghu'
+      }
+    ];
+
+    // Shuffle the unstacked pots for the toddler selection tray
+    this.unstacked = this.allMatkis.slice();
+    for (let i = this.unstacked.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = this.unstacked[i];
+      this.unstacked[i] = this.unstacked[j];
+      this.unstacked[j] = temp;
+    }
+  }
+
+  start() {
+    this.render();
+    this.bindMatkiEvents();
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(880);
+      window.toddlerAudio.speak({
+        hi: "कान्हा की माखन मटकी! सबसे बड़े मटके से शुरू करके मटकी का शिखर बनाएं!",
+        en: "Gopala's Butter Pot Tower! Build the tower by placing the largest pot at the bottom!"
+      });
+    }
+  }
+
+  stop() {
+    if (this.petalShower && typeof this.petalShower.cleanup === 'function') {
+      this.petalShower.cleanup();
+    }
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    this.container.innerHTML = `
+      <div class="game-stage-wrapper game-matki-tower">
+        <!-- Top Stage: Pedestal and Stacking Tower -->
+        <section class="matki-tower-stage">
+          <!-- Celebration Banner on Completion -->
+          <div class="tower-success-banner ${this.isCompleted ? 'visible' : 'hidden'}" id="tower-celebration-banner">
+            <span class="banner-sparkle">⭐</span>
+            <span class="banner-title">${lang === 'hi' ? 'अद्भुत! माखन शिखर पूर्ण! 🍯' : 'Hooray! Butter Pot Tower Complete! 🍯'}</span>
+            <span class="banner-sparkle">⭐</span>
+          </div>
+
+          <!-- The Tower Stacking Column -->
+          <div class="tower-column" id="tower-stack-column">
+            <!-- Little Kanha Appears on Top upon Completion -->
+            <div class="tower-kanha-top ${this.isCompleted ? 'kanha-peek-active' : 'hidden'}" id="tower-kanha-avatar">
+              ${VedicAssets.balaKrishna || '👶'}
+            </div>
+
+            <!-- Stacker Slots (Rendered top to bottom: index stacked.length-1 down to 0) -->
+            <div class="stacked-pots-wrapper" id="stacked-pots-wrapper">
+              ${this.stacked.slice().reverse().map(pot => {
+                const title = pot.title[lang] || pot.title.en;
+                return `
+                  <div class="stacked-pot-item pot-snap-in" style="width: ${pot.widthPx}px;" title="${title}">
+                    ${VedicAssets.decoratedMatka || '🏺'}
+                    <span class="pot-size-label">${pot.tag}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Vrindavan Stone Pedestal (Base) -->
+            <div class="tower-stone-pedestal" id="tower-pedestal">
+              <span class="pedestal-ornament">🕉️</span>
+              <span class="pedestal-label">${lang === 'hi' ? 'शिखर आधार (Base)' : 'Stone Pedestal'}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bottom Stage: Montessori Size Selection Tray -->
+        <section class="matki-selection-tray-zone">
+          <div class="selection-tray-header">
+            <span class="tray-title">🏺 ${lang === 'hi' ? 'मटकी आकार चयन (Montessori Size Gradation)' : 'Select Matching Pot Size'}</span>
+            <button class="reset-tower-btn" id="reset-tower-btn" title="Build Again">
+              🔄 ${lang === 'hi' ? 'पुनः बनाएं' : 'Reset'}
+            </button>
+          </div>
+
+          <div class="matki-loose-tray" id="matki-loose-tray">
+            ${this.unstacked.map(pot => {
+              const title = pot.title[lang] || pot.title.en;
+              return `
+                <button class="matki-choice-btn" data-id="${pot.id}" style="width: ${pot.widthPx}px;" title="${title}">
+                  <div class="matki-btn-svg">${VedicAssets.decoratedMatka || '🏺'}</div>
+                  <span class="matki-btn-label">${pot.tag}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  bindMatkiEvents() {
+    // 1. Matki Selection from Tray
+    const tray = this.container.querySelector('#matki-loose-tray');
+    if (tray) {
+      tray.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('.matki-choice-btn');
+        if (!btn) return;
+        e.preventDefault();
+        const potId = btn.dataset.id;
+        this.tryStackMatki(potId, btn);
+      });
+    }
+
+    // 2. Reset Button
+    const resetBtn = this.container.querySelector('#reset-tower-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (window.toddlerAudio) window.toddlerAudio.playDamru();
+        this.initTowerState();
+        this.render();
+        this.bindMatkiEvents();
+      });
+    }
+  }
+
+  tryStackMatki(potId, btnEl) {
+    if (this.isCompleted) return;
+
+    const potIndex = this.unstacked.findIndex(p => p.id === potId);
+    if (potIndex === -1) return;
+    const chosenPot = this.unstacked[potIndex];
+
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    // The next required size is 5 minus currently stacked length (5, 4, 3, 2, 1)
+    const neededSize = 5 - this.stacked.length;
+
+    if (chosenPot.size === neededSize) {
+      // Correct Montessori Size Match!
+      this.stacked.push(chosenPot);
+      this.unstacked.splice(potIndex, 1);
+
+      // Play musical note
+      if (window.toddlerAudio) {
+        if (typeof window.toddlerAudio.playJalTarang === 'function') {
+          window.toddlerAudio.playJalTarang(chosenPot.freq);
+        } else {
+          window.toddlerAudio.playBansuri(chosenPot.freq);
+        }
+        const title = chosenPot.title[lang] || chosenPot.title.en;
+        window.toddlerAudio.speak(title);
+      }
+
+      // Check if complete
+      if (this.stacked.length === 5) {
+        this.isCompleted = true;
+        this.render();
+        this.bindMatkiEvents();
+
+        setTimeout(() => {
+          if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
+            this.petalShower.celebrate(this.container);
+          }
+          if (window.toddlerAudio) {
+            window.toddlerAudio.playBabyGiggle();
+            setTimeout(() => {
+              if (window.toddlerAudio) window.toddlerAudio.playCelebration();
+            }, 400);
+            window.toddlerAudio.speak({
+              hi: "अद्भुत! मटकी शिखर तैयार! कान्हा को माखन मिल गया! जय श्री कृष्णा!",
+              en: "Wonderful! The Butter Pot Tower is balanced! Little Kanha enjoys fresh butter!"
+            });
+          }
+        }, 300);
+      } else {
+        this.render();
+        this.bindMatkiEvents();
+      }
+    } else {
+      // Self-correcting feedback: Friendly coaching
+      if (btnEl) {
+        btnEl.classList.add('pot-shake-wobble');
+        setTimeout(() => btnEl.classList.remove('pot-shake-wobble'), 500);
+      }
+
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playDamru();
+        const neededPot = this.allMatkis.find(p => p.size === neededSize);
+        const neededTitle = neededPot ? (neededPot.title[lang] || neededPot.title.en) : '';
+        window.toddlerAudio.speak({
+          hi: `पहले ${neededTitle} रखें! आधार मजबूत होना चाहिए!`,
+          en: `Place the ${neededTitle} next for perfect balance!`
+        });
+      }
+    }
+  }
+
+  handleAnyKey(key) {
+    this.mashStep++;
+    if (this.isCompleted) {
+      this.initTowerState();
+      this.render();
+      this.bindMatkiEvents();
+      return;
+    }
+
+    const neededSize = 5 - this.stacked.length;
+    const nextPot = this.unstacked.find(p => p.size === neededSize);
+    if (nextPot) {
+      this.tryStackMatki(nextPot.id, null);
+    }
+  }
+}
+
+// ==========================================
+// 12. PANCHA MAHA BHUTA (THE 5 SACRED ELEMENTS)
+// IB PYP "Sharing the Planet" & Vedic Natural Science
+// ==========================================
+class PanchaBhutaGame {
+  constructor(container) {
+    this.container = container;
+    this.currentElementId = 'prithvi';
+    this.mashIndex = 0;
+
+    // 5 Sacred Great Elements (Vedic Natural Philosophy & IB PYP)
+    this.elements = [
+      {
+        id: 'prithvi',
+        icon: '🌍',
+        name: { hi: 'पृथ्वी (भूमि / Earth)', en: 'Prithvi (Earth & Soil)' },
+        subtext: { hi: 'सुगंधित मिट्टी, हरी दूब और गऊ-माता का पोषण', en: 'Fragrant Vrindavan soil, green grass and nourishing mother earth' },
+        sanskrit: 'ॐ पृथिव्यै नमः',
+        sound: () => {
+          if (window.toddlerAudio) {
+            window.toddlerAudio.playCowBell();
+            setTimeout(() => {
+              if (window.toddlerAudio) window.toddlerAudio.playGrassChew();
+            }, 300);
+          }
+        },
+        bgGradient: 'radial-gradient(circle, #F0FDF4 0%, #DCFCE7 100%)',
+        accentColor: '#16A34A',
+        badgeClass: 'element-prithvi',
+        heroSvg: VedicAssets.govardhanHill || '🏔️'
+      },
+      {
+        id: 'jala',
+        icon: '💧',
+        name: { hi: 'जल (यमुना / Water)', en: 'Jala (Holy Water)' },
+        subtext: { hi: 'पवित्र यमुना नदी, तैरते कमल और जल की शीतलता', en: 'Pure Yamuna river streams, floating lotuses and refreshing water' },
+        sanskrit: 'ॐ अद्भ्यो नमः',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playYamunaStream === 'function') {
+              window.toddlerAudio.playYamunaStream();
+            } else {
+              window.toddlerAudio.playWaterSplash();
+            }
+          }
+        },
+        bgGradient: 'radial-gradient(circle, #F0F9FF 0%, #BAE6FD 100%)',
+        accentColor: '#0284C7',
+        badgeClass: 'element-jala',
+        heroSvg: VedicAssets.waterPitcher || '💧'
+      },
+      {
+        id: 'agni',
+        icon: '🔥',
+        name: { hi: 'अग्नि (तेज / Fire)', en: 'Agni (Sacred Fire)' },
+        subtext: { hi: 'पवित्र दीप ज्योति, यज्ञ अग्नि और जीवन की ऊर्जा', en: 'Sacred Ghee diya flame, purifying Yajna fire and warm energy' },
+        sanskrit: 'ॐ अग्नये नमः',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playSingingBowl === 'function') {
+              window.toddlerAudio.playSingingBowl(528);
+            } else {
+              window.toddlerAudio.playAartiChimes();
+            }
+          }
+        },
+        bgGradient: 'radial-gradient(circle, #FEF2F2 0%, #FECACA 100%)',
+        accentColor: '#DC2626',
+        badgeClass: 'element-agni',
+        heroSvg: VedicAssets.diya || '🪔'
+      },
+      {
+        id: 'vayu',
+        icon: '💨',
+        name: { hi: 'वायु (पवन / Air)', en: 'Vayu (Sacred Breeze)' },
+        subtext: { hi: 'कदम वृक्ष की शीतल बयार और कान्हा की बांसुरी', en: 'Gentle Vrindavan breeze carrying sweet bansuri flute notes' },
+        sanskrit: 'ॐ वायवे नमः',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playKadambaBreeze === 'function') {
+              window.toddlerAudio.playKadambaBreeze();
+            }
+            setTimeout(() => {
+              if (window.toddlerAudio) window.toddlerAudio.playDivineFlutePhrase();
+            }, 300);
+          }
+        },
+        bgGradient: 'radial-gradient(circle, #FAF5FF 0%, #E9D5FF 100%)',
+        accentColor: '#9333EA',
+        badgeClass: 'element-vayu',
+        heroSvg: VedicAssets.mayur || '🦚'
+      },
+      {
+        id: 'akasha',
+        icon: '🌌',
+        name: { hi: 'आकाश (अंतरिक्ष / Space)', en: 'Akasha (Cosmic Space)' },
+        subtext: { hi: 'अनंत नीला आकाश, जगमगाते तारे और ॐ की दिव्य ध्वनि', en: 'Infinite cosmos, moon, twinkling stars and divine Om vibration' },
+        sanskrit: 'ॐ आकाशाय नमः',
+        sound: () => {
+          if (window.toddlerAudio) {
+            if (typeof window.toddlerAudio.playOmChant === 'function') {
+              window.toddlerAudio.playOmChant();
+            } else {
+              window.toddlerAudio.playTempleBell(880);
+            }
+          }
+        },
+        bgGradient: 'radial-gradient(circle, #EEF2FF 0%, #C7D2FE 100%)',
+        accentColor: '#4F46E5',
+        badgeClass: 'element-akasha',
+        heroSvg: VedicAssets.panchaBhutaEmblem || '🌌'
+      }
+    ];
+  }
+
+  start() {
+    this.render();
+    this.bindBhutaEvents();
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(880);
+      window.toddlerAudio.speak({
+        hi: "पंच महाभूत दर्शन! पृथ्वी, जल, अग्नि, वायु और आकाश का आदर करें!",
+        en: "The Five Sacred Elements! Discover Earth, Water, Fire, Air and Space in harmony!"
+      });
+    }
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const activeElem = this.elements.find(e => e.id === this.currentElementId) || this.elements[0];
+    const eName = activeElem.name[lang] || activeElem.name.en;
+    const eSub = activeElem.subtext[lang] || activeElem.subtext.en;
+
+    this.container.innerHTML = `
+      <div class="game-stage-wrapper game-pancha-bhuta">
+        <!-- Center Interactive Element Sanctuary Card -->
+        <section class="bhuta-stage-center">
+          <div class="bhuta-hero-card ${activeElem.badgeClass}"
+               id="bhuta-hero-card"
+               style="background: ${activeElem.bgGradient}; --elem-accent: ${activeElem.accentColor};"
+               title="Tap to trigger natural element harmony">
+            <div class="bhuta-aura-pulse" id="bhuta-aura"></div>
+            <div class="bhuta-hero-svg" id="bhuta-hero-art">
+              ${activeElem.heroSvg}
+            </div>
+            <div class="bhuta-name-banner">
+              <span class="bhuta-icon">${activeElem.icon}</span>
+              <span class="bhuta-title-text">${eName}</span>
+              <span class="bhuta-sanskrit-mantra">${activeElem.sanskrit}</span>
+            </div>
+            <p class="bhuta-description">${eSub}</p>
+          </div>
+        </section>
+
+        <!-- Bottom Element Navigation Selector (5 Sacred Pills) -->
+        <section class="bhuta-tray-zone">
+          <div class="bhuta-tray-header">
+            <span class="bhuta-tray-title">🌿 ${lang === 'hi' ? 'पंच महाभूत (IB PYP "Sharing the Planet")' : 'The 5 Sacred Elements (Pancha Maha Bhuta)'}</span>
+          </div>
+
+          <div class="bhuta-elements-tray">
+            ${this.elements.map(elem => {
+              const isActive = (elem.id === this.currentElementId);
+              const title = elem.name[lang] || elem.name.en;
+              return `
+                <button class="bhuta-pill-btn ${isActive ? 'active-element' : ''}"
+                        data-element="${elem.id}"
+                        id="bhuta-pill-${elem.id}"
+                        style="--elem-color: ${elem.accentColor};">
+                  <span class="bhuta-pill-icon">${elem.icon}</span>
+                  <span class="bhuta-pill-title">${title.split(' ')[0]}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  bindBhutaEvents() {
+    // 1. Element Selector Pills
+    const tray = this.container.querySelector('.bhuta-elements-tray');
+    if (tray) {
+      tray.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('.bhuta-pill-btn');
+        if (!btn) return;
+        e.preventDefault();
+        const elemId = btn.dataset.element;
+        this.selectElement(elemId);
+      });
+    }
+
+    // 2. Direct Tap on Hero Card
+    const heroCard = this.container.querySelector('#bhuta-hero-card');
+    if (heroCard) {
+      heroCard.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        heroCard.classList.add('bhuta-tapped-pulse');
+        setTimeout(() => heroCard.classList.remove('bhuta-tapped-pulse'), 700);
+        const elem = this.elements.find(el => el.id === this.currentElementId);
+        if (elem && typeof elem.sound === 'function') elem.sound();
+      });
+    }
+  }
+
+  selectElement(elemId) {
+    const elem = this.elements.find(e => e.id === elemId);
+    if (!elem) return;
+
+    this.currentElementId = elemId;
+    this.render();
+    this.bindBhutaEvents();
+
+    if (typeof elem.sound === 'function') elem.sound();
+
+    if (window.toddlerAudio) {
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const name = elem.name[lang] || elem.name.en;
+      const sub = elem.subtext[lang] || elem.subtext.en;
+      window.toddlerAudio.speak(`${name}! ${sub}`);
+    }
+  }
+
+  handleAnyKey(key) {
+    this.mashIndex++;
+    const nextElem = this.elements[this.mashIndex % this.elements.length];
+    this.selectElement(nextElem.id);
+  }
+}
+
 // Global Exports
 if (typeof window !== 'undefined') {
   window.BubbleGame = BubbleGame;
@@ -3533,6 +4039,8 @@ if (typeof window !== 'undefined') {
   window.AksharaGame = AksharaGame;
   window.PrakritiGame = PrakritiGame;
   window.DhyanaGame = DhyanaGame;
+  window.MatkiTowerGame = MatkiTowerGame;
+  window.PanchaBhutaGame = PanchaBhutaGame;
   window.CelebrationPetalShower = CelebrationPetalShower;
 }
 
@@ -3548,6 +4056,8 @@ if (typeof module !== 'undefined' && module.exports) {
     AksharaGame,
     PrakritiGame,
     DhyanaGame,
+    MatkiTowerGame,
+    PanchaBhutaGame,
     CelebrationPetalShower,
     ToddlerPersistence,
     ElementPool

@@ -3209,6 +3209,431 @@ html, body {
   }
 }
 
+/* ==================================================
+   GAME 11: GOPALA'S MATKI TOWER (MONTESSORI SERIATION)
+   ================================================== */
+.game-matki-tower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  height: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+.matki-tower-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 600px;
+  flex: 1;
+  min-height: 280px;
+  position: relative;
+}
+
+.tower-success-banner {
+  position: absolute;
+  top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFBEB;
+  border: 3px solid #F59E0B;
+  color: #92400E;
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 6px 18px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+  animation: banner-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 10;
+}
+
+@keyframes banner-pop-in {
+  0% { transform: scale(0.6) translateY(-20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.tower-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.tower-kanha-top {
+  width: 80px;
+  height: 80px;
+  margin-bottom: -16px;
+  z-index: 6;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  animation: kanha-peek-bounce 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes kanha-peek-bounce {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-8px) scale(1.06); }
+}
+
+.stacked-pots-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: -10px;
+}
+
+.stacked-pot-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -14px;
+  transition: transform 0.2s ease;
+}
+
+.stacked-pot-item:first-child {
+  margin-top: 0;
+}
+
+.pot-snap-in {
+  animation: pot-land-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pot-land-bounce {
+  0% { transform: translateY(-40px) scale(1.15); opacity: 0.5; }
+  60% { transform: translateY(6px) scale(0.96); opacity: 1; }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.pot-size-label {
+  position: absolute;
+  bottom: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid #D97706;
+  color: #78350F;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 1px 6px;
+  pointer-events: none;
+}
+
+.tower-stone-pedestal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 220px;
+  height: 38px;
+  background: linear-gradient(180deg, #F59E0B 0%, #B45309 100%);
+  border: 3px solid #78350F;
+  border-radius: 14px;
+  color: #FFFDF5;
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+  margin-top: -6px;
+  z-index: 1;
+}
+
+.pedestal-ornament {
+  font-size: 1.1rem;
+}
+
+/* Selection Tray */
+.matki-selection-tray-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 3px solid #E2E8F0;
+  border-radius: 28px;
+  padding: 10px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.selection-tray-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.tray-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.reset-tower-btn {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  color: #78350F;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.reset-tower-btn:hover, .reset-tower-btn:active {
+  transform: scale(1.08);
+  background: #FDE68A;
+}
+
+.matki-loose-tray {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  min-height: 80px;
+  padding: 8px;
+  background: #F8FAFC;
+  border: 2px dashed #CBD5E1;
+  border-radius: 20px;
+}
+
+.matki-choice-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.matki-choice-btn:hover, .matki-choice-btn:active {
+  transform: scale(1.15);
+}
+
+.matki-btn-svg {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+}
+
+.matki-btn-label {
+  margin-top: 2px;
+  background: #FFFDF0;
+  border: 1.5px solid #F59E0B;
+  color: #78350F;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.pot-shake-wobble {
+  animation: pot-mismatch-wobble 0.5s ease-in-out;
+}
+
+@keyframes pot-mismatch-wobble {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px) rotate(-6deg); }
+  75% { transform: translateX(8px) rotate(6deg); }
+}
+
+/* ==================================================
+   GAME 12: PANCHA MAHA BHUTA (5 SACRED ELEMENTS)
+   ================================================== */
+.game-pancha-bhuta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  height: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+.bhuta-stage-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 680px;
+  margin: auto 0;
+}
+
+.bhuta-hero-card {
+  position: relative;
+  border: 4px solid var(--elem-accent, #16A34A);
+  border-radius: 36px;
+  padding: 18px 24px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.bhuta-hero-card:active {
+  transform: scale(0.97);
+}
+
+.bhuta-tapped-pulse {
+  animation: bhuta-energy-burst 0.7s ease-out;
+}
+
+@keyframes bhuta-energy-burst {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 24px var(--elem-accent, #16A34A)); }
+  100% { transform: scale(1); }
+}
+
+.bhuta-hero-svg {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.bhuta-name-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFDF5;
+  border: 2px solid var(--elem-accent, #16A34A);
+  border-radius: 999px;
+  padding: 4px 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.bhuta-icon {
+  font-size: 1.4rem;
+}
+
+.bhuta-title-text {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.bhuta-sanskrit-mantra {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--elem-accent, #16A34A);
+}
+
+.bhuta-description {
+  font-size: 0.88rem;
+  color: #334155;
+  font-weight: 600;
+  line-height: 1.35;
+  max-width: 420px;
+  margin: 0;
+}
+
+/* Bottom Element Tray */
+.bhuta-tray-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 820px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 3px solid #E2E8F0;
+  border-radius: 28px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.bhuta-tray-header {
+  margin-bottom: 8px;
+}
+
+.bhuta-tray-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.bhuta-elements-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.bhuta-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 2.5px solid #CBD5E1;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s, box-shadow 0.15s;
+}
+
+.bhuta-pill-btn:hover, .bhuta-pill-btn:active {
+  transform: scale(1.08);
+  border-color: var(--elem-color, #16A34A);
+}
+
+.bhuta-pill-btn.active-element {
+  background: #FFFDF5;
+  border-color: var(--elem-color, #16A34A);
+  border-width: 3px;
+  box-shadow: 0 0 16px var(--elem-color, #16A34A);
+  transform: scale(1.12);
+}
+
+.bhuta-pill-icon {
+  font-size: 1.3rem;
+}
+
+.bhuta-pill-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+@media (max-width: 600px) {
+  .matki-tower-stage {
+    min-height: 220px;
+  }
+  .bhuta-hero-card {
+    padding: 14px 16px;
+  }
+  .bhuta-hero-svg {
+    width: 110px;
+    height: 110px;
+  }
+}
+
 
 
 

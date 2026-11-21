@@ -47,7 +47,9 @@ class ToddlerApp {
       shringar: ShringarGame,
       akshara: AksharaGame,
       prakriti: PrakritiGame,
-      dhyana: DhyanaGame
+      dhyana: DhyanaGame,
+      matki: MatkiTowerGame,
+      bhuta: PanchaBhutaGame
     };
 
     // Commercial Memory Object Pools (Zero runtime GC stutter)
@@ -462,7 +464,9 @@ class ToddlerApp {
       shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' },
       akshara: { hi: 'दिव्य अक्षर', en: 'Akshara' },
       prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care' },
-      dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness' }
+      dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness' },
+      matki: { hi: 'मटकी शिखर', en: 'Matki Tower' },
+      bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta' }
     };
 
     if (this.tabs) {
@@ -661,7 +665,13 @@ class ToddlerApp {
     }
 
     this.tabs.forEach(t => {
-      t.classList.toggle('active', t.dataset.game === key);
+      const isActive = (t.dataset.game === key);
+      t.classList.toggle('active', isActive);
+      if (isActive && typeof t.scrollIntoView === 'function') {
+        try {
+          t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } catch (e) {}
+      }
     });
 
     window.toddlerAudio.playTempleBell(880);
@@ -680,7 +690,9 @@ class ToddlerApp {
       shringar: { hi: "कान्हा श्रृंगार और माखन सेवा! बाल गोपाला को सजाएं!", en: "Kanha Shringar! Adorn little Krishna with love!" },
       akshara: { hi: "दिव्य अक्षर और प्राकृत स्वर! कोई भी कुंजी दबाएं!", en: "Alphabet & Phonics! Press any letter key or tap to hear it speak!" },
       prakriti: { hi: "प्रकृति सेवा और पुष्प संगम! तुलसी मैया की सेवा करें!", en: "Prakriti Care & Nature Harmony! Nurture holy Tulsi and sort sacred flowers!" },
-      dhyana: { hi: "ध्यान, प्राणायाम व नवरस! शांत मन और गहरी श्वास!", en: "Mindfulness, Pranayama & Emotions! Breathe deeply and find inner calm!" }
+      dhyana: { hi: "ध्यान, प्राणायाम व नवरस! शांत मन और गहरी श्वास!", en: "Mindfulness, Pranayama & Emotions! Breathe deeply and find inner calm!" },
+      matki: { hi: "गोपाला मटकी शिखर! सबसे बड़ा मटका नीचे रखकर शिखर बनाएं!", en: "Gopala's Butter Pot Tower! Build the tower by placing the largest pot at the bottom!" },
+      bhuta: { hi: "पंच महाभूत दर्शन! पृथ्वी, जल, अग्नि, वायु और आकाश का आदर करें!", en: "The Five Sacred Elements! Discover Earth, Water, Fire, Air and Space in harmony!" }
     };
 
     setTimeout(() => {

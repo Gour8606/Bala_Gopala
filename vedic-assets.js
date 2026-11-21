@@ -845,6 +845,101 @@ VedicAssets.mindfulKrishna = `
     </svg>
   `;
 
+// Decorated Earthen Butter Pot (Montessori Seriation Matka)
+VedicAssets.decoratedMatka = `
+  <svg viewBox="0 0 100 100" class="toddler-svg vedic-decorated-matka">
+    <defs>
+      <linearGradient id="terracottaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#F97316"/>
+        <stop offset="45%" stop-color="#EA580C"/>
+        <stop offset="100%" stop-color="#9A3412"/>
+      </linearGradient>
+      <linearGradient id="matkaGoldRim" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#FEF08A"/>
+        <stop offset="50%" stop-color="#F59E0B"/>
+        <stop offset="100%" stop-color="#B45309"/>
+      </linearGradient>
+    </defs>
+    <!-- Pot Body -->
+    <ellipse cx="50" cy="58" rx="38" ry="32" fill="url(#terracottaGrad)" stroke="#7C2D12" stroke-width="2.5"/>
+    <!-- Pot Neck & Lip -->
+    <rect x="34" y="20" width="32" height="12" rx="3" fill="url(#terracottaGrad)" stroke="#7C2D12" stroke-width="2"/>
+    <ellipse cx="50" cy="20" rx="20" ry="7" fill="url(#matkaGoldRim)" stroke="#7C2D12" stroke-width="2"/>
+    <!-- Sacred Mauli (Red & Yellow thread wrapped around neck) -->
+    <line x1="32" y1="26" x2="68" y2="26" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
+    <line x1="32" y1="29" x2="68" y2="29" stroke="#FEF08A" stroke-width="2" stroke-linecap="round"/>
+    <!-- Center Peacock Feather Medallion on Belly -->
+    <circle cx="50" cy="58" r="16" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+    <ellipse cx="50" cy="58" rx="7" ry="11" fill="#059669"/>
+    <ellipse cx="50" cy="58" rx="4" ry="7" fill="#38BDF8"/>
+    <circle cx="50" cy="58" r="2.5" fill="#F59E0B"/>
+    <!-- Auspicious Dot Motifs -->
+    <circle cx="26" cy="54" r="3" fill="#FEF08A"/>
+    <circle cx="74" cy="54" r="3" fill="#FEF08A"/>
+    <circle cx="34" cy="72" r="2.5" fill="#FEF08A"/>
+    <circle cx="66" cy="72" r="2.5" fill="#FEF08A"/>
+    <!-- Fresh White Butter Foam at Rim -->
+    <path d="M 38 20 Q 44 14 50 18 Q 56 12 62 20 Z" fill="#FFFDF5"/>
+  </svg>
+`;
+
+// Sacred Mount Govardhan (Divine Hill of Vrindavan)
+VedicAssets.govardhanHill = `
+  <svg viewBox="0 0 120 100" class="toddler-svg vedic-govardhan-hill">
+    <defs>
+      <linearGradient id="hillGreenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#4ADE80"/>
+        <stop offset="40%" stop-color="#16A34A"/>
+        <stop offset="100%" stop-color="#14532D"/>
+      </linearGradient>
+    </defs>
+    <!-- Sacred Green Terraced Mountain Silhouette -->
+    <path d="M 10 92 Q 30 50 48 32 Q 60 12 72 32 Q 90 48 110 92 Z" fill="url(#hillGreenGrad)" stroke="#166534" stroke-width="2"/>
+    <!-- Rock Formations -->
+    <path d="M 35 60 Q 45 42 58 55" stroke="#BBF7D0" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 64 50 Q 76 38 88 56" stroke="#BBF7D0" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Mountain Waterfall -->
+    <path d="M 60 30 Q 56 55 58 92" stroke="#38BDF8" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Trees on Ridges -->
+    <circle cx="32" cy="52" r="7" fill="#15803D"/>
+    <circle cx="86" cy="48" r="8" fill="#15803D"/>
+    <circle cx="60" cy="18" r="6" fill="#22C55E"/>
+    <!-- Sacred Footprints on Peak -->
+    <ellipse cx="58" cy="14" rx="2" ry="3" fill="#FBBF24"/>
+    <ellipse cx="63" cy="14" rx="2" ry="3" fill="#FBBF24"/>
+  </svg>
+`;
+
+// Sacred Pancha Maha Bhuta (5 Elements Emblem: Earth, Water, Fire, Air, Space)
+VedicAssets.panchaBhutaEmblem = `
+  <svg viewBox="0 0 120 120" class="toddler-svg vedic-pancha-bhuta">
+    <defs>
+      <radialGradient id="etherCosmos" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#6366F1"/>
+        <stop offset="100%" stop-color="#1E1B4B"/>
+      </radialGradient>
+    </defs>
+    <!-- Outer Space Ether Orbit Ring -->
+    <circle cx="60" cy="60" r="54" fill="url(#etherCosmos)" stroke="#F59E0B" stroke-width="2"/>
+    <circle cx="60" cy="60" r="48" fill="none" stroke="#FDE68A" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <!-- Prithvi (Earth - Green Base) -->
+    <circle cx="38" cy="42" r="14" fill="#22C55E" stroke="#14532D" stroke-width="1.5"/>
+    <text x="38" y="47" font-size="12" text-anchor="middle">🌱</text>
+    <!-- Jala (Water - Blue Wave) -->
+    <circle cx="82" cy="42" r="14" fill="#0EA5E9" stroke="#0369A1" stroke-width="1.5"/>
+    <text x="82" y="47" font-size="12" text-anchor="middle">💧</text>
+    <!-- Agni (Fire - Red Flame) -->
+    <circle cx="38" cy="78" r="14" fill="#EF4444" stroke="#991B1B" stroke-width="1.5"/>
+    <text x="38" y="83" font-size="12" text-anchor="middle">🔥</text>
+    <!-- Vayu (Air - Wind Breeze) -->
+    <circle cx="82" cy="78" r="14" fill="#A855F7" stroke="#6B21A8" stroke-width="1.5"/>
+    <text x="82" y="83" font-size="12" text-anchor="middle">💨</text>
+    <!-- Akasha (Center Space Ether Om) -->
+    <circle cx="60" cy="60" r="16" fill="#FBBF24" stroke="#B45309" stroke-width="2"/>
+    <text x="60" y="66" font-size="16" font-weight="bold" fill="#78350F" text-anchor="middle" font-family="sans-serif">ॐ</text>
+  </svg>
+`;
+
 // Attach to window object for global access across scripts
 if (typeof window !== 'undefined') {
   window.VedicAssets = VedicAssets;

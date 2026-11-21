@@ -88,7 +88,10 @@ try {
     'krishnaShringarAvatar',
     'tulsiPlant',
     'waterPitcher',
-    'mindfulKrishna'
+    'mindfulKrishna',
+    'decoratedMatka',
+    'govardhanHill',
+    'panchaBhutaEmblem'
   ];
 
   expectedAssets.forEach((assetKey) => {
@@ -113,7 +116,9 @@ const expectedGames = [
   'ShringarGame',
   'AksharaGame',
   'PrakritiGame',
-  'DhyanaGame'
+  'DhyanaGame',
+  'MatkiTowerGame',
+  'PanchaBhutaGame'
 ];
 
 expectedGames.forEach((gameClass) => {
@@ -151,6 +156,10 @@ assert(gamesCode.includes('prakriti-tools-tray'), 'games.js PrakritiGame impleme
 assert(gamesCode.includes('color-baskets-grid'), 'games.js PrakritiGame implements 4 Montessori color-coded sorting baskets');
 assert(gamesCode.includes('breathing-lotus-wrap'), 'games.js DhyanaGame implements Patanjali breathing rhythm lotus');
 assert(gamesCode.includes('navarasa-cards-tray'), 'games.js DhyanaGame implements Natya Shastra emotional literacy cards');
+assert(gamesCode.includes('matki-selection-tray-zone'), 'games.js MatkiTowerGame implements Montessori seriation selection tray');
+assert(gamesCode.includes('tower-stone-pedestal'), 'games.js MatkiTowerGame implements stone pedestal base');
+assert(gamesCode.includes('bhuta-hero-card'), 'games.js PanchaBhutaGame implements interactive 5-element sanctuary card');
+assert(gamesCode.includes('bhuta-elements-tray'), 'games.js PanchaBhutaGame implements 5-element selector navigation tray');
 
 // Test ElementPool unit functionality
 try {
@@ -196,6 +205,8 @@ assert(appCode.includes('getGameFromHash()'), 'app.js implements getGameFromHash
 assert(appCode.includes('restoreSavedPreferences()'), 'app.js implements restoreSavedPreferences() for session state');
 assert(appCode.includes('prakriti: PrakritiGame'), 'app.js registers PrakritiGame module');
 assert(appCode.includes('dhyana: DhyanaGame'), 'app.js registers DhyanaGame module');
+assert(appCode.includes('matki: MatkiTowerGame'), 'app.js registers MatkiTowerGame module');
+assert(appCode.includes('bhuta: PanchaBhutaGame'), 'app.js registers PanchaBhutaGame module');
 assert(appCode.includes('this.footprintPool'), 'app.js uses memory pool for Kanha ghungroo footprints');
 assert(appCode.includes('class ToddlerInputFilter'), 'app.js defines ToddlerInputFilter for palm-slap rejection');
 assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');
