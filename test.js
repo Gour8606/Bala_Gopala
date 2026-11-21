@@ -229,6 +229,14 @@ assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
 assert(swCode.includes('bala-gopala-v3.0'), 'sw.js caches with updated v3.0 identifier');
+assert(appCode.includes('toggleSidebar('), 'app.js implements toggleSidebar() for vertical game library drawer');
+assert(appCode.includes('filterGamesByAge('), 'app.js implements filterGamesByAge() for 1-2y, 2-3y, and 3-5y curriculum pathways');
+assert(appCode.includes('startGuidedJourney('), 'app.js implements startGuidedJourney() for curated 4-step daily routine');
+assert(appCode.includes('showGuidanceNudge('), 'app.js implements showGuidanceNudge() for Kanha inactivity guiding star');
+const indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+assert(indexHtml.includes('id="games-sidebar"'), 'index.html defines left vertical games-sidebar library');
+assert(indexHtml.includes('id="sidebar-toggle-btn"'), 'index.html defines sidebar-toggle-btn in top navigation');
+assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided journey hero card');
 assert(appCode.includes('this.footprintPool'), 'app.js uses memory pool for Kanha ghungroo footprints');
 assert(appCode.includes('class ToddlerInputFilter'), 'app.js defines ToddlerInputFilter for palm-slap rejection');
 assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');

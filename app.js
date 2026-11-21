@@ -33,6 +33,17 @@ class ToddlerApp {
     this.timerSecondsRemaining = 0;
     this.timerInterval = null;
 
+    // Guided Daily Journey state (Curated 4-Step Routine: Pranam ➔ Montessori ➔ Music ➔ Shanti)
+    this.isJourneyMode = false;
+    this.journeySteps = ['aarti', 'matki', 'vadya', 'dhyana'];
+    this.journeyStepIndex = 0;
+
+    // Active Age Filter ('all', '1', '2', '3')
+    this.currentAgeFilter = 'all';
+
+    // Inactivity Guidance Helper ("Kanha's Guiding Star")
+    this.inactivityTimer = null;
+
     // Parent Gate state
     this.gatePendingAction = null;
     this.gateCorrectAnswer = 0;
@@ -66,6 +77,7 @@ class ToddlerApp {
     this.bindBabyMashKeyboard();
     this.bindKanhaGhungrooFootsteps();
     this.bindSafetyGestures();
+    this.resetInactivityGuidanceTimer();
   }
 
   restoreSavedPreferences() {
@@ -107,6 +119,26 @@ class ToddlerApp {
     this.fullscreenBtn = document.getElementById('fullscreen-btn');
     this.startOverlay = document.getElementById('start-overlay');
     this.tapToPlayBtn = document.getElementById('tap-to-play-btn');
+    this.startJourneyBtn = document.getElementById('start-journey-btn');
+
+    // Sidebar Library & Controls
+    this.sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+    this.sidebar = document.getElementById('games-sidebar');
+    this.sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    this.sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+    this.activeGameIcon = document.getElementById('active-game-icon');
+    this.activeGameName = document.getElementById('active-game-name');
+    this.ageFilterPills = document.querySelectorAll('.age-filter-pill');
+
+    // Guided Daily Journey Controls
+    this.journeyQuickBtn = document.getElementById('journey-quick-btn');
+    this.journeyStepBadge = document.getElementById('journey-step-badge');
+    this.journeyHeroStartBtn = document.getElementById('journey-card-start-btn');
+    this.journeyNextFloatingBtn = document.getElementById('journey-next-floating-btn');
+
+    // Inactivity Guidance Nudge
+    this.guidanceNudge = document.getElementById('kanha-guidance-nudge');
+    this.nudgeText = document.getElementById('nudge-text');
 
     // Parent Modals
     this.parentGuideBtn = document.getElementById('parent-guide-btn');
@@ -140,18 +172,86 @@ class ToddlerApp {
   }
 
   bindEvents() {
-    // 1. Start Overlay Unlock - Any tap anywhere on the start screen unlocks the game!
+    // 1. Start Overlay Actions
+    if (this.startJourneyBtn) {
+      this.startJourneyBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.startGuidedJourney();
+      });
+    }
+
     const unlockAndStart = (e) => {
       e.preventDefault();
       this.startGame();
     };
-    this.tapToPlayBtn.addEventListener('pointerdown', unlockAndStart);
+    if (this.tapToPlayBtn) {
+      this.tapToPlayBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        unlockAndStart(e);
+      });
+    }
     this.startOverlay.addEventListener('pointerdown', (e) => {
-      // If tapped anywhere on overlay card or background
-      unlockAndStart(e);
+      // If tapped on the backdrop outside the card
+      if (e.target === this.startOverlay) {
+        unlockAndStart(e);
+      }
     });
 
-    // 2. Game Mode Tabs
+    // 2. Sidebar Library Drawer Toggle & Close
+    if (this.sidebarToggleBtn) {
+      this.sidebarToggleBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.isChildLocked) return;
+        this.toggleSidebar();
+      });
+    }
+    if (this.sidebarCloseBtn) {
+      this.sidebarCloseBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.closeSidebar();
+      });
+    }
+    if (this.sidebarBackdrop) {
+      this.sidebarBackdrop.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.closeSidebar();
+      });
+    }
+
+    // 3. Age & Stage Filter Pills
+    if (this.ageFilterPills) {
+      this.ageFilterPills.forEach(pill => {
+        pill.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          this.filterGamesByAge(pill.dataset.filter);
+        });
+      });
+    }
+
+    // 4. Guided Daily Journey Triggers
+    if (this.journeyHeroStartBtn) {
+      this.journeyHeroStartBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.startGuidedJourney();
+      });
+    }
+    if (this.journeyQuickBtn) {
+      this.journeyQuickBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.isChildLocked) return;
+        this.startGuidedJourney();
+      });
+    }
+    if (this.journeyNextFloatingBtn) {
+      this.journeyNextFloatingBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.advanceGuidedJourney();
+      });
+    }
+
+    // 5. Game Mode Tabs (Sidebar Items)
     this.tabs.forEach(tab => {
       tab.addEventListener('pointerdown', (e) => {
         e.preventDefault();
@@ -162,6 +262,10 @@ class ToddlerApp {
         }
       });
     });
+
+    // 6. Inactivity Guidance Timer Reset on any user touch/interaction
+    window.addEventListener('pointerdown', () => this.resetInactivityGuidanceTimer(), { passive: true });
+    window.addEventListener('keydown', () => this.resetInactivityGuidanceTimer(), { passive: true });
 
     // 3. Language Toggle
     this.langToggleBtn.addEventListener('pointerdown', (e) => {
@@ -457,20 +561,20 @@ class ToddlerApp {
   updateLanguageUI() {
     const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
     const tabTranslations = {
-      bubbles: { hi: 'माखन मटकी', en: 'Makhan Pop' },
-      peekaboo: { hi: 'गऊ सेवा', en: 'Gau-Seva' },
-      xylophone: { hi: 'बांसुरी व जल', en: 'Bansuri & Jal' },
-      aarti: { hi: 'संध्या आरती', en: 'Sandhya Aarti' },
-      shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana' },
-      sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli' },
-      shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' },
-      akshara: { hi: 'दिव्य अक्षर', en: 'Akshara' },
-      prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care' },
-      dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness' },
-      matki: { hi: 'मटकी शिखर', en: 'Matki Tower' },
-      bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta' },
-      utsava: { hi: 'उत्सव व झूला', en: 'Festivals' },
-      vadya: { hi: 'दिव्य वाद्य', en: 'Instruments' }
+      bubbles: { hi: 'माखन मटकी', en: 'Makhan Pop', sub: { hi: 'मटकी फोड़ें व माखन निकालें', en: 'Butter Pots & Churning' } },
+      peekaboo: { hi: 'गऊ सेवा', en: 'Gau-Seva', sub: { hi: 'पवित्र गऊ व नन्हा बछड़ा', en: 'Holy Cow & Calf Peekaboo' } },
+      xylophone: { hi: 'बांसुरी व जल', en: 'Bansuri & Jal', sub: { hi: 'शास्त्रीय राग व जल तरंग', en: 'Classical Ragas & Water Bowls' } },
+      aarti: { hi: 'संध्या आरती', en: 'Sandhya Aarti', sub: { hi: 'दीपक ज्योति व घंटी नाद', en: 'Diya Circular Offering' } },
+      shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana', sub: { hi: 'पुष्प आकार व रंग मिलान', en: 'Flower Shape & Color Match' } },
+      sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli', sub: { hi: 'दीपक ज्योति व प्रकाश रेखा', en: 'Glowing Light Painting' } },
+      shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar', sub: { hi: 'स्नान, चन्दन व मोर पंख', en: 'Sacred Snana & Royal Adornment' } },
+      akshara: { hi: 'दिव्य अक्षर', en: 'Akshara', sub: { hi: 'अ आ इ ई, A-Z व १-१० गिनती', en: 'Devanagari/English & 1-10 Counting' } },
+      prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care', sub: { hi: 'तुलसी सिंचन व ४-रंग टोकरी', en: 'Tulsi Nurture & 4-Color Sort' } },
+      dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness', sub: { hi: 'कमल प्राणायाम व ५ पावन भाव', en: 'Mindful Breathing & 5 Sacred Emotions' } },
+      matki: { hi: 'मटकी शिखर', en: 'Matki Tower', sub: { hi: 'मोंटेसरी आकार व संतुलन', en: 'Montessori Pink Tower Seriation' } },
+      bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta', sub: { hi: 'पृथ्वी, जल, अग्नि, वायु, आकाश', en: 'Earth, Water, Fire, Air & Space' } },
+      utsava: { hi: 'उत्सव व झूला', en: 'Festivals', sub: { hi: 'जन्माष्टमी झूला व फूलों की होली', en: 'Janmashtami Swing & Holi Flowers' } },
+      vadya: { hi: 'दिव्य वाद्य', en: 'Instruments', sub: { hi: 'वीणा, मृदंग, बांसुरी व मंजीरा', en: 'Veena, Mridangam & Manjira Taal' } }
     };
 
     if (this.tabs) {
@@ -481,12 +585,40 @@ class ToddlerApp {
           if (span) {
             span.textContent = tabTranslations[gameKey][lang] || tabTranslations[gameKey].en;
           }
+          const subSpan = tab.querySelector('.tab-sub');
+          if (subSpan && tabTranslations[gameKey].sub) {
+            subSpan.textContent = tabTranslations[gameKey].sub[lang] || tabTranslations[gameKey].sub.en;
+          }
         }
       });
     }
 
     if (this.langIndicator) {
       this.langIndicator.textContent = lang === 'hi' ? '🇮🇳 हिन्दी' : '🌐 English';
+    }
+
+    const toggleLabel = document.getElementById('toggle-library-label');
+    if (toggleLabel) {
+      toggleLabel.textContent = lang === 'hi' ? 'खेल (14 Games)' : 'Games (14)';
+    }
+
+    const sidebarTitle = document.getElementById('sidebar-title-text');
+    if (sidebarTitle) {
+      sidebarTitle.textContent = lang === 'hi' ? 'लीला संगम (14 Games)' : 'Play Library (14 Games)';
+    }
+
+    const journeyNavLabel = document.getElementById('journey-nav-label');
+    if (journeyNavLabel) {
+      journeyNavLabel.textContent = lang === 'hi' ? 'दैनिक यात्रा' : 'Daily Journey';
+    }
+
+    const journeyDesc = document.getElementById('journey-card-desc');
+    if (journeyDesc) {
+      journeyDesc.textContent = lang === 'hi' ? 'दैनिक लीला: १. आरती ➔ २. मोंटेसरी ➔ ३. संगीत ➔ ४. ध्यान' : 'Curated 4-Step Routine: Pranam ➔ Montessori ➔ Music ➔ Shanti';
+    }
+
+    if (this.activeGameName && tabTranslations[this.currentGameKey]) {
+      this.activeGameName.textContent = tabTranslations[this.currentGameKey][lang] || tabTranslations[this.currentGameKey].en;
     }
   }
 
@@ -706,11 +838,231 @@ class ToddlerApp {
       vadya: { hi: "भारतीय वाद्य संगीत! वीणा, मृदंग, बांसुरी और मंजीरा बजाएं!", en: "Indian Classical & Sacred Instruments! Tap to play the Veena, Mridangam, Bansuri and Manjira!" }
     };
 
+    // Update active game pill in top navbar
+    const gameIcons = {
+      bubbles: '🍯', peekaboo: '🐮', xylophone: '🪈', aarti: '🪔',
+      shapes: '🪷', sparkles: '✨', shringar: '👑', akshara: '🔤',
+      prakriti: '🌿', dhyana: '🧘', matki: '🏺', bhuta: '🌍',
+      utsava: '🪢', vadya: '🪕'
+    };
+    if (this.activeGameIcon && gameIcons[key]) {
+      this.activeGameIcon.textContent = gameIcons[key];
+    }
+    if (this.activeGameName) {
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const names = {
+        bubbles: { hi: 'माखन मटकी', en: 'Makhan Pop' },
+        peekaboo: { hi: 'गऊ सेवा', en: 'Gau-Seva' },
+        xylophone: { hi: 'बांसुरी व जल', en: 'Bansuri & Jal' },
+        aarti: { hi: 'संध्या आरती', en: 'Sandhya Aarti' },
+        shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana' },
+        sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli' },
+        shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' },
+        akshara: { hi: 'दिव्य अक्षर', en: 'Akshara' },
+        prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care' },
+        dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness' },
+        matki: { hi: 'मटकी शिखर', en: 'Matki Tower' },
+        bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta' },
+        utsava: { hi: 'उत्सव व झूला', en: 'Festivals' },
+        vadya: { hi: 'दिव्य वाद्य', en: 'Instruments' }
+      };
+      if (names[key]) {
+        this.activeGameName.textContent = names[key][lang] || names[key].en;
+      }
+    }
+
+    // Auto-close sidebar drawer on screens < 1024px for full immersion
+    if (window.innerWidth < 1024) {
+      this.closeSidebar();
+    }
+
+    // Reset inactivity guidance timer
+    this.resetInactivityGuidanceTimer();
+
     setTimeout(() => {
       if (welcomePhrases[key]) {
         window.toddlerAudio.speak(welcomePhrases[key]);
       }
     }, 300);
+  }
+
+  // Sidebar Controls
+  toggleSidebar(forceState) {
+    if (!this.sidebar) return;
+    const isCurrentlyOpen = this.sidebar.classList.contains('open');
+    const newState = (forceState !== undefined) ? forceState : !isCurrentlyOpen;
+    this.sidebar.classList.toggle('open', newState);
+    if (this.sidebarBackdrop) {
+      this.sidebarBackdrop.classList.toggle('hidden', !newState);
+    }
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playJhulaChime(newState ? 880 : 660);
+    }
+  }
+
+  closeSidebar() {
+    this.toggleSidebar(false);
+  }
+
+  // Age & Stage Filter
+  filterGamesByAge(ageFilter) {
+    this.currentAgeFilter = ageFilter || 'all';
+    if (this.ageFilterPills) {
+      this.ageFilterPills.forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.filter === this.currentAgeFilter);
+      });
+    }
+
+    // Filter tab buttons in sidebar
+    if (this.tabs) {
+      this.tabs.forEach(tab => {
+        const tabAge = tab.dataset.age;
+        const matches = (this.currentAgeFilter === 'all' || tabAge === this.currentAgeFilter);
+        tab.classList.toggle('filtered-out', !matches);
+      });
+    }
+
+    // Filter category headers in sidebar
+    const catHeaders = document.querySelectorAll('.sidebar-category-header');
+    if (catHeaders) {
+      catHeaders.forEach(header => {
+        const cat = header.dataset.cat;
+        const matches = (this.currentAgeFilter === 'all' || cat === this.currentAgeFilter);
+        header.classList.toggle('filtered-out', !matches);
+      });
+    }
+
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(987.77);
+    }
+  }
+
+  // Guided Daily Journey (Curated 4-Step Routine: Pranam ➔ Montessori ➔ Music ➔ Shanti)
+  startGuidedJourney() {
+    this.isJourneyMode = true;
+    this.journeyStepIndex = 0;
+    this.closeSidebar();
+    if (this.startOverlay && !this.startOverlay.classList.contains('hidden')) {
+      this.startGame();
+    }
+    const firstGame = this.journeySteps[0]; // 'aarti'
+    this.switchGame(firstGame);
+    this.updateJourneyUI();
+
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const msg = {
+      hi: "दैनिक लीला यात्रा प्रारम्भ! पहला चरण: संध्या आरती!",
+      en: "Daily Journey started! Step 1: Sandhya Aarti devotion!"
+    };
+    if (window.toddlerAudio) {
+      window.toddlerAudio.speak(msg);
+      window.toddlerAudio.playJhulaChime(1046.5);
+    }
+  }
+
+  advanceGuidedJourney() {
+    if (!this.isJourneyMode) return;
+    this.journeyStepIndex++;
+    if (this.journeyStepIndex < this.journeySteps.length) {
+      const nextGame = this.journeySteps[this.journeyStepIndex];
+      this.switchGame(nextGame);
+      this.updateJourneyUI();
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playJhulaChime(1174.66);
+      }
+    } else {
+      // Completed all 4 steps of the Journey!
+      this.celebrateJourneyCompletion();
+    }
+  }
+
+  updateJourneyUI() {
+    if (this.journeyStepBadge) {
+      this.journeyStepBadge.textContent = `${this.journeyStepIndex + 1} / ${this.journeySteps.length}`;
+    }
+    if (this.journeyNextFloatingBtn) {
+      this.journeyNextFloatingBtn.classList.remove('hidden');
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const label = document.getElementById('journey-floating-label');
+      if (label) {
+        const isLast = (this.journeyStepIndex === this.journeySteps.length - 1);
+        label.textContent = isLast ? (lang === 'hi' ? 'यात्रा पूर्ण करें ✨ (Finish)' : 'Complete Journey ✨') : (lang === 'hi' ? 'अगला खेल ➜ (Next Step)' : 'Next Step ➜');
+      }
+    }
+  }
+
+  celebrateJourneyCompletion() {
+    this.isJourneyMode = false;
+    if (this.journeyNextFloatingBtn) {
+      this.journeyNextFloatingBtn.classList.add('hidden');
+    }
+    if (this.journeyStepBadge) {
+      this.journeyStepBadge.textContent = `4 / 4 ✨`;
+    }
+
+    // Shower of flower petals
+    if (typeof CelebrationPetalShower !== 'undefined') {
+      const shower = new CelebrationPetalShower(this.stage);
+      shower.burst(60);
+    }
+
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playBansuri(523.25, 0.5);
+      setTimeout(() => window.toddlerAudio.playBansuri(659.25, 0.6), 250);
+      setTimeout(() => window.toddlerAudio.playBansuri(783.99, 0.8), 500);
+
+      window.toddlerAudio.speak({
+        hi: "अद्भुत! दैनिक लीला यात्रा पूर्ण हुई! जय श्री कृष्णा!",
+        en: "Wonderful! You completed the sacred daily journey! Jai Shri Krishna!"
+      });
+    }
+  }
+
+  // Inactivity Guidance Helper ("Kanha's Guiding Star")
+  resetInactivityGuidanceTimer() {
+    if (this.guidanceNudge) {
+      this.guidanceNudge.classList.add('hidden');
+    }
+    if (this.inactivityTimer) {
+      clearTimeout(this.inactivityTimer);
+      this.inactivityTimer = null;
+    }
+
+    // Trigger after 8 seconds of inactivity
+    this.inactivityTimer = setTimeout(() => {
+      this.showGuidanceNudge();
+    }, 8000);
+  }
+
+  showGuidanceNudge() {
+    if (this.isChildLocked || (this.startOverlay && !this.startOverlay.classList.contains('hidden'))) return;
+    if (this.guidanceNudge) {
+      this.guidanceNudge.classList.remove('hidden');
+      const hints = {
+        bubbles: { hi: "मटकी छुओ और माखन निकालो! 🍯", en: "Tap the pot to pop sweet butter! 🍯" },
+        peekaboo: { hi: "गऊ मैया को पुकारो! 🐮", en: "Call holy Gau Mata! 🐮" },
+        xylophone: { hi: "बांसुरी बजाओ! 🪈", en: "Play sweet bansuri notes! 🪈" },
+        aarti: { hi: "दीपक को घुमाएं! 🪔", en: "Wave the golden aarti diya! 🪔" },
+        shapes: { hi: "पुष्प को कान्हा पर सजाएं! 🪷", en: "Offer flowers to Kanha! 🪷" },
+        sparkles: { hi: "उंगली से रंगोली बनाएं! ✨", en: "Draw glowing patterns! ✨" },
+        shringar: { hi: "कान्हा को मोर पंख पहनाएं! 👑", en: "Adorn Kanha with love! 👑" },
+        akshara: { hi: "अक्षर छुओ और सुनो! 🔤", en: "Touch any letter to hear it! 🔤" },
+        prakriti: { hi: "तुलसी मैया को जल दें! 🌿", en: "Nurture holy Tulsi! 🌿" },
+        dhyana: { hi: "कमल के साथ गहरी सांस लें! 🧘", en: "Breathe gently with the lotus! 🧘" },
+        matki: { hi: "मटकी जोड़कर शिखर बनाएं! 🏺", en: "Stack pots to build tower! 🏺" },
+        bhuta: { hi: "पंच तत्वों को छुएं! 🌍", en: "Explore sacred elements! 🌍" },
+        utsava: { hi: "कान्हा का झूला झुलाएं! 🪢", en: "Gently swing Kanha's jhula! 🪢" },
+        vadya: { hi: "वीणा या मृदंग बजाओ! 🪕", en: "Play holy Veena or Mridangam! 🪕" }
+      };
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const prompt = hints[this.currentGameKey] || { hi: "यहाँ छुओ! खेलो कान्हा के संग!", en: "Tap here to play with Kanha!" };
+      if (this.nudgeText) {
+        this.nudgeText.textContent = prompt[lang] || prompt.en;
+      }
+      if (window.toddlerAudio) {
+        window.toddlerAudio.playJhulaChime(880);
+      }
+    }
   }
 
   toggleFullscreen() {

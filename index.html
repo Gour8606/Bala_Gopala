@@ -29,69 +29,30 @@
   <div id="app-container">
     <!-- Top Navigation Bar -->
     <header class="top-navbar" id="top-navbar">
-      <div class="app-brand" id="brand-logo" title="Bala Gopala Gurukul">
-        <span class="brand-icon">🦚</span>
-        <span class="brand-text">Bala Gopala</span>
+      <!-- Left: Library Drawer Toggle & Brand -->
+      <div class="nav-left-group">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Open All 14 Games Library (सभी खेल)">
+          <span class="toggle-icon">☰</span>
+          <span class="toggle-label" id="toggle-library-label">खेल (14 Games)</span>
+        </button>
+        <div class="app-brand" id="brand-logo" title="Bala Gopala Gurukul">
+          <span class="brand-icon">🦚</span>
+          <span class="brand-text">Bala Gopala</span>
+        </div>
       </div>
 
-      <nav class="game-tabs" id="game-tabs">
-        <button class="tab-btn active" data-game="bubbles" title="Makhan Pop">
-          <span class="tab-icon">🍯</span>
-          <span class="tab-text">Makhan Pop</span>
+      <!-- Center: Active Game Badge & Guided Daily Journey Pill -->
+      <div class="nav-center-group">
+        <div class="active-game-pill" id="active-game-pill" title="Current Activity">
+          <span class="active-game-icon" id="active-game-icon">🍯</span>
+          <span class="active-game-name" id="active-game-name">Makhan Pop</span>
+        </div>
+        <button class="journey-quick-btn" id="journey-quick-btn" title="Daily Guided Journey (दैनिक लीला यात्रा)">
+          <span class="journey-star">🌟</span>
+          <span class="journey-label" id="journey-nav-label">Daily Journey</span>
+          <span class="journey-step-badge" id="journey-step-badge">1 / 4</span>
         </button>
-        <button class="tab-btn" data-game="peekaboo" title="Gau-Seva">
-          <span class="tab-icon">🐮</span>
-          <span class="tab-text">Gau-Seva</span>
-        </button>
-        <button class="tab-btn" data-game="xylophone" title="Bansuri & Jal">
-          <span class="tab-icon">🪈</span>
-          <span class="tab-text">Bansuri & Jal</span>
-        </button>
-        <button class="tab-btn" data-game="aarti" title="Sandhya Aarti">
-          <span class="tab-icon">🪔</span>
-          <span class="tab-text">Sandhya Aarti</span>
-        </button>
-        <button class="tab-btn" data-game="shapes" title="Pushparchana">
-          <span class="tab-icon">🪷</span>
-          <span class="tab-text">Pushparchana</span>
-        </button>
-        <button class="tab-btn" data-game="sparkles" title="Divya Rangoli">
-          <span class="tab-icon">✨</span>
-          <span class="tab-text">Divya Rangoli</span>
-        </button>
-        <button class="tab-btn" data-game="shringar" title="Kanha Shringar">
-          <span class="tab-icon">👑</span>
-          <span class="tab-text">Shringar</span>
-        </button>
-        <button class="tab-btn" data-game="akshara" title="Divya Akshara">
-          <span class="tab-icon">🔤</span>
-          <span class="tab-text">Akshara</span>
-        </button>
-        <button class="tab-btn" data-game="prakriti" title="Prakriti Seva (Montessori Nature Care)">
-          <span class="tab-icon">🌿</span>
-          <span class="tab-text">Prakriti</span>
-        </button>
-        <button class="tab-btn" data-game="dhyana" title="Dhyana & Pranayama (Mindfulness & Emotions)">
-          <span class="tab-icon">🧘</span>
-          <span class="tab-text">Dhyana</span>
-        </button>
-        <button class="tab-btn" data-game="matki" title="Gopala Matki Tower (Montessori Size Seriation)">
-          <span class="tab-icon">🏺</span>
-          <span class="tab-text">Matki Tower</span>
-        </button>
-        <button class="tab-btn" data-game="bhuta" title="Pancha Maha Bhuta (5 Sacred Elements)">
-          <span class="tab-icon">🌍</span>
-          <span class="tab-text">Pancha Bhuta</span>
-        </button>
-        <button class="tab-btn" data-game="utsava" title="Utsava & Jhula (Indian Festivals Celebration)">
-          <span class="tab-icon">🪢</span>
-          <span class="tab-text">Utsava</span>
-        </button>
-        <button class="tab-btn" data-game="vadya" title="Vadya & Taal (Sacred Indian Musical Instruments)">
-          <span class="tab-icon">🪕</span>
-          <span class="tab-text">Vadya</span>
-        </button>
-      </nav>
+      </div>
 
       <div class="nav-controls">
         <!-- Active Screen Time Badge -->
@@ -117,20 +78,225 @@
       🔒 <span class="unlock-text">Hold to Unlock</span>
     </button>
 
-    <!-- Main Game Stage -->
-    <main id="game-stage"></main>
+    <!-- Main Workspace Area: Sidebar Drawer + Game Stage -->
+    <div id="main-workspace" class="main-workspace">
+      <!-- Backdrop for mobile/tablet drawer -->
+      <div id="sidebar-backdrop" class="sidebar-backdrop hidden"></div>
+
+      <!-- Left Vertical Games Library Drawer / Side Rail -->
+      <aside id="games-sidebar" class="games-sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+          <div class="sidebar-title">
+            <span class="sidebar-title-icon">🦚</span>
+            <span class="sidebar-title-text" id="sidebar-title-text">लीला संगम (14 Games)</span>
+          </div>
+          <button class="sidebar-close-btn" id="sidebar-close-btn" title="Close Library">✖</button>
+        </div>
+
+        <!-- Guided Daily Journey Hero Card (Clear Guidance for Parents & Toddlers) -->
+        <div class="journey-hero-card" id="journey-hero-card">
+          <div class="journey-card-badge">🌟 दैनिक लीला यात्रा · Daily Journey</div>
+          <p class="journey-card-desc" id="journey-card-desc">Curated 4-Step Routine: Pranam ➔ Montessori ➔ Music ➔ Shanti</p>
+          <button class="journey-card-start-btn" id="journey-card-start-btn">
+            ✨ Play Guided Adventure ✨
+          </button>
+        </div>
+
+        <!-- Age & Stage Filter Tabs -->
+        <div class="age-filter-bar">
+          <button class="age-filter-pill active" data-filter="all">🌟 All (14)</button>
+          <button class="age-filter-pill" data-filter="1">🌸 1–2 Yrs</button>
+          <button class="age-filter-pill" data-filter="2">🦚 2–3 Yrs</button>
+          <button class="age-filter-pill" data-filter="3">🕉️ 3–5 Yrs</button>
+        </div>
+
+        <!-- Categorized Game Cards List -->
+        <nav class="sidebar-game-list" id="sidebar-game-list">
+          <!-- Category 1: Sensory & Wonder (1-2 Yrs) -->
+          <div class="sidebar-category-header" data-cat="1">
+            <span class="cat-dot">🌸</span>
+            <span class="cat-name">Sensory & Wonder (1–2 Yrs)</span>
+          </div>
+
+          <button class="tab-btn active" data-game="bubbles" data-age="1" title="Makhan Pop">
+            <span class="tab-icon">🍯</span>
+            <div class="tab-info">
+              <span class="tab-text">Makhan Pop</span>
+              <span class="tab-sub">Butter Pots & Churning</span>
+            </div>
+            <span class="tab-age-pill">1-2y</span>
+          </button>
+
+          <button class="tab-btn" data-game="peekaboo" data-age="1" title="Gau-Seva">
+            <span class="tab-icon">🐮</span>
+            <div class="tab-info">
+              <span class="tab-text">Gau-Seva</span>
+              <span class="tab-sub">Holy Cow & Calf Peekaboo</span>
+            </div>
+            <span class="tab-age-pill">1-2y</span>
+          </button>
+
+          <button class="tab-btn" data-game="sparkles" data-age="1" title="Divya Rangoli">
+            <span class="tab-icon">✨</span>
+            <div class="tab-info">
+              <span class="tab-text">Divya Rangoli</span>
+              <span class="tab-sub">Glowing Light Painting</span>
+            </div>
+            <span class="tab-age-pill">1-2y</span>
+          </button>
+
+          <button class="tab-btn" data-game="aarti" data-age="1" title="Sandhya Aarti">
+            <span class="tab-icon">🪔</span>
+            <div class="tab-info">
+              <span class="tab-text">Sandhya Aarti</span>
+              <span class="tab-sub">Diya Circular Offering</span>
+            </div>
+            <span class="tab-age-pill">1-2y</span>
+          </button>
+
+          <!-- Category 2: Montessori & Motor Skills (2-3 Yrs) -->
+          <div class="sidebar-category-header" data-cat="2">
+            <span class="cat-dot">🦚</span>
+            <span class="cat-name">Montessori & Motor (2–3 Yrs)</span>
+          </div>
+
+          <button class="tab-btn" data-game="matki" data-age="2" title="Gopala Matki Tower">
+            <span class="tab-icon">🏺</span>
+            <div class="tab-info">
+              <span class="tab-text">Matki Tower</span>
+              <span class="tab-sub">Montessori Pink Tower Seriation</span>
+            </div>
+            <span class="tab-age-pill">2-3y</span>
+          </button>
+
+          <button class="tab-btn" data-game="shapes" data-age="2" title="Pushparchana">
+            <span class="tab-icon">🪷</span>
+            <div class="tab-info">
+              <span class="tab-text">Pushparchana</span>
+              <span class="tab-sub">Flower Shape & Color Match</span>
+            </div>
+            <span class="tab-age-pill">2-3y</span>
+          </button>
+
+          <button class="tab-btn" data-game="prakriti" data-age="2" title="Prakriti Seva">
+            <span class="tab-icon">🌿</span>
+            <div class="tab-info">
+              <span class="tab-text">Prakriti</span>
+              <span class="tab-sub">Tulsi Nurture & 4-Color Sort</span>
+            </div>
+            <span class="tab-age-pill">2-3y</span>
+          </button>
+
+          <button class="tab-btn" data-game="shringar" data-age="2" title="Kanha Shringar">
+            <span class="tab-icon">👑</span>
+            <div class="tab-info">
+              <span class="tab-text">Shringar</span>
+              <span class="tab-sub">Sacred Snana & Royal Adornment</span>
+            </div>
+            <span class="tab-age-pill">2-3y</span>
+          </button>
+
+          <!-- Category 3: Culture, Music & Phonics (3-5 Yrs) -->
+          <div class="sidebar-category-header" data-cat="3">
+            <span class="cat-dot">🕉️</span>
+            <span class="cat-name">Culture, Music & Phonics (3–5 Yrs)</span>
+          </div>
+
+          <button class="tab-btn" data-game="akshara" data-age="3" title="Divya Akshara">
+            <span class="tab-icon">🔤</span>
+            <div class="tab-info">
+              <span class="tab-text">Akshara</span>
+              <span class="tab-sub">Devanagari/English & 1-10 Counting</span>
+            </div>
+            <span class="tab-age-pill">3-5y</span>
+          </button>
+
+          <button class="tab-btn" data-game="vadya" data-age="3" title="Vadya & Taal">
+            <span class="tab-icon">🪕</span>
+            <div class="tab-info">
+              <span class="tab-text">Vadya</span>
+              <span class="tab-sub">Veena, Mridangam & Manjira Taal</span>
+            </div>
+            <span class="tab-age-pill">3-5y</span>
+          </button>
+
+          <button class="tab-btn" data-game="utsava" data-age="3" title="Utsava & Jhula">
+            <span class="tab-icon">🪢</span>
+            <div class="tab-info">
+              <span class="tab-text">Utsava</span>
+              <span class="tab-sub">Janmashtami Swing & Holi Flowers</span>
+            </div>
+            <span class="tab-age-pill">3-5y</span>
+          </button>
+
+          <button class="tab-btn" data-game="bhuta" data-age="3" title="Pancha Bhuta">
+            <span class="tab-icon">🌍</span>
+            <div class="tab-info">
+              <span class="tab-text">Pancha Bhuta</span>
+              <span class="tab-sub">Earth, Water, Fire, Air & Space</span>
+            </div>
+            <span class="tab-age-pill">3-5y</span>
+          </button>
+
+          <button class="tab-btn" data-game="xylophone" data-age="3" title="Bansuri & Jal">
+            <span class="tab-icon">🪈</span>
+            <div class="tab-info">
+              <span class="tab-text">Bansuri & Jal</span>
+              <span class="tab-sub">Classical Ragas & Water Bowls</span>
+            </div>
+            <span class="tab-age-pill">3-5y</span>
+          </button>
+
+          <button class="tab-btn" data-game="dhyana" data-age="3" title="Dhyana & Pranayama">
+            <span class="tab-icon">🧘</span>
+            <div class="tab-info">
+              <span class="tab-text">Dhyana</span>
+              <span class="tab-sub">Mindful Breathing & 5 Sacred Emotions</span>
+            </div>
+            <span class="tab-age-pill">3-5y</span>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Game Stage -->
+      <main id="game-stage"></main>
+
+      <!-- Floating Guided Journey Next Button -->
+      <button id="journey-next-floating-btn" class="journey-floating-btn hidden" title="Proceed to Next Activity">
+        <span class="journey-btn-sparkle">✨</span>
+        <span class="journey-btn-label" id="journey-floating-label">अगला खेल ➜ (Next Step)</span>
+      </button>
+
+      <!-- Kanha Guiding Star Inactivity Nudge -->
+      <div id="kanha-guidance-nudge" class="guidance-nudge hidden">
+        <div class="nudge-avatar">👶🦚</div>
+        <div class="nudge-bubble">
+          <span id="nudge-text">यहाँ छुओ! / Tap here! ✨</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Initial Tap to Start Overlay (Unlocks Web Audio Context) -->
     <div id="start-overlay" class="overlay-modal">
       <div class="start-card">
         <div class="bouncing-mascot">🦚👶🍯</div>
         <h1>Bala Gopala's Gurukul</h1>
-        <p class="subheading">Maharishi Sandipani's 16 Kalas & 64 Vidhyas for Toddlers (~2–3 Years Old)</p>
-        <button id="tap-to-play-btn" class="big-start-btn">
-          ✨ Jai Shri Krishna - Play! ✨
-        </button>
+        <p class="subheading">Maharishi Sandipani's 16 Kalas & 64 Vidhyas for Toddlers</p>
+        
+        <div class="start-action-choices">
+          <button id="start-journey-btn" class="big-start-btn journey-primary-choice">
+            🌟 Start Daily Journey (दैनिक लीला यात्रा)
+            <span class="btn-subtext">Curated 4-Step Routine (Pranam ➜ Montessori ➜ Music ➜ Shanti)</span>
+          </button>
+
+          <button id="tap-to-play-btn" class="secondary-start-btn">
+            🎨 Open Free Play (सभी 14 खेल)
+          </button>
+        </div>
+
         <div class="sound-notice">🔔 Procedural Bansuri, Temple Bells, Jal Tarang, Tanpura & Sanskrit chants</div>
-        <div class="tap-anywhere-hint">👉 Tap anywhere or press any key to enter!</div>
+        <div class="tap-anywhere-hint">👉 Tap any option to begin!</div>
       </div>
     </div>
 
