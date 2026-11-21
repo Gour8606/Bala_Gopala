@@ -2043,6 +2043,275 @@ class ShringarGame {
   }
 }
 
+// ==========================================================================
+// 8. DIVYA AKSHARA: ALPHABET, PHONICS & NATURE SOUNDS (Vidhya 1: Akshara-Mushtika)
+// ==========================================================================
+class AksharaGame {
+  constructor(container) {
+    this.container = container;
+    this.mode = 'en'; // 'en' or 'hi'
+    this.currentIndex = 0;
+
+    this.lettersEn = [
+      { char: 'A', name: { en: 'A for Aarti', hi: 'A से आरती' }, icon: '🪔', word: 'Aarti', color: '#F59E0B' },
+      { char: 'B', name: { en: 'B for Bansuri', hi: 'B से बांसुरी' }, icon: '🪈', word: 'Bansuri', color: '#0284C7' },
+      { char: 'C', name: { en: 'C for Chakra', hi: 'C से चक्र' }, icon: '☸️', word: 'Chakra', color: '#EA580C' },
+      { char: 'D', name: { en: 'D for Diya', hi: 'D से दीपक' }, icon: '🪔', word: 'Diya', color: '#FBBF24' },
+      { char: 'E', name: { en: 'E for Elephant', hi: 'E से गजराज' }, icon: '🐘', word: 'Elephant', color: '#64748B' },
+      { char: 'F', name: { en: 'F for Flute', hi: 'F से बांसुरी' }, icon: '🪈', word: 'Flute', color: '#0D9488' },
+      { char: 'G', name: { en: 'G for Gau-Mata', hi: 'G से गऊ माता' }, icon: '🐮', word: 'Gau-Mata', color: '#10B981' },
+      { char: 'H', name: { en: 'H for Hanuman', hi: 'H से हनुमान' }, icon: '🐒', word: 'Hanuman', color: '#DC2626' },
+      { char: 'I', name: { en: 'I for Incense', hi: 'I से अगरबत्ती' }, icon: '💨', word: 'Incense', color: '#8B5CF6' },
+      { char: 'J', name: { en: 'J for Jal Tarang', hi: 'J से जल तरंग' }, icon: '🥣', word: 'Jal Tarang', color: '#38BDF8' },
+      { char: 'K', name: { en: 'K for Krishna', hi: 'K से कान्हा' }, icon: '🦚', word: 'Krishna', color: '#0284C7' },
+      { char: 'L', name: { en: 'L for Lotus', hi: 'L से कमल' }, icon: '🪷', word: 'Lotus', color: '#EC4899' },
+      { char: 'M', name: { en: 'M for Makhan', hi: 'M से माखन' }, icon: '🍯', word: 'Makhan', color: '#F59E0B' },
+      { char: 'N', name: { en: 'N for Namaste', hi: 'N से नमस्ते' }, icon: '🙏', word: 'Namaste', color: '#FBBF24' },
+      { char: 'O', name: { en: 'O for Om', hi: 'O से ॐ' }, icon: '🕉️', word: 'Om', color: '#DC2626' },
+      { char: 'P', name: { en: 'P for Peacock', hi: 'P से मोर पंख' }, icon: '🦚', word: 'Peacock', color: '#059669' },
+      { char: 'Q', name: { en: 'Q for Queen Yashoda', hi: 'Q से रानी यशोदा' }, icon: '👑', word: 'Queen', color: '#A855F7' },
+      { char: 'R', name: { en: 'R for Radha', hi: 'R से राधा' }, icon: '🌸', word: 'Radha', color: '#F43F5E' },
+      { char: 'S', name: { en: 'S for Shankha', hi: 'S से शंख' }, icon: '🐚', word: 'Shankha', color: '#0EA5E9' },
+      { char: 'T', name: { en: 'T for Tulsi', hi: 'T से तुलसी' }, icon: '🌿', word: 'Tulsi', color: '#10B981' },
+      { char: 'U', name: { en: 'U for Ujjain Gurukul', hi: 'U से उज्जैन' }, icon: '🏛️', word: 'Ujjain', color: '#D97706' },
+      { char: 'V', name: { en: 'V for Vrindavan', hi: 'V से वृन्दावन' }, icon: '🌳', word: 'Vrindavan', color: '#16A34A' },
+      { char: 'W', name: { en: 'W for Water (Yamuna)', hi: 'W से यमुना जल' }, icon: '💧', word: 'Water', color: '#0284C7' },
+      { char: 'X', name: { en: 'X for Xylophone', hi: 'X से वाद्य यंत्र' }, icon: '🎶', word: 'Xylophone', color: '#6366F1' },
+      { char: 'Y', name: { en: 'Y for Yamuna', hi: 'Y से यमुना जी' }, icon: '🌊', word: 'Yamuna', color: '#0284C7' },
+      { char: 'Z', name: { en: 'Z for Zinnia Flower', hi: 'Z से पुष्प' }, icon: '🌺', word: 'Zinnia', color: '#DB2777' }
+    ];
+
+    this.lettersHi = [
+      { char: 'अ', name: { en: 'A for Achyuta', hi: 'अ से अच्युत' }, icon: '🦚', word: 'अच्युत', color: '#0284C7' },
+      { char: 'आ', name: { en: 'Aa for Aarti', hi: 'आ से आरती' }, icon: '🪔', word: 'आरती', color: '#F59E0B' },
+      { char: 'इ', name: { en: 'I for Indradhanush', hi: 'इ से इन्द्रधनुष' }, icon: '🌈', word: 'इन्द्रधनुष', color: '#38BDF8' },
+      { char: 'ई', name: { en: 'Ee for Ishwara', hi: 'ई से ईश्वर' }, icon: '🕉️', word: 'ईश्वर', color: '#DC2626' },
+      { char: 'उ', name: { en: 'U for Utsav', hi: 'उ से उत्सव' }, icon: '✨', word: 'उत्सव', color: '#FBBF24' },
+      { char: 'क', name: { en: 'Ka for Kanha', hi: 'क से कान्हा' }, icon: '👶', word: 'कान्हा', color: '#0284C7' },
+      { char: 'ग', name: { en: 'Ga for Gau-Mata', hi: 'ग से गऊ माता' }, icon: '🐮', word: 'गऊ माता', color: '#10B981' },
+      { char: 'द', name: { en: 'Da for Deepak', hi: 'द से दीपक' }, icon: '🪔', word: 'दीपक', color: '#F59E0B' },
+      { char: 'त', name: { en: 'Ta for Tulsi', hi: 'त से तुलसी दल' }, icon: '🌿', word: 'तुलसी', color: '#10B981' },
+      { char: 'ब', name: { en: 'Ba for Bansuri', hi: 'ब से बांसुरी' }, icon: '🪈', word: 'बांसुरी', color: '#0284C7' },
+      { char: 'म', name: { en: 'Ma for Makhan', hi: 'म से माखन मटकी' }, icon: '🍯', word: 'माखन', color: '#D97706' },
+      { char: 'र', name: { en: 'Ra for Radha', hi: 'र से राधा रानी' }, icon: '🌸', word: 'राधा', color: '#EC4899' },
+      { char: 'य', name: { en: 'Ya for Yamuna', hi: 'य से यमुना जी' }, icon: '🌊', word: 'यमुना', color: '#0284C7' }
+    ];
+
+    this.natureSounds = [
+      { id: 'yamuna', icon: '🌊', label: { hi: 'यमुना प्रवाह', en: 'Yamuna River' }, fn: () => window.toddlerAudio.playYamunaStream() },
+      { id: 'breeze', icon: '🍃', label: { hi: 'कदम्ब पवन', en: 'Breeze' }, fn: () => window.toddlerAudio.playKadambaBreeze() },
+      { id: 'rain', icon: '🌧️', label: { hi: 'वर्षा फुहार', en: 'Monsoon Rain' }, fn: () => window.toddlerAudio.playMonsoonRain() },
+      { id: 'birds', icon: '🐦', label: { hi: 'वन पक्षी', en: 'Birds Singing' }, fn: () => window.toddlerAudio.playForestBirdsChirp() },
+      { id: 'crickets', icon: '🦗', label: { hi: 'रात्रि झींगुर', en: 'Night Crickets' }, fn: () => window.toddlerAudio.playNightCrickets() }
+    ];
+  }
+
+  getActiveList() {
+    return this.mode === 'hi' ? this.lettersHi : this.lettersEn;
+  }
+
+  start() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    this.mode = lang === 'hi' ? 'hi' : 'en';
+    this.currentIndex = 0;
+    this.render();
+
+    setTimeout(() => {
+      this.triggerLetterByIndex(0, false);
+    }, 400);
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const list = this.getActiveList();
+    const item = list[this.currentIndex] || list[0];
+    const headerTitle = lang === 'hi' ? 'दिव्य अक्षर व प्राकृत स्वर: कोई भी कुंजी दबाएं या छूकर सुनें! 🔤✨' : 'Divya Akshara: Press Any Key or Tap to Hear It Speak! 🔤✨';
+    const switchLabel = this.mode === 'en' ? '🕉️ वर्णमाला (हिन्दी)' : '🔤 A-Z (English)';
+    const promptText = lang === 'hi' ? 'कुंजी दबाएं या छूकर अक्षर सुनें!' : 'Press any key or tap to hear phonics!';
+
+    this.container.innerHTML = `
+      <div class="game-akshara vedic-theme">
+        <div class="akshara-header">
+          <h2>${headerTitle}</h2>
+        </div>
+
+        <!-- Nature Sounds Sanctuary Bar -->
+        <div class="akshara-nature-bar">
+          <span class="nature-bar-label">🌿 ${lang === 'hi' ? 'प्राकृत स्वर:' : 'Nature Sounds:'}</span>
+          <div class="nature-orbs-group">
+            ${this.natureSounds.map(ns => `
+              <button class="nature-orb-btn" data-id="${ns.id}" title="${ns.label[lang] || ns.label.en}">
+                <span class="orb-icon">${ns.icon}</span>
+                <span class="orb-name">${ns.label[lang] || ns.label.en}</span>
+              </button>
+            `).join('')}
+          </div>
+          <button class="akshara-lang-switch" id="akshara-mode-toggle" title="Switch Alphabet Set">
+            ${switchLabel}
+          </button>
+        </div>
+
+        <!-- Central Giant Interactive Showcase Card -->
+        <div class="akshara-showcase">
+          <div class="giant-letter-card" id="giant-card" style="--letter-color: ${item.color};">
+            <div class="card-sparkle-aura"></div>
+            <div class="giant-letter-char" id="card-char">${item.char}</div>
+            <div class="giant-letter-icon" id="card-icon">${item.icon}</div>
+            <div class="giant-letter-word" id="card-word">${item.name[lang] || item.name.en}</div>
+            <div class="giant-letter-prompt">${promptText}</div>
+          </div>
+        </div>
+
+        <!-- Bottom Touch Keypad / Letter Bubbles Carousel -->
+        <div class="akshara-keypad-tray">
+          <div class="akshara-keys-scroll" id="keys-scroll">
+            ${list.map((l, idx) => `
+              <button class="akshara-key-btn ${idx === this.currentIndex ? 'active' : ''}" data-idx="${idx}" data-char="${l.char}" style="--key-color: ${l.color};">
+                <span class="key-char">${l.char}</span>
+                <span class="key-icon">${l.icon}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    // Mode toggle
+    const toggle = this.container.querySelector('#akshara-mode-toggle');
+    if (toggle) {
+      toggle.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.mode = this.mode === 'en' ? 'hi' : 'en';
+        this.currentIndex = 0;
+        this.render();
+        this.triggerLetterByIndex(0, true);
+      });
+    }
+
+    // Nature Sound Orbs
+    const orbBtns = this.container.querySelectorAll('.nature-orb-btn');
+    orbBtns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        btn.classList.add('orb-hit');
+        const id = btn.dataset.id;
+        const soundObj = this.natureSounds.find(n => n.id === id);
+        if (soundObj && typeof soundObj.fn === 'function') {
+          soundObj.fn();
+        }
+        setTimeout(() => btn.classList.remove('orb-hit'), 500);
+      });
+    });
+
+    // Central card tap (repeat speech)
+    const card = this.container.querySelector('#giant-card');
+    if (card) {
+      card.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.triggerLetterByIndex(this.currentIndex, true);
+      });
+    }
+
+    // Keypad buttons
+    const keyBtns = this.container.querySelectorAll('.akshara-key-btn');
+    keyBtns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const idx = parseInt(btn.dataset.idx, 10);
+        this.triggerLetterByIndex(idx, true);
+      });
+    });
+  }
+
+  triggerLetterByIndex(idx, shouldVocalize) {
+    const list = this.getActiveList();
+    if (idx < 0 || idx >= list.length) idx = 0;
+    this.currentIndex = idx;
+    const item = list[idx];
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    // Update Card UI
+    const card = this.container.querySelector('#giant-card');
+    const charEl = this.container.querySelector('#card-char');
+    const iconEl = this.container.querySelector('#card-icon');
+    const wordEl = this.container.querySelector('#card-word');
+
+    if (card) {
+      card.style.setProperty('--letter-color', item.color);
+      card.classList.remove('card-pop-anim');
+      void card.offsetWidth;
+      card.classList.add('card-pop-anim');
+    }
+    if (charEl) charEl.textContent = item.char;
+    if (iconEl) iconEl.textContent = item.icon;
+    if (wordEl) wordEl.textContent = item.name[lang] || item.name.en;
+
+    // Update active state on keypad
+    const allKeyBtns = this.container.querySelectorAll('.akshara-key-btn');
+    allKeyBtns.forEach(b => {
+      const bIdx = parseInt(b.dataset.idx, 10);
+      b.classList.toggle('active', bIdx === idx);
+    });
+
+    // Scroll active key into view
+    const activeBtn = this.container.querySelector(`.akshara-key-btn[data-idx="${idx}"]`);
+    if (activeBtn && activeBtn.scrollIntoView) {
+      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+
+    // Audio & Speech
+    if (shouldVocalize !== false && window.toddlerAudio) {
+      const baseFreq = 440;
+      const freq = baseFreq * Math.pow(2, (idx % 12) / 12);
+      window.toddlerAudio.playTempleBell(freq);
+      window.toddlerAudio.speakLetter(item.char, item.name);
+    }
+  }
+
+  // Any-Key Keyboard Smash Handler
+  handleAnyKey(key) {
+    const list = this.getActiveList();
+    if (key && typeof key === 'string' && key.length === 1) {
+      const upper = key.toUpperCase();
+      let foundIdx = -1;
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].char.toUpperCase() === upper) {
+          foundIdx = i;
+          break;
+        }
+      }
+
+      if (foundIdx === -1) {
+        const altList = this.mode === 'en' ? this.lettersHi : this.lettersEn;
+        for (let j = 0; j < altList.length; j++) {
+          if (altList[j].char.toUpperCase() === upper) {
+            this.mode = this.mode === 'en' ? 'hi' : 'en';
+            this.render();
+            this.triggerLetterByIndex(j, true);
+            return;
+          }
+        }
+      }
+
+      if (foundIdx !== -1) {
+        this.triggerLetterByIndex(foundIdx, true);
+        return;
+      }
+    }
+
+    const nextIdx = (this.currentIndex + 1) % list.length;
+    this.triggerLetterByIndex(nextIdx, true);
+  }
+}
+
 // Global Exports
 if (typeof window !== 'undefined') {
   window.BubbleGame = BubbleGame;
@@ -2052,6 +2321,7 @@ if (typeof window !== 'undefined') {
   window.ShapeMatchGame = ShapeMatchGame;
   window.SparkleCanvasGame = SparkleCanvasGame;
   window.ShringarGame = ShringarGame;
+  window.AksharaGame = AksharaGame;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -2063,6 +2333,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ShapeMatchGame,
     SparkleCanvasGame,
     ShringarGame,
+    AksharaGame,
     ToddlerPersistence,
     ElementPool
   };

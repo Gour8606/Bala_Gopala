@@ -31,7 +31,8 @@ class ToddlerApp {
       aarti: AartiGame,
       shapes: ShapeMatchGame,
       sparkles: SparkleCanvasGame,
-      shringar: ShringarGame
+      shringar: ShringarGame,
+      akshara: AksharaGame
     };
 
     // Commercial Memory Object Pools (Zero runtime GC stutter)
@@ -441,7 +442,8 @@ class ToddlerApp {
       aarti: { hi: 'संध्या आरती', en: 'Sandhya Aarti' },
       shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana' },
       sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli' },
-      shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' }
+      shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' },
+      akshara: { hi: 'दिव्य अक्षर', en: 'Akshara' }
     };
 
     if (this.tabs) {
@@ -520,13 +522,14 @@ class ToddlerApp {
         if (e.key === '5') { this.switchGame('shapes'); return; }
         if (e.key === '6') { this.switchGame('sparkles'); return; }
         if (e.key === '7') { this.switchGame('shringar'); return; }
+        if (e.key === '8') { this.switchGame('akshara'); return; }
       }
 
       this.mashCount++;
 
       // Trigger the active game's action
       if (this.currentGame && typeof this.currentGame.handleAnyKey === 'function') {
-        this.currentGame.handleAnyKey();
+        this.currentGame.handleAnyKey(e.key);
         this.showKeyboardRipple(e.key);
       }
 
@@ -646,7 +649,8 @@ class ToddlerApp {
       aarti: { hi: "संध्या आरती! कोई भी बटन दबाएं!", en: "Sandhya Aarti! Press any key or trace circles!" },
       shapes: { hi: "पुष्पार्चना! कान्हा को पुष्प अर्पित करें!", en: "Pushparchana! Offer sacred flowers to Kanha!" },
       sparkles: { hi: "दीपक ज्योति से दिव्य रंगोली बनाएं!", en: "Draw with glowing Divya Rangoli!" },
-      shringar: { hi: "कान्हा श्रृंगार और माखन सेवा! बाल गोपाला को सजाएं!", en: "Kanha Shringar! Adorn little Krishna with love!" }
+      shringar: { hi: "कान्हा श्रृंगार और माखन सेवा! बाल गोपाला को सजाएं!", en: "Kanha Shringar! Adorn little Krishna with love!" },
+      akshara: { hi: "दिव्य अक्षर और प्राकृत स्वर! कोई भी कुंजी दबाएं!", en: "Alphabet & Phonics! Press any letter key or tap to hear it speak!" }
     };
 
     setTimeout(() => {

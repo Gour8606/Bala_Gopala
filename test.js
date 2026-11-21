@@ -107,7 +107,8 @@ const expectedGames = [
   'AartiGame',
   'ShapeMatchGame',
   'SparkleCanvasGame',
-  'ShringarGame'
+  'ShringarGame',
+  'AksharaGame'
 ];
 
 expectedGames.forEach((gameClass) => {
@@ -150,8 +151,20 @@ try {
   assert(false, `ElementPool unit test error: ${e.message}`);
 }
 
-// 5. Validate Application Controller & PWA Shortcuts
-console.log('\n⚙️ 5. Verifying App Controller Features...');
+// 5. Validate Procedural Audio Engine & Natural Sounds
+console.log('\n🔊 5. Verifying Procedural Audio Engine & Natural Sounds...');
+const audioCode = fs.readFileSync(path.join(__dirname, 'audio.js'), 'utf8');
+assert(audioCode.includes('playYamunaStream()'), 'audio.js implements playYamunaStream() procedural river sound');
+assert(audioCode.includes('playKadambaBreeze()'), 'audio.js implements playKadambaBreeze() procedural wind sound');
+assert(audioCode.includes('playMonsoonRain()'), 'audio.js implements playMonsoonRain() procedural rain sound');
+assert(audioCode.includes('playNightCrickets()'), 'audio.js implements playNightCrickets() procedural crickets sound');
+assert(audioCode.includes('playForestBirdsChirp()'), 'audio.js implements playForestBirdsChirp() procedural birds sound');
+assert(audioCode.includes('speakLetter('), 'audio.js implements speakLetter() phonics letter speaker');
+assert(!/\?\./.test(audioCode), 'audio.js is free of optional chaining (?.)');
+assert(!/\?\?/.test(audioCode), 'audio.js is free of nullish coalescing (??)');
+
+// 6. Validate Application Controller & PWA Shortcuts
+console.log('\n⚙️ 6. Verifying App Controller Features...');
 const appCode = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
 assert(appCode.includes('updateLanguageUI()'), 'app.js implements updateLanguageUI() for bilingual tab text');
 assert(appCode.includes('getGameFromHash()'), 'app.js implements getGameFromHash() for PWA shortcut deep-links');

@@ -2133,4 +2133,238 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   8. DIVYA AKSHARA: ALPHABET, PHONICS & NATURE SOUNDS STYLES
+   ========================================================================== */
+.game-akshara {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  background: radial-gradient(circle at 50% 30%, #FFFDF5 0%, #FEF3C7 100%);
+}
+
+.akshara-header {
+  padding: 8px 16px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 2px solid #FDE68A;
+  z-index: 10;
+}
+.akshara-header h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #92400E;
+}
+
+/* Nature Sounds Bar */
+.akshara-nature-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: rgba(254, 243, 199, 0.6);
+  border-bottom: 1.5px dashed #F59E0B;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.akshara-nature-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.nature-bar-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #78350F;
+  white-space: nowrap;
+}
+
+.nature-orbs-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nature-orb-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #FFF;
+  border: 2px solid #10B981;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #065F46;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s;
+}
+.nature-orb-btn:hover, .nature-orb-btn:active {
+  transform: scale(1.08);
+  background: #ECFDF5;
+}
+.nature-orb-btn.orb-hit {
+  transform: scale(0.92);
+  background: #10B981;
+  color: #FFF;
+}
+
+.akshara-lang-switch {
+  background: #FEF3C7;
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #92400E;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s ease;
+}
+.akshara-lang-switch:hover, .akshara-lang-switch:active {
+  transform: scale(1.05);
+  background: #FDE68A;
+}
+
+/* Central Showcase */
+.akshara-showcase {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  position: relative;
+}
+
+.giant-letter-card {
+  background: #FFF;
+  border: 6px solid var(--letter-color, #F59E0B);
+  border-radius: 36px;
+  width: min(340px, 85vw);
+  height: min(340px, 48vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.22), 0 0 40px rgba(254, 240, 138, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.giant-letter-card:hover, .giant-letter-card:active {
+  transform: scale(1.04);
+}
+
+.giant-letter-card.card-pop-anim {
+  animation: giant-card-bounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes giant-card-bounce {
+  0% { transform: scale(0.85); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1.0); }
+}
+
+.giant-letter-char {
+  font-size: min(7.5rem, 18vh);
+  font-weight: 900;
+  color: var(--letter-color, #F59E0B);
+  line-height: 1;
+  text-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.giant-letter-icon {
+  font-size: min(3.5rem, 8vh);
+  margin-top: 4px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+}
+
+.giant-letter-word {
+  font-size: min(1.5rem, 4vh);
+  font-weight: 800;
+  color: #1E293B;
+  margin-top: 4px;
+}
+
+.giant-letter-prompt {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #94A3B8;
+  margin-top: 6px;
+}
+
+/* Bottom Keypad Tray */
+.akshara-keypad-tray {
+  background: rgba(255, 253, 245, 0.95);
+  border-top: 3px solid #F59E0B;
+  padding: 10px 16px;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+  z-index: 20;
+}
+
+.akshara-keys-scroll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.akshara-keys-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.akshara-key-btn {
+  flex-shrink: 0;
+  width: 58px;
+  height: 64px;
+  background: #FFF;
+  border: 3px solid var(--key-color, #F59E0B);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s;
+}
+
+.akshara-key-btn:hover, .akshara-key-btn:active {
+  transform: scale(1.12);
+  background: #FEF3C7;
+}
+
+.akshara-key-btn.active {
+  background: var(--key-color, #F59E0B);
+  border-color: #FFF;
+  box-shadow: 0 0 18px var(--key-color, #F59E0B);
+  transform: scale(1.15) translateY(-4px);
+}
+.akshara-key-btn.active .key-char {
+  color: #FFF;
+}
+
+.key-char {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #1E293B;
+  line-height: 1.1;
+}
+
+.key-icon {
+  font-size: 1.1rem;
+}
+
+
 

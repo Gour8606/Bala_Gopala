@@ -959,7 +959,223 @@ class ToddlerAudio {
     });
   }
 
-  // 17. Meditative Tanpura Drone (432Hz Sa-Pa)
+  // 17. Vrindavan Sacred Natural Sounds
+  // 17a. Gentle Flowing Yamuna River Stream
+  playYamunaStream() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(25);
+
+    const t = this.ctx.currentTime;
+    const dur = 1.4;
+    const bufferSize = Math.floor(this.ctx.sampleRate * dur);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99765 * b0 + white * 0.0990460;
+      b1 = 0.96300 * b1 + white * 0.2965164;
+      b2 = 0.57000 * b2 + white * 1.0526913;
+      const pink = b0 + b1 + b2 + white * 0.1848;
+      const mod = 0.7 + 0.3 * Math.sin((i / bufferSize) * 24);
+      data[i] = (pink * 0.08) * mod * Math.sin(Math.PI * (i / bufferSize));
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(650, t);
+    filter.frequency.linearRampToValueAtTime(850, t + 0.7);
+    filter.frequency.linearRampToValueAtTime(550, t + dur);
+    filter.Q.setValueAtTime(3.0, t);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.linearRampToValueAtTime(0.38, t + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.getDestination());
+
+    noise.start(t);
+    noise.stop(t + dur);
+
+    // Resonant water droplet bubbling
+    for (let d = 0; d < 3; d++) {
+      const dropTime = t + 0.15 + d * 0.35 + Math.random() * 0.1;
+      const dropOsc = this.ctx.createOscillator();
+      const dropGain = this.ctx.createGain();
+      dropOsc.type = 'sine';
+      dropOsc.frequency.setValueAtTime(900 + Math.random() * 400, dropTime);
+      dropOsc.frequency.exponentialRampToValueAtTime(1400 + Math.random() * 600, dropTime + 0.08);
+
+      dropGain.gain.setValueAtTime(0.08, dropTime);
+      dropGain.gain.exponentialRampToValueAtTime(0.001, dropTime + 0.08);
+
+      dropOsc.connect(dropGain);
+      dropGain.connect(this.getDestination());
+      dropOsc.start(dropTime);
+      dropOsc.stop(dropTime + 0.09);
+    }
+  }
+
+  // 17b. Gentle Breeze through Kadamba Trees
+  playKadambaBreeze() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(15);
+
+    const t = this.ctx.currentTime;
+    const dur = 1.6;
+    const bufferSize = Math.floor(this.ctx.sampleRate * dur);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+      const envelope = Math.sin(Math.PI * (i / bufferSize));
+      data[i] = (Math.random() * 2 - 1) * envelope;
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(320, t);
+    filter.frequency.linearRampToValueAtTime(680, t + 0.7);
+    filter.frequency.linearRampToValueAtTime(280, t + dur);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.linearRampToValueAtTime(0.28, t + 0.6);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.getDestination());
+
+    noise.start(t);
+    noise.stop(t + dur);
+  }
+
+  // 17c. Gentle Vrindavan Monsoon Rain
+  playMonsoonRain() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate([10, 30, 10]);
+
+    const t = this.ctx.currentTime;
+    const dur = 1.5;
+    const bufferSize = Math.floor(this.ctx.sampleRate * dur);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.15;
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const highpass = this.ctx.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.setValueAtTime(1200, t);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.linearRampToValueAtTime(0.22, t + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    noise.connect(highpass);
+    highpass.connect(gain);
+    gain.connect(this.getDestination());
+
+    noise.start(t);
+    noise.stop(t + dur);
+
+    for (let r = 0; r < 5; r++) {
+      const dropT = t + 0.1 + r * 0.24 + Math.random() * 0.08;
+      const osc = this.ctx.createOscillator();
+      const dropGain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1800 + Math.random() * 700, dropT);
+      osc.frequency.exponentialRampToValueAtTime(600, dropT + 0.06);
+
+      dropGain.gain.setValueAtTime(0.06, dropT);
+      dropGain.gain.exponentialRampToValueAtTime(0.001, dropT + 0.06);
+
+      osc.connect(dropGain);
+      dropGain.connect(this.getDestination());
+      osc.start(dropT);
+      osc.stop(dropT + 0.07);
+    }
+  }
+
+  // 17d. Peaceful Vrindavan Forest Crickets
+  playNightCrickets() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+
+    const t = this.ctx.currentTime;
+    for (let b = 0; b < 4; b++) {
+      const burstStart = t + b * 0.28;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(4600 + (b % 2) * 200, burstStart);
+
+      gain.gain.setValueAtTime(0.001, burstStart);
+      gain.gain.linearRampToValueAtTime(0.12, burstStart + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, burstStart + 0.18);
+
+      osc.connect(gain);
+      gain.connect(this.getDestination());
+
+      osc.start(burstStart);
+      osc.stop(burstStart + 0.19);
+    }
+  }
+
+  // 17e. Vrindavan Forest Songbirds Chirping
+  playForestBirdsChirp() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+
+    const t = this.ctx.currentTime;
+    const chirps = [
+      { start: 0.0, from: 2400, to: 3800, dur: 0.14 },
+      { start: 0.18, from: 3100, to: 4400, dur: 0.12 },
+      { start: 0.36, from: 2800, to: 4100, dur: 0.18 }
+    ];
+
+    chirps.forEach(c => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const startTime = t + c.start;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(c.from, startTime);
+      osc.frequency.exponentialRampToValueAtTime(c.to, startTime + c.dur * 0.8);
+
+      gain.gain.setValueAtTime(0.01, startTime);
+      gain.gain.linearRampToValueAtTime(0.25, startTime + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + c.dur);
+
+      osc.connect(gain);
+      gain.connect(this.getDestination());
+
+      osc.start(startTime);
+      osc.stop(startTime + c.dur + 0.01);
+    });
+  }
+
+  // 18. Meditative Tanpura Drone (432Hz Sa-Pa)
   startTanpuraDrone() {
     if (this.isMuted || !this.ctx || this.isTanpuraPlaying) return;
     this.ensureContext();
@@ -1032,6 +1248,22 @@ class ToddlerAudio {
     } catch (e) {
       console.warn("Speech synthesis error:", e);
     }
+  }
+
+  // Speak Alphabet Letter with Phonics Word association
+  speakLetter(letter, wordPhrase) {
+    if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) return;
+    const lang = this.currentLanguage || 'hi';
+    let text = letter;
+    if (wordPhrase) {
+      if (typeof wordPhrase === 'string') {
+        text = letter + '! ' + wordPhrase;
+      } else if (typeof wordPhrase === 'object') {
+        const phrase = wordPhrase[lang] || wordPhrase.en || '';
+        text = letter + '! ' + phrase;
+      }
+    }
+    this.speak(text);
   }
 
   // 19. Gentle Vedic Lullaby (Gopala Lullaby for Screen-Time End & Shanti Mode)
