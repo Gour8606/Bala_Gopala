@@ -230,7 +230,7 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v3.2'), 'sw.js caches with updated v3.2 identifier');
+assert(swCode.includes('bala-gopala-v3.3'), 'sw.js caches with updated v3.3 identifier');
 assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
 assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
 assert(appCode.includes('toggleSidebar('), 'app.js implements toggleSidebar() for vertical game library drawer');
@@ -244,6 +244,7 @@ assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided 
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
 assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
 assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
+assert(indexHtml.includes('games.js?v=3.3'), 'index.html specifies cache-busting script versioning ?v=3.3');
 const stylesCode = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
 assert(stylesCode.includes('.voice-help-btn'), 'styles.css styles .voice-help-btn');
 assert(stylesCode.includes('.voice-help-btn.is-speaking'), 'styles.css defines animated speech pulse for .voice-help-btn.is-speaking');
@@ -311,12 +312,22 @@ function runEndpointChecks(port, internalServer) {
 }
 
 // Check if port 3000 is open, else spin up a temporary verification server
-const probeReq = http.get('http://localhost:3000/', (res) => {
-  probeReq.abort();
+let serverChecked = false;
+const probeReq = http.get('http://127.0.0.1:3000/', (res) => {
+  serverChecked = true;
+  res.resume();
   runEndpointChecks(3000, null);
 });
 
+probeReq.setTimeout(1000, () => {
+  if (!serverChecked) {
+    probeReq.destroy();
+  }
+});
+
 probeReq.on('error', () => {
+  if (serverChecked) return;
+  serverChecked = true;
   // Start internal test server on ephemeral port
   const testServer = http.createServer((req, res) => {
     let reqPath = decodeURI(req.url.split('?')[0]);
