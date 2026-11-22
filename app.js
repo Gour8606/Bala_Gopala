@@ -70,6 +70,7 @@ class ToddlerApp {
     this.ripplePool = (typeof ElementPool !== 'undefined') ? new ElementPool('key-mash-ripple', 16) : null;
 
     this.initElements();
+    this.initGameGuidance();
     this.restoreSavedPreferences();
     this.updateLanguageUI();
     this.bindEvents();
@@ -129,6 +130,11 @@ class ToddlerApp {
     this.activeGameIcon = document.getElementById('active-game-icon');
     this.activeGameName = document.getElementById('active-game-name');
     this.ageFilterPills = document.querySelectorAll('.age-filter-pill');
+
+    // Voice Guidance On-Demand Controls
+    this.voiceHelpBtn = document.getElementById('voice-help-btn');
+    this.voiceHelpLabel = document.getElementById('voice-help-label');
+    this.voiceHelpIcon = document.getElementById('voice-help-icon');
 
     // Guided Daily Journey Controls
     this.journeyQuickBtn = document.getElementById('journey-quick-btn');
@@ -248,6 +254,14 @@ class ToddlerApp {
       this.journeyNextFloatingBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         this.advanceGuidedJourney();
+      });
+    }
+
+    // Voice Guidance On-Demand Button Trigger
+    if (this.voiceHelpBtn) {
+      this.voiceHelpBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.speakCurrentGameGuidance(true);
       });
     }
 
@@ -602,6 +616,13 @@ class ToddlerApp {
       toggleLabel.textContent = lang === 'hi' ? 'खेल (14 Games)' : 'Games (14)';
     }
 
+    if (this.voiceHelpLabel) {
+      this.voiceHelpLabel.textContent = lang === 'hi' ? 'निर्देश / Help' : 'How to Play';
+    }
+    if (this.voiceHelpBtn) {
+      this.voiceHelpBtn.title = lang === 'hi' ? 'खेलने के निर्देश सुनें (Listen to Voice Guidance)' : 'Listen to Voice Guidance (How to Play)';
+    }
+
     const sidebarTitle = document.getElementById('sidebar-title-text');
     if (sidebarTitle) {
       sidebarTitle.textContent = lang === 'hi' ? 'लीला संगम (14 Games)' : 'Play Library (14 Games)';
@@ -821,23 +842,6 @@ class ToddlerApp {
     this.currentGame = new GameClass(this.stage);
     this.currentGame.start();
 
-    const welcomePhrases = {
-      bubbles: { hi: "माखन मटकी और दही मथानी!", en: "Pop the sweet Makhan pots and churn fresh butter!" },
-      peekaboo: { hi: "गऊ धाम! हम्बा और नन्हा बछड़ा!", en: "Vrindavan Gau-Dham! Meet the holy cow and calf!" },
-      xylophone: { hi: "कान्हा की बांसुरी और जल तरंग!", en: "Let's play Krishna's Bansuri and Jal Tarang!" },
-      aarti: { hi: "संध्या आरती! कोई भी बटन दबाएं!", en: "Sandhya Aarti! Press any key or trace circles!" },
-      shapes: { hi: "पुष्पार्चना! कान्हा को पुष्प अर्पित करें!", en: "Pushparchana! Offer sacred flowers to Kanha!" },
-      sparkles: { hi: "दीपक ज्योति से दिव्य रंगोली बनाएं!", en: "Draw with glowing Divya Rangoli!" },
-      shringar: { hi: "कान्हा श्रृंगार और माखन सेवा! बाल गोपाला को सजाएं!", en: "Kanha Shringar! Adorn little Krishna with love!" },
-      akshara: { hi: "दिव्य अक्षर और प्राकृत स्वर! कोई भी कुंजी दबाएं!", en: "Alphabet & Phonics! Press any letter key or tap to hear it speak!" },
-      prakriti: { hi: "प्रकृति सेवा और पुष्प संगम! तुलसी मैया की सेवा करें!", en: "Prakriti Care & Nature Harmony! Nurture holy Tulsi and sort sacred flowers!" },
-      dhyana: { hi: "ध्यान, प्राणायाम व नवरस! शांत मन और गहरी श्वास!", en: "Mindfulness, Pranayama & Emotions! Breathe deeply and find inner calm!" },
-      matki: { hi: "गोपाला मटकी शिखर! सबसे बड़ा मटका नीचे रखकर शिखर बनाएं!", en: "Gopala's Butter Pot Tower! Build the tower by placing the largest pot at the bottom!" },
-      bhuta: { hi: "पंच महाभूत दर्शन! पृथ्वी, जल, अग्नि, वायु और आकाश का आदर करें!", en: "The Five Sacred Elements! Discover Earth, Water, Fire, Air and Space in harmony!" },
-      utsava: { hi: "भारत के दिव्य उत्सव! कान्हा का झूला झुलाएं और फूलों की होली खेलें!", en: "Festivals of India! Gently rock Kanha's swing and celebrate with fragrant flowers!" },
-      vadya: { hi: "भारतीय वाद्य संगीत! वीणा, मृदंग, बांसुरी और मंजीरा बजाएं!", en: "Indian Classical & Sacred Instruments! Tap to play the Veena, Mridangam, Bansuri and Manjira!" }
-    };
-
     // Update active game pill in top navbar
     const gameIcons = {
       bubbles: '🍯', peekaboo: '🐮', xylophone: '🪈', aarti: '🪔',
@@ -880,10 +884,8 @@ class ToddlerApp {
     this.resetInactivityGuidanceTimer();
 
     setTimeout(() => {
-      if (welcomePhrases[key]) {
-        window.toddlerAudio.speak(welcomePhrases[key]);
-      }
-    }, 300);
+      this.speakCurrentGameGuidance(false);
+    }, 350);
   }
 
   // Sidebar Controls
@@ -1063,6 +1065,101 @@ class ToddlerApp {
         window.toddlerAudio.playJhulaChime(880);
       }
     }
+  }
+
+  // Comprehensive Verbal Gameplay Guidance & Phonic Instructions (Bilingual Hindi/English)
+  initGameGuidance() {
+    this.gameGuidance = {
+      bubbles: {
+        hi: "माखन मटकी खेल! तैरती हुई मटकियों को छूकर फोड़ो और मीठा माखन निकालो! नीचे रखी मथानी को घुमाकर ताजा माखन बनाओ!",
+        en: "Makhan Pop game! Tap the floating butter pots to pop them and collect sweet butter! Spin the churning rod at the bottom to churn fresh butter!"
+      },
+      peekaboo: {
+        hi: "गऊ सेवा धाम! गऊ मैया और नन्हे बछड़े से मिलो! उन्हें मीठी हरी घास खिलाओ, यमुना जल से नहलाओ, और घंटी बजाओ!",
+        en: "Gau-Seva Sanctuary! Meet holy Gau Mata and her sweet baby calf! Feed them fresh green grass, give a holy Yamuna bath, and ring her golden bell!"
+      },
+      xylophone: {
+        hi: "बांसुरी और जल तरंग! रंग-बिरंगी पट्टियों को छूकर कान्हा की बांसुरी बजाओ, या नीचे रखे जल-कटोरों को छूकर जल-तरंग संगीत सुनो!",
+        en: "Bansuri & Jal Tarang! Tap the colorful keys to play sweet Krishna melodies, or tap the water bowls below to hear calming ripples!"
+      },
+      aarti: {
+        hi: "संध्या आरती! आरती की थाली को उंगली से गोल-गोल घुमाकर कान्हा की आरती उतारो! ऊपर लटकी घंटी और शंख बजाओ, और फूल बरसाओ!",
+        en: "Sandhya Aarti! Move the golden aarti thali in gentle circles for Little Krishna! Ring the temple bell, sound the sacred conch, and shower petals!"
+      },
+      shapes: {
+        hi: "पुष्पार्चना! कमल, गेंदा, और तुलसी के फूलों को उनके सही आकार में मिलाकर कान्हा के चरणों में सजाओ!",
+        en: "Pushparchana! Drag or tap the holy flowers—lotus, marigold, and tulsi—to match their shapes and offer them at Kanha's lotus feet!"
+      },
+      sparkles: {
+        hi: "दिव्य रंगोली! अपनी उंगली से स्क्रीन पर चमकीली रेखाएं खींचो और रोशनी से भरी सुंदर रंगोली सजाओ! दीपकों को छूकर रंग बदलो!",
+        en: "Divya Rangoli! Draw glowing lines with your finger across the screen to create sparkling light art! Tap the diyas to change your colors!"
+      },
+      shringar: {
+        hi: "कान्हा श्रृंगार! नीचे दी गई थाली से मोर पंख, चन्दन तिलक, माला और बांसुरी छूकर नन्हे कान्हा को सजाओ! कान्हा को गुदगुदी भी कर सकते हो!",
+        en: "Kanha Shringar! Tap the items below to adorn little Krishna with the peacock feather, cool sandalwood tilak, flower garland, and divine flute! Tap Kanha to tickle Him!"
+      },
+      akshara: {
+        hi: "दिव्य अक्षर और गिनती! किसी भी अक्षर या संख्या को छुओ या कीबोर्ड दबाओ! सुनो कान्हा कैसे बोलते हैं अ आ इ ई और १ से १० तक गिनती!",
+        en: "Sacred Letters & Counting! Tap any letter or number, or press any key! Hear how each letter sounds and count from 1 to 10!"
+      },
+      prakriti: {
+        hi: "प्रकृति सेवा! सुनहरी झारी से तुलसी मैया को जल दो, और ऊपर से गिरते हुए फूलों को सही रंग की टोकरियों में चुनो!",
+        en: "Prakriti Care! Water holy Tulsi with the golden sprinkler, and sort falling flowers into the matching color baskets!"
+      },
+      dhyana: {
+        hi: "ध्यान और प्राणायाम! खिलते हुए कमल के साथ शांत मन से धीरे-धीरे गहरी श्वास अंदर लो, और धीरे-धीरे बाहर छोड़ो! शांति महसूस करो!",
+        en: "Mindfulness and Breathing! Inhale gently as the holy lotus blooms, and exhale slowly as it closes! Feel inner peace and joy!"
+      },
+      matki: {
+        hi: "मटकी शिखर! सबसे बड़े मटके को पहले नीचे रखो, फिर उससे छोटे मटकों को ऊपर रखकर संतुलन बनाओ और कान्हा का शिखर पूरा करो!",
+        en: "Matki Tower! Start with the largest pot at the bottom, then stack each smaller pot on top to balance the tower and reveal sweet Kanha!"
+      },
+      bhuta: {
+        hi: "पंच महाभूत! पृथ्वी, जल, अग्नि, वायु और आकाश के पावन तत्वों को छुओ और सुनो प्रकृति कैसे जीवन को संतुलित रखती है!",
+        en: "The Five Elements! Tap Earth, Water, Fire, Air, and Space to explore nature's five sacred building blocks in perfect balance!"
+      },
+      utsava: {
+        hi: "दिव्य उत्सव! कान्हा के झूले को प्यार से झुलाएं, होली के फूलों की फुहार उड़ाएं, और दीपावली के पवित्र दीपकों को प्रज्वलित करें!",
+        en: "Festivals of India! Gently rock baby Krishna on His golden swing, celebrate with fragrant flower Holi, and light up Diwali lamps!"
+      },
+      vadya: {
+        hi: "दिव्य वाद्य संगीत! वीणा, मृदंग, बांसुरी और मंजीरा को छूकर भारतीय शास्त्रीय संगीत और भक्ति ताल का आनंद लो!",
+        en: "Sacred Instruments! Tap to play the sweet Veena strings, Mridangam beats, holy Bansuri, and rhythmic Manjira cymbals!"
+      }
+    };
+  }
+
+  // On-Demand & Interactive Voice Help Speaker
+  speakCurrentGameGuidance(isManualTap) {
+    if (!this.gameGuidance) {
+      this.initGameGuidance();
+    }
+    const phrase = this.gameGuidance[this.currentGameKey];
+    if (!phrase || !window.toddlerAudio) return;
+
+    if (this.voiceHelpBtn) {
+      this.voiceHelpBtn.classList.add('is-speaking');
+    }
+    if (this.voiceHelpIcon) {
+      this.voiceHelpIcon.textContent = '📢';
+    }
+
+    if (isManualTap) {
+      if (typeof window.toddlerAudio.playJhulaChime === 'function') {
+        window.toddlerAudio.playJhulaChime(1046.5);
+      } else {
+        window.toddlerAudio.playTempleBell(1046.5);
+      }
+    }
+
+    window.toddlerAudio.speak(phrase, () => {
+      if (this.voiceHelpBtn) {
+        this.voiceHelpBtn.classList.remove('is-speaking');
+      }
+      if (this.voiceHelpIcon) {
+        this.voiceHelpIcon.textContent = '🗣️';
+      }
+    });
   }
 
   toggleFullscreen() {

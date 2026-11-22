@@ -1697,8 +1697,9 @@ class ToddlerAudio {
 
           window.speechSynthesis.speak(utterance);
 
-          // Fallback timer in case speech engine onend is delayed
-          setTimeout(triggerDone, 1800);
+          // Dynamic fallback timer in case speech engine onend is delayed or dropped by OS
+          const fallbackMs = Math.max(3500, (textToSpeak ? textToSpeak.length : 10) * 160);
+          setTimeout(triggerDone, fallbackMs);
         } catch (err) {
           if (typeof onComplete === 'function') onComplete();
         }

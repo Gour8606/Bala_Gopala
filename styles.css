@@ -220,6 +220,58 @@ html, body {
   font-size: 1.15rem;
 }
 
+/* Voice Guidance On-Demand Button (Interactive Audio Help) */
+.voice-help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--amber-50);
+  border: 1.5px solid var(--amber-300);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--amber-950);
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.voice-help-btn:hover {
+  background: var(--amber-100);
+  border-color: var(--amber-400);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.voice-help-btn:active {
+  transform: scale(0.96);
+}
+.voice-help-btn .voice-icon {
+  font-size: 1.05rem;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.voice-help-btn.is-speaking {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-color: var(--amber-500);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+  animation: voice-pulse 1.2s infinite ease-in-out;
+}
+.voice-help-btn.is-speaking .voice-icon {
+  animation: voice-icon-bounce 0.5s infinite alternate ease-in-out;
+}
+@keyframes voice-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.7); }
+}
+@keyframes voice-icon-bounce {
+  from { transform: scale(1.0); }
+  to { transform: scale(1.25) rotate(-5deg); }
+}
+
 /* Daily Guided Journey Quick Pill (Tailwind Gradient Action Pill) */
 .journey-quick-btn {
   display: inline-flex;

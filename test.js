@@ -228,7 +228,7 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v3.0'), 'sw.js caches with updated v3.0 identifier');
+assert(swCode.includes('bala-gopala-v3.1'), 'sw.js caches with updated v3.1 identifier');
 assert(appCode.includes('toggleSidebar('), 'app.js implements toggleSidebar() for vertical game library drawer');
 assert(appCode.includes('filterGamesByAge('), 'app.js implements filterGamesByAge() for 1-2y, 2-3y, and 3-5y curriculum pathways');
 assert(appCode.includes('startGuidedJourney('), 'app.js implements startGuidedJourney() for curated 4-step daily routine');
@@ -237,6 +237,17 @@ const indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 assert(indexHtml.includes('id="games-sidebar"'), 'index.html defines left vertical games-sidebar library');
 assert(indexHtml.includes('id="sidebar-toggle-btn"'), 'index.html defines sidebar-toggle-btn in top navigation');
 assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided journey hero card');
+assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
+const stylesCode = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
+assert(stylesCode.includes('.voice-help-btn'), 'styles.css styles .voice-help-btn');
+assert(stylesCode.includes('.voice-help-btn.is-speaking'), 'styles.css defines animated speech pulse for .voice-help-btn.is-speaking');
+assert(appCode.includes('speakCurrentGameGuidance('), 'app.js implements speakCurrentGameGuidance() for instant audio instructions');
+assert(appCode.includes('initGameGuidance()'), 'app.js implements initGameGuidance() with bilingual instructions');
+const all14Games = ['bubbles', 'peekaboo', 'xylophone', 'aarti', 'shapes', 'sparkles', 'shringar', 'akshara', 'prakriti', 'dhyana', 'matki', 'bhuta', 'utsava', 'vadya'];
+all14Games.forEach(g => {
+  assert(appCode.includes(`${g}: {`), `app.js defines complete verbal guidance for game '${g}'`);
+});
+assert(audioCode.includes('Math.max(3500'), 'audio.js implements dynamic duration speech fallback timer');
 assert(appCode.includes('this.footprintPool'), 'app.js uses memory pool for Kanha ghungroo footprints');
 assert(appCode.includes('class ToddlerInputFilter'), 'app.js defines ToddlerInputFilter for palm-slap rejection');
 assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');

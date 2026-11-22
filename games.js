@@ -1315,12 +1315,20 @@ class AartiGame {
     btnRose.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       window.toddlerAudio.playAartiChimes();
+      window.toddlerAudio.speak({
+        hi: "गुलाब की पंखुड़ियां! पावन समर्पण!",
+        en: "Fragrant rose petals for Little Krishna!"
+      });
       this.showerAltarPetals('🌹');
     });
 
     btnGenda.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       window.toddlerAudio.playTempleBell(880);
+      window.toddlerAudio.speak({
+        hi: "गेंदे के दिव्य फूल! कान्हा प्रसन्न!",
+        en: "Golden marigolds offered to Kanha!"
+      });
       this.showerAltarPetals('🌼');
     });
 
@@ -1328,6 +1336,10 @@ class AartiGame {
       btnTulsi.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         window.toddlerAudio.playTempleBell(1046.5);
+        window.toddlerAudio.speak({
+          hi: "पावन तुलसी दल! श्री कृष्णा को अति प्रिय!",
+          en: "Sacred Tulsi leaves! Most beloved to Krishna!"
+        });
         this.showerAltarPetals('🌿');
       });
     }
@@ -1336,6 +1348,10 @@ class AartiGame {
       btnMogra.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         window.toddlerAudio.playAartiChimes();
+        window.toddlerAudio.speak({
+          hi: "सुगन्धित मोगरा पुष्प! जय श्री कृष्णा!",
+          en: "Sweet jasmine blossoms for Kanha!"
+        });
         this.showerAltarPetals('🌸');
       });
     }
@@ -1686,6 +1702,12 @@ class SparkleCanvasGame {
         btn.classList.add('selected');
         this.currentStamp = btn.dataset.stamp;
         window.toddlerAudio.playAartiChimes();
+        const stampObj = this.stamps.find(s => s.id === this.currentStamp);
+        if (stampObj && window.toddlerAudio) {
+          const lang = window.toddlerAudio.currentLanguage ? window.toddlerAudio.currentLanguage : 'hi';
+          const title = stampObj.name[lang] || stampObj.name.en;
+          window.toddlerAudio.speak(title);
+        }
       });
     });
 
