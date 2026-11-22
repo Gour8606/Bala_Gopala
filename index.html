@@ -68,6 +68,9 @@
           <span id="lang-indicator">🇮🇳 हिन्दी</span>
         </button>
 
+        <button class="ctrl-btn rewards-btn" id="rewards-btn" title="Vrindavan Lila Rewards & Stickers (लीला उपहार)">
+          🎁 <span class="rewards-count-badge" id="rewards-count-badge">0</span>
+        </button>
         <button class="ctrl-btn" id="shanti-mode-btn" title="Bedtime Shanti Mode (Tanpura & Twilight)">🌙</button>
         <button class="ctrl-btn" id="mute-btn" title="Toggle Sound">🔊</button>
         <button class="ctrl-btn" id="timer-btn" title="Gentle Screen Time Timer">⏳</button>
@@ -406,6 +409,24 @@
             <strong>🌙 Bedtime Shanti Mode:</strong>
             <p>Tap the <strong>🌙 icon</strong> in the top bar to dim the lights to twilight, start a soothing 432Hz Tanpura drone, and relax your toddler before sleep.</p>
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- Vrindavan Lila Rewards & Sticker Album Modal -->
+    <div id="rewards-modal" class="overlay-modal hidden">
+      <div class="modal-card rewards-modal-card">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-title-icon">🎁</span>
+            <span class="modal-title-text" id="rewards-modal-title">लीला उपहार व स्टिकर (Lila Stickers)</span>
+          </div>
+          <button class="modal-close-btn" id="close-rewards-modal">✖</button>
+        </div>
+        <p class="rewards-modal-desc" id="rewards-modal-desc">
+          खेल खेलो और कान्हा के प्यारे स्टिकर इकट्ठा करो! Tap any unlocked sticker to hear Kanha's blessing!
+        </p>
+        <div class="stickers-album-grid" id="stickers-album-grid">
+          <!-- Dynamically populated 14 collectible stickers -->
         </div>
       </div>
     </div>

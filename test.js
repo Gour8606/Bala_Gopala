@@ -94,7 +94,8 @@ try {
     'panchaBhutaEmblem',
     'goldenJhula',
     'saraswatiVeena',
-    'mridangam'
+    'mridangam',
+    'goldenBee'
   ];
 
   expectedAssets.forEach((assetKey) => {
@@ -202,6 +203,7 @@ assert(audioCode.includes('playVeenaPluck('), 'audio.js implements playVeenaPluc
 assert(audioCode.includes('playMridangaDha('), 'audio.js implements playMridangaDha() Mridangam resonant bass Dha');
 assert(audioCode.includes('playMridangaTa('), 'audio.js implements playMridangaTa() Mridangam crisp treble Ta');
 assert(audioCode.includes('playJhulaChime('), 'audio.js implements playJhulaChime() Janmashtami floral swing chime');
+assert(audioCode.includes('playBhramariHum('), 'audio.js implements playBhramariHum() sacred bumblebee calming hum');
 assert(audioCode.includes('stopAllSounds()'), 'audio.js implements stopAllSounds() panic stop for stuck drones');
 assert(audioCode.includes('speakLetter('), 'audio.js implements speakLetter() phonics letter speaker');
 assert(audioCode.includes('speakNumber('), 'audio.js implements speakNumber() phonics counting speaker');
@@ -228,7 +230,9 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v3.1'), 'sw.js caches with updated v3.1 identifier');
+assert(swCode.includes('bala-gopala-v3.2'), 'sw.js caches with updated v3.2 identifier');
+assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
+assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
 assert(appCode.includes('toggleSidebar('), 'app.js implements toggleSidebar() for vertical game library drawer');
 assert(appCode.includes('filterGamesByAge('), 'app.js implements filterGamesByAge() for 1-2y, 2-3y, and 3-5y curriculum pathways');
 assert(appCode.includes('startGuidedJourney('), 'app.js implements startGuidedJourney() for curated 4-step daily routine');
@@ -238,11 +242,17 @@ assert(indexHtml.includes('id="games-sidebar"'), 'index.html defines left vertic
 assert(indexHtml.includes('id="sidebar-toggle-btn"'), 'index.html defines sidebar-toggle-btn in top navigation');
 assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided journey hero card');
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
+assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
+assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
 const stylesCode = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
 assert(stylesCode.includes('.voice-help-btn'), 'styles.css styles .voice-help-btn');
 assert(stylesCode.includes('.voice-help-btn.is-speaking'), 'styles.css defines animated speech pulse for .voice-help-btn.is-speaking');
+assert(stylesCode.includes('.rewards-btn'), 'styles.css styles .rewards-btn and count badge');
+assert(stylesCode.includes('.rewards-toast-popup'), 'styles.css defines rewards-toast-popup animated notification');
+assert(stylesCode.includes('.bhramari-bee-flight'), 'styles.css defines bhramari-bee-flight for bumblebee pranayama');
 assert(appCode.includes('speakCurrentGameGuidance('), 'app.js implements speakCurrentGameGuidance() for instant audio instructions');
 assert(appCode.includes('initGameGuidance()'), 'app.js implements initGameGuidance() with bilingual instructions');
+assert(appCode.includes('openRewardsModal('), 'app.js implements openRewardsModal() for Lila Sticker Album');
 const all14Games = ['bubbles', 'peekaboo', 'xylophone', 'aarti', 'shapes', 'sparkles', 'shringar', 'akshara', 'prakriti', 'dhyana', 'matki', 'bhuta', 'utsava', 'vadya'];
 all14Games.forEach(g => {
   assert(appCode.includes(`${g}: {`), `app.js defines complete verbal guidance for game '${g}'`);

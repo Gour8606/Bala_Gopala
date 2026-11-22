@@ -110,6 +110,11 @@ class ToddlerApp {
         btn.classList.toggle('active', mins === savedLimit);
       });
     }
+
+    // 4. Rewards Badges
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.updateNavbarBadge();
+    }
   }
 
   initElements() {
@@ -175,6 +180,13 @@ class ToddlerApp {
     this.timerCountdown = document.getElementById('timer-countdown');
     this.screenTimeDoneModal = document.getElementById('screen-time-done-modal');
     this.resumeScreenBtn = document.getElementById('resume-screen-btn');
+
+    // Rewards & Sticker Album Controls
+    this.rewardsBtn = document.getElementById('rewards-btn');
+    this.rewardsModal = document.getElementById('rewards-modal');
+    this.closeRewardsModal = document.getElementById('close-rewards-modal');
+    this.stickersAlbumGrid = document.getElementById('stickers-album-grid');
+    this.rewardsCountBadge = document.getElementById('rewards-count-badge');
   }
 
   bindEvents() {
@@ -416,6 +428,21 @@ class ToddlerApp {
       this.parentGateModal.classList.add('hidden');
       this.gatePendingAction = null;
     });
+
+    // Rewards & Sticker Album controls
+    if (this.rewardsBtn) {
+      this.rewardsBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.openRewardsModal();
+      });
+    }
+
+    if (this.closeRewardsModal) {
+      this.closeRewardsModal.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.rewardsModal) this.rewardsModal.classList.add('hidden');
+      });
+    }
   }
 
   // GENTLE SCREEN TIME MANAGER
@@ -1160,6 +1187,62 @@ class ToddlerApp {
         this.voiceHelpIcon.textContent = '🗣️';
       }
     });
+  }
+
+  openRewardsModal() {
+    if (!this.rewardsModal || !window.ToddlerRewards) return;
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const unlockedList = window.ToddlerRewards.getUnlocked();
+    const stickers = window.ToddlerRewards.stickers;
+
+    if (this.stickersAlbumGrid) {
+      this.stickersAlbumGrid.innerHTML = stickers.map((s) => {
+        const isUnlocked = unlockedList.indexOf(s.id) !== -1;
+        const title = s.title[lang] || s.title.en;
+        const desc = s.desc[lang] || s.desc.en;
+        return `
+          <div class="sticker-album-card ${isUnlocked ? 'is-unlocked' : 'is-locked'}" data-id="${s.id}" title="${title}">
+            <div class="sticker-icon-wrap">
+              <span class="sticker-icon">${isUnlocked ? s.icon : '🔒'}</span>
+              ${isUnlocked ? '<span class="sticker-sparkle-star">⭐</span>' : ''}
+            </div>
+            <div class="sticker-name">${isUnlocked ? title : (lang === 'hi' ? 'रहस्य उपहार' : 'Secret Gift')}</div>
+            <div class="sticker-desc">${isUnlocked ? desc : (lang === 'hi' ? 'खेलकर अनलॉक करें' : 'Play to unlock')}</div>
+          </div>
+        `;
+      }).join('');
+
+      const cards = this.stickersAlbumGrid.querySelectorAll('.sticker-album-card.is-unlocked');
+      cards.forEach((card) => {
+        card.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          const sid = card.dataset.id;
+          const st = stickers.find((s) => s.id === sid);
+          if (st && window.toddlerAudio) {
+            card.classList.add('sticker-tapped');
+            setTimeout(() => card.classList.remove('sticker-tapped'), 500);
+            if (typeof window.toddlerAudio.playJhulaChime === 'function') {
+              window.toddlerAudio.playJhulaChime(1046.5);
+            } else {
+              window.toddlerAudio.playTempleBell(1046.5);
+            }
+            const stTitle = st.title[lang] || st.title.en;
+            const stDesc = st.desc[lang] || st.desc.en;
+            window.toddlerAudio.speak(`${stTitle}! ${stDesc}`);
+          }
+        });
+      });
+    }
+
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(1046.5);
+      window.toddlerAudio.speak({
+        hi: `लीला उपहार अलबम! आपके पास ${unlockedList.length} उपहार हैं!`,
+        en: `Lila Stickers Album! You have collected ${unlockedList.length} gifts!`
+      });
+    }
+
+    this.rewardsModal.classList.remove('hidden');
   }
 
   toggleFullscreen() {

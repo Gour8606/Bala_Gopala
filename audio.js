@@ -1572,6 +1572,57 @@ class ToddlerAudio {
     });
   }
 
+  // 17h. Bhramari Pranayama (Sacred Bumblebee Calming Hum at 196Hz G3)
+  // Medically & yogically proven to soothe toddler nervous systems and stop meltdowns
+  playBhramariHum(dur) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.triggerHaptic('soft');
+
+    const duration = dur || 2.8;
+    const t = this.ctx.currentTime;
+    const baseFreq = 196.0;
+
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const vibrato = this.ctx.createOscillator();
+    const vibratoGain = this.ctx.createGain();
+
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(baseFreq, t);
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(baseFreq * 2, t);
+
+    vibrato.frequency.setValueAtTime(5.2, t);
+    vibratoGain.gain.setValueAtTime(4.5, t);
+    vibrato.connect(osc1.frequency);
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(360, t);
+    filter.Q.setValueAtTime(3.0, t);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.24, t + 0.6);
+    gain.gain.setValueAtTime(0.22, t + duration - 0.7);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.getDestination());
+
+    vibrato.start(t);
+    osc1.start(t);
+    osc2.start(t);
+
+    vibrato.stop(t + duration);
+    osc1.stop(t + duration);
+    osc2.stop(t + duration);
+  }
+
   // 18. Meditative Tanpura Drone (432Hz Sa-Pa)
   startTanpuraDrone() {
     if (this.isMuted || !this.ctx) return;

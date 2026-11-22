@@ -27,6 +27,179 @@ const ToddlerPersistence = {
   }
 };
 
+// ==========================================================================
+// VRINDAVAN LILA STICKER & REWARD BADGES SYSTEM (Positive Toddler Motivation)
+// ==========================================================================
+const ToddlerRewards = {
+  stickers: [
+    {
+      id: 'butter_lover',
+      icon: '🍯',
+      title: { hi: 'माखन प्रेमी', en: 'Butter Lover' },
+      desc: { hi: 'ताजा माखन मटकी फोड़ी!', en: 'Popped sweet butter pots!' }
+    },
+    {
+      id: 'gau_sevak',
+      icon: '🐮',
+      title: { hi: 'गौ सेवक', en: 'Gau Sevak' },
+      desc: { hi: 'गऊ माता को हरी घास खिलाई!', en: 'Nurtured holy Gau Mata!' }
+    },
+    {
+      id: 'bansuri_vadak',
+      icon: '🪈',
+      title: { hi: 'मुरलीधर', en: 'Murlidhar' },
+      desc: { hi: 'कान्हा की बांसुरी व जल तरंग बजाया!', en: 'Played sweet flute notes!' }
+    },
+    {
+      id: 'aarti_bhakt',
+      icon: '🪔',
+      title: { hi: 'संध्या ज्योति', en: 'Aarti Jyoti' },
+      desc: { hi: 'कान्हा की पावन आरती उतारी!', en: 'Offered sacred evening Aarti!' }
+    },
+    {
+      id: 'pushpa_archak',
+      icon: '🪷',
+      title: { hi: 'पुष्प अर्चक', en: 'Flower Archak' },
+      desc: { hi: 'कमल व गेंदे के फूल अर्पित किए!', en: 'Offered holy blossoms!' }
+    },
+    {
+      id: 'rangoli_shilpi',
+      icon: '✨',
+      title: { hi: 'रंगोली शिल्पी', en: 'Rangoli Artist' },
+      desc: { hi: 'दिव्य प्रकाश की रंगोली बनाई!', en: 'Painted glowing starlight!' }
+    },
+    {
+      id: 'kanha_shringar',
+      icon: '👑',
+      title: { hi: 'कान्हा सेवक', en: 'Kanha Adorner' },
+      desc: { hi: 'मोर पंख, मुकुट व माला सजाई!', en: 'Adorned Little Krishna!' }
+    },
+    {
+      id: 'akshara_vidya',
+      icon: '🔤',
+      title: { hi: 'विद्यार्थी', en: 'Akshara Learner' },
+      desc: { hi: 'अक्षर व १-१० गिनती सीखी!', en: 'Learned sacred letters & counts!' }
+    },
+    {
+      id: 'tulsi_mitra',
+      icon: '🌿',
+      title: { hi: 'तुलसी मित्र', en: 'Tulsi Nurturer' },
+      desc: { hi: 'तुलसी मैया को पावन जल दिया!', en: 'Nurtured sacred Tulsi!' }
+    },
+    {
+      id: 'shanti_yogi',
+      icon: '🧘',
+      title: { hi: 'शांत योगी', en: 'Mindful Yogi' },
+      desc: { hi: 'कमल व भ्रामरी प्राणायाम किया!', en: 'Practiced peaceful breathing!' }
+    },
+    {
+      id: 'matki_shikhar',
+      icon: '🏺',
+      title: { hi: 'मटकी शिल्पी', en: 'Tower Builder' },
+      desc: { hi: 'मोंटेसरी मटकी शिखर संतुलित किया!', en: 'Balanced the butter pot tower!' }
+    },
+    {
+      id: 'pancha_bhuta',
+      icon: '🌍',
+      title: { hi: 'तत्वदर्शी', en: 'Element Explorer' },
+      desc: { hi: 'पांचों महाभूत तत्वों को जाना!', en: 'Discovered the 5 sacred elements!' }
+    },
+    {
+      id: 'utsav_ananda',
+      icon: '🪢',
+      title: { hi: 'उत्सव आनन्द', en: 'Festival Joy' },
+      desc: { hi: 'कान्हा का झूला झुलाया व दीप जलाए!', en: 'Celebrated Janmashtami & Diwali!' }
+    },
+    {
+      id: 'naad_brahma',
+      icon: '🪕',
+      title: { hi: 'नाद ब्रह्म', en: 'Sacred Musician' },
+      desc: { hi: 'वीणा, मृदंग व मंजीरा बजाया!', en: 'Played divine classical instruments!' }
+    }
+  ],
+
+  getUnlocked: function() {
+    if (typeof window !== 'undefined' && window.ToddlerPersistence) {
+      const saved = window.ToddlerPersistence.get('unlocked_stickers', []);
+      return Array.isArray(saved) ? saved : [];
+    }
+    return [];
+  },
+
+  isUnlocked: function(id) {
+    return this.getUnlocked().indexOf(id) !== -1;
+  },
+
+  award: function(id) {
+    const list = this.getUnlocked();
+    if (list.indexOf(id) !== -1) return false;
+
+    list.push(id);
+    if (typeof window !== 'undefined' && window.ToddlerPersistence) {
+      window.ToddlerPersistence.set('unlocked_stickers', list);
+    }
+
+    const sticker = this.stickers.find(function(s) { return s.id === id; });
+    if (sticker) {
+      this.showToast(sticker);
+      this.playStickerSound(sticker);
+      this.updateNavbarBadge();
+    }
+    return true;
+  },
+
+  updateNavbarBadge: function() {
+    if (typeof document === 'undefined') return;
+    const badge = document.getElementById('rewards-count-badge');
+    if (badge) {
+      const unlocked = this.getUnlocked().length;
+      badge.textContent = unlocked + ' / ' + this.stickers.length;
+      badge.classList.add('badge-bounce');
+      setTimeout(function() { badge.classList.remove('badge-bounce'); }, 600);
+    }
+  },
+
+  playStickerSound: function(sticker) {
+    if (typeof window === 'undefined' || !window.toddlerAudio) return;
+    window.toddlerAudio.playCelebration();
+    setTimeout(function() {
+      if (window.toddlerAudio) window.toddlerAudio.playBabyGiggle();
+    }, 350);
+
+    const lang = window.toddlerAudio.currentLanguage ? window.toddlerAudio.currentLanguage : 'hi';
+    const title = sticker.title[lang] || sticker.title.en;
+    window.toddlerAudio.speak({
+      hi: "अद्भुत! नया उपहार मिला: " + title + "! शाबाश!",
+      en: "Hooray! New sticker unlocked: " + title + "! Well done!"
+    });
+  },
+
+  showToast: function(sticker) {
+    if (typeof document === 'undefined') return;
+    const lang = (typeof window !== 'undefined' && window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const title = sticker.title[lang] || sticker.title.en;
+    const toast = document.createElement('div');
+    toast.className = 'rewards-toast-popup';
+    toast.innerHTML = [
+      '<span class="toast-icon">' + sticker.icon + '</span>',
+      '<div class="toast-text">',
+      '  <span class="toast-heading">' + (lang === 'hi' ? '🎁 नया उपहार मिला!' : '🎁 New Sticker!') + '</span>',
+      '  <span class="toast-sticker-name">' + title + '</span>',
+      '</div>',
+      '<span class="toast-sparkle">✨</span>'
+    ].join('');
+    document.body.appendChild(toast);
+    setTimeout(function() {
+      toast.classList.add('fade-out');
+      setTimeout(function() { toast.remove(); }, 400);
+    }, 2800);
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.ToddlerRewards = ToddlerRewards;
+}
+
 class ElementPool {
   constructor(className, maxPoolSize, createFn) {
     this.className = className;
@@ -354,6 +527,9 @@ class BubbleGame {
     }
 
     this.popCount++;
+    if (this.popCount >= 3 && window.ToddlerRewards) {
+      window.ToddlerRewards.award('butter_lover');
+    }
     if (window.ToddlerPersistence) {
       window.ToddlerPersistence.set('lifetime_makhan_pops', this.popCount);
     }
@@ -629,6 +805,9 @@ class PeekabooGame {
       window.toddlerAudio.playGrassChew();
       setTimeout(() => window.toddlerAudio.playCalfMoo(), 400);
       window.toddlerAudio.speak({ hi: "मीठी हरी घास! गऊ माता प्रसन्न!", en: "Sweet green grass for holy cow!" });
+      if (window.ToddlerRewards) {
+        window.ToddlerRewards.award('gau_sevak');
+      }
       this.triggerBlessing(cowCard, '🌾', '💖');
       setTimeout(() => {
         cowCard.classList.remove('cow-nodding');
@@ -1124,6 +1303,9 @@ class XylophoneGame {
 
     const keyData = this.swaras[playIdx];
     window.toddlerAudio.playBansuri(keyData.freq);
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('bansuri_vadak');
+    }
 
     const targetBar = this.container.querySelector(`.xylo-bar[data-idx="${playIdx}"]`) || barEl;
     if (targetBar) {
@@ -1270,6 +1452,9 @@ class AartiGame {
       this.isRotating = true;
       window.toddlerAudio.playAartiChimes();
       window.toddlerAudio.speak({ hi: "आरती कुंजबिहारी की! जय श्री कृष्णा!", en: "Aarti for Little Krishna!" });
+      if (window.ToddlerRewards) {
+        window.ToddlerRewards.award('aarti_bhakt');
+      }
     });
 
     const bellRope = this.container.querySelector('#altar-bell-rope');
@@ -1572,6 +1757,9 @@ class ShapeMatchGame {
       hi: "सुन्दर समर्पण! शुभम्!",
       en: "Beautiful sacred offering! Haribol!"
     });
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('pushpa_archak');
+    }
 
     card.classList.add('fly-matched');
     target.innerHTML = card.innerHTML;
@@ -1791,6 +1979,9 @@ class SparkleCanvasGame {
     if (stampObj) {
       this.drawStamp(e.clientX, e.clientY, stampObj.emoji);
       window.toddlerAudio.playTempleBell(987.77);
+      if (window.ToddlerRewards) {
+        window.ToddlerRewards.award('rangoli_shilpi');
+      }
     }
   }
 
@@ -2071,6 +2262,9 @@ class ShringarGame {
       const cx = e ? e.clientX : window.innerWidth / 2;
       const cy = e ? e.clientY : 300;
       this.spawnJoyParticles(cx, cy, item.icon);
+      if (window.ToddlerRewards) {
+        window.ToddlerRewards.award('kanha_shringar');
+      }
 
       if (this.adorned.size === this.items.length) {
         setTimeout(() => this.celebrateFullShringar(), 700);
@@ -2664,6 +2858,9 @@ class AksharaGame {
     if (charEl) charEl.textContent = item.char;
     if (iconEl) iconEl.textContent = item.icon;
     if (wordEl) wordEl.textContent = item.name[lang] || item.name.en;
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('akshara_vidya');
+    }
     if (sanskritEl) sanskritEl.textContent = item.sanskrit || '';
 
     // If in number mode, refresh the interactive counter tray
@@ -3028,6 +3225,10 @@ class PrakritiGame {
       void tulsiPlant.offsetWidth; // trigger reflow
     }
 
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('tulsi_mitra');
+    }
+
     if (action === 'water') {
       if (tulsiPlant) tulsiPlant.classList.add('tulsi-swaying', 'tulsi-glowing-green');
       if (window.toddlerAudio) {
@@ -3222,6 +3423,7 @@ class DhyanaGame {
   constructor(container) {
     this.container = container;
     this.currentEmotionId = 'shanti';
+    this.pranayamaMode = 'lotus'; // 'lotus' or 'bhramari'
     this.breathCycleTimer = null;
     this.breathState = 'in'; // 'in', 'hold', 'out'
     this.mashCounter = 0;
@@ -3357,8 +3559,21 @@ class DhyanaGame {
             </div>
           </div>
 
+          <!-- Pranayama Mode Selector: Lotus Breathing vs Bhramari Bumblebee Hum -->
+          <div class="pranayama-mode-bar">
+            <button class="pranayama-pill-btn ${this.pranayamaMode === 'lotus' ? 'active' : ''}" data-mode="lotus">
+              🌸 ${lang === 'hi' ? 'कमल प्राणायाम' : 'Lotus Breath'}
+            </button>
+            <button class="pranayama-pill-btn ${this.pranayamaMode === 'bhramari' ? 'active' : ''}" data-mode="bhramari">
+              🐝 ${lang === 'hi' ? 'भ्रामरी गुंजन (Calm)' : 'Bumblebee Hum'}
+            </button>
+          </div>
+
           <!-- Pranayama Breathing Lotus Rhythm Guide -->
-          <div class="breathing-lotus-wrap" id="breathing-lotus-wrap" title="Tap to chant Om">
+          <div class="breathing-lotus-wrap ${this.pranayamaMode === 'bhramari' ? 'is-bhramari-mode' : ''}" id="breathing-lotus-wrap" title="Tap to chant Om">
+            <div class="bhramari-bee-flight ${this.pranayamaMode === 'bhramari' ? '' : 'hidden'}" id="bhramari-bee-flight">
+              ${VedicAssets.goldenBee || '🐝'}
+            </div>
             <div class="breathing-lotus-visual lotus-expanding" id="breathing-lotus">
               ${VedicAssets.kamal || '🪷'}
             </div>
@@ -3438,6 +3653,28 @@ class DhyanaGame {
         }
       });
     }
+
+    // 4. Pranayama Mode Selector (Lotus vs Bhramari Bumblebee)
+    const modeBtns = this.container.querySelectorAll('.pranayama-pill-btn');
+    modeBtns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const mode = btn.dataset.mode;
+        if (mode && mode !== this.pranayamaMode) {
+          this.pranayamaMode = mode;
+          this.render();
+          this.bindDhyanaEvents();
+          this.startBreathingEngine();
+          if (window.toddlerAudio) {
+            window.toddlerAudio.playJhulaChime(880);
+            window.toddlerAudio.speak({
+              hi: mode === 'bhramari' ? "भ्रामरी प्राणायाम! नन्हा भौंरा गुंजन करेगा!" : "कमल प्राणायाम! शांत गहरी सांस लें!",
+              en: mode === 'bhramari' ? "Bumblebee Calming Breath! Listen to the soothing hum!" : "Lotus Breathing! Breathe deeply and calmly!"
+            });
+          }
+        }
+      });
+    });
   }
 
   selectEmotion(emoId) {
@@ -3489,6 +3726,10 @@ class DhyanaGame {
   startBreathingEngine() {
     if (this.breathCycleTimer) clearTimeout(this.breathCycleTimer);
 
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('shanti_yogi');
+    }
+
     let phaseIndex = 0;
     // 3 Phases: Inhale (4s), Hold (2s), Exhale (4s) -> Total 10s cycle
     const phases = [
@@ -3512,13 +3753,34 @@ class DhyanaGame {
         cue.textContent = p.label[lang] || p.label.en;
       }
 
-      // Subtle soft audio cue on breath phase
-      if (window.toddlerAudio && !window.toddlerAudio.isMuted) {
-        if (p.name === 'in') {
-          window.toddlerAudio.playBansuri(392.0); // Gentle Pa
-        } else if (p.name === 'out') {
-          if (typeof window.toddlerAudio.playSingingBowl === 'function') {
-            window.toddlerAudio.playSingingBowl(324);
+      if (this.pranayamaMode === 'bhramari') {
+        const bee = this.container.querySelector('#bhramari-bee-flight');
+        if (bee) {
+          bee.classList.remove('bee-inhale', 'bee-pause', 'bee-humming');
+          void bee.offsetWidth;
+          if (p.name === 'in') {
+            bee.classList.add('bee-inhale');
+          } else if (p.name === 'hold') {
+            bee.classList.add('bee-pause');
+          } else if (p.name === 'out') {
+            bee.classList.add('bee-humming');
+          }
+        }
+        if (p.name === 'out') {
+          if (cue) cue.textContent = (lang === 'hi' ? 'भ्रामरी गुंजन: म्-म्-म्... 🐝' : 'Humming Breath: Mmm... 🐝');
+          if (window.toddlerAudio && !window.toddlerAudio.isMuted) {
+            window.toddlerAudio.playBhramariHum(3.2);
+          }
+        }
+      } else {
+        // Subtle soft audio cue on breath phase
+        if (window.toddlerAudio && !window.toddlerAudio.isMuted) {
+          if (p.name === 'in') {
+            window.toddlerAudio.playBansuri(392.0); // Gentle Pa
+          } else if (p.name === 'out') {
+            if (typeof window.toddlerAudio.playSingingBowl === 'function') {
+              window.toddlerAudio.playSingingBowl(324);
+            }
           }
         }
       }
@@ -3756,6 +4018,9 @@ class MatkiTowerGame {
       // Check if complete
       if (this.stacked.length === 5) {
         this.isCompleted = true;
+        if (window.ToddlerRewards) {
+          window.ToddlerRewards.award('matki_shikhar');
+        }
         this.render();
         this.bindMatkiEvents();
 
@@ -4032,6 +4297,10 @@ class PanchaBhutaGame {
     this.render();
     this.bindBhutaEvents();
 
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('pancha_bhuta');
+    }
+
     if (typeof elem.sound === 'function') elem.sound();
 
     if (window.toddlerAudio) {
@@ -4273,6 +4542,9 @@ class UtsavaGame {
 
   triggerFestivalAction() {
     const festId = this.currentFestivalId;
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('utsav_ananda');
+    }
 
     if (festId === 'janmashtami') {
       const swing = this.container.querySelector('#jhula-swing-element');
@@ -4636,6 +4908,9 @@ class VadyaGame {
 
     if (typeof inst.sound === 'function') {
       inst.sound();
+    }
+    if (window.ToddlerRewards) {
+      window.ToddlerRewards.award('naad_brahma');
     }
   }
 

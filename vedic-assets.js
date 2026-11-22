@@ -1038,6 +1038,45 @@ VedicAssets.mridangam = `
   </svg>
 `;
 
+// Golden Vrindavan Bumblebee (Bhramari Bee for Soothing Tantrum Pranayama)
+VedicAssets.goldenBee = `
+  <svg viewBox="0 0 100 100" class="toddler-svg vedic-bee">
+    <defs>
+      <linearGradient id="beeGold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FEF08A"/>
+        <stop offset="50%" stop-color="#F59E0B"/>
+        <stop offset="100%" stop-color="#D97706"/>
+      </linearGradient>
+      <radialGradient id="beeWing" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#E0F2FE" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="#BAE6FD" stop-opacity="0.4"/>
+      </radialGradient>
+    </defs>
+    <!-- Fluttering Wings -->
+    <ellipse cx="38" cy="32" rx="14" ry="24" transform="rotate(-30 38 32)" fill="url(#beeWing)" stroke="#38BDF8" stroke-width="1.2"/>
+    <ellipse cx="62" cy="32" rx="14" ry="24" transform="rotate(30 62 32)" fill="url(#beeWing)" stroke="#38BDF8" stroke-width="1.2"/>
+    <!-- Striped Bee Body -->
+    <ellipse cx="50" cy="56" rx="20" ry="24" fill="url(#beeGold)" stroke="#78350F" stroke-width="2"/>
+    <!-- Stripes -->
+    <path d="M 32 48 Q 50 54 68 48" stroke="#1C1917" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M 31 58 Q 50 64 69 58" stroke="#1C1917" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M 34 68 Q 50 74 66 68" stroke="#1C1917" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Head with Big Cute Eyes -->
+    <circle cx="50" cy="34" r="13" fill="#1C1917"/>
+    <circle cx="45" cy="32" r="3.5" fill="#FFF"/>
+    <circle cx="55" cy="32" r="3.5" fill="#FFF"/>
+    <circle cx="46" cy="31" r="1.5" fill="#000"/>
+    <circle cx="56" cy="31" r="1.5" fill="#000"/>
+    <!-- Cheerful Smile -->
+    <path d="M 46 39 Q 50 43 54 39" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <!-- Antennae with Golden Tips -->
+    <path d="M 45 22 Q 40 12 36 14" stroke="#1C1917" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <circle cx="36" cy="14" r="2.5" fill="#F59E0B"/>
+    <path d="M 55 22 Q 60 12 64 14" stroke="#1C1917" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <circle cx="64" cy="14" r="2.5" fill="#F59E0B"/>
+  </svg>
+`;
+
 // Attach to window object for global access across scripts
 if (typeof window !== 'undefined') {
   window.VedicAssets = VedicAssets;
