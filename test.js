@@ -204,6 +204,13 @@ assert(audioCode.includes('playMridangaDha('), 'audio.js implements playMridanga
 assert(audioCode.includes('playMridangaTa('), 'audio.js implements playMridangaTa() Mridangam crisp treble Ta');
 assert(audioCode.includes('playJhulaChime('), 'audio.js implements playJhulaChime() Janmashtami floral swing chime');
 assert(audioCode.includes('playBhramariHum('), 'audio.js implements playBhramariHum() sacred bumblebee calming hum');
+assert(audioCode.includes('playGoatBleat('), 'audio.js implements playGoatBleat() realistic baby goat bleat');
+assert(audioCode.includes('playHorseNeigh('), 'audio.js implements playHorseNeigh() realistic Vrindavan horse whinny and snort');
+assert(audioCode.includes('playSwanCall('), 'audio.js implements playSwanCall() sacred swan trumpet honk');
+assert(audioCode.includes('playAnimalSound('), 'audio.js implements playAnimalSound() universal animal sound router for games');
+assert(audioCode.includes('playMilkSplash('), 'audio.js implements playMilkSplash() frothy milk and butter drop sound');
+assert(audioCode.includes('playWaterSprinkle('), 'audio.js implements playWaterSprinkle() gentle trickling droplets');
+assert(audioCode.includes('playMonkeyChatter('), 'audio.js implements playMonkeyChatter() Vanar playful chatter');
 assert(audioCode.includes('stopAllSounds()'), 'audio.js implements stopAllSounds() panic stop for stuck drones');
 assert(audioCode.includes('speakLetter('), 'audio.js implements speakLetter() phonics letter speaker');
 assert(audioCode.includes('speakNumber('), 'audio.js implements speakNumber() phonics counting speaker');
@@ -230,9 +237,10 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v3.3'), 'sw.js caches with updated v3.3 identifier');
+assert(swCode.includes('bala-gopala-v3.4'), 'sw.js caches with updated v3.4 identifier');
 assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
 assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
+assert(gamesCode.includes('id="switch-animals"'), 'games.js implements Vedic Animal Swaras mode switch in XylophoneGame');
 assert(appCode.includes('toggleSidebar('), 'app.js implements toggleSidebar() for vertical game library drawer');
 assert(appCode.includes('filterGamesByAge('), 'app.js implements filterGamesByAge() for 1-2y, 2-3y, and 3-5y curriculum pathways');
 assert(appCode.includes('startGuidedJourney('), 'app.js implements startGuidedJourney() for curated 4-step daily routine');
@@ -244,8 +252,9 @@ assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided 
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
 assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
 assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
-assert(indexHtml.includes('games.js?v=3.3'), 'index.html specifies cache-busting script versioning ?v=3.3');
+assert(indexHtml.includes('games.js?v=3.4'), 'index.html specifies cache-busting script versioning ?v=3.4');
 const stylesCode = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
+assert(stylesCode.includes('.animal-swaras-board'), 'styles.css defines .animal-swaras-board for Vedic musical animals');
 assert(stylesCode.includes('.voice-help-btn'), 'styles.css styles .voice-help-btn');
 assert(stylesCode.includes('.voice-help-btn.is-speaking'), 'styles.css defines animated speech pulse for .voice-help-btn.is-speaking');
 assert(stylesCode.includes('.rewards-btn'), 'styles.css styles .rewards-btn and count badge');

@@ -224,132 +224,238 @@ class ToddlerAudio {
 
   // =========================================================================
   // AUTHENTIC ANIMAL SOUNDS (Bala Krishna's Vrindavan Animal Friends)
+  // Enhanced Organic Synthesis with Parallel Vowel Formants & Realistic Inflections
   // =========================================================================
 
   // 1. Authentic Realistic Cow Moo (Gau Mata: "Hambaaa~")
-  playCowMoo() {
+  // Features: Deep chest fundamental, parallel vowel formants (u -> a -> o),
+  // warm vocal cord saturation, sub-rumble, and nostril breath puff.
+  playCowMoo(pitchRatio) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
-    this.vibrate(25);
+    this.vibrate(28);
 
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
     const t = this.ctx.currentTime;
-    const duration = 1.9;
+    const duration = 2.0;
 
-    // Vocal cord oscillator: Sawtooth for rich bovine harmonics
-    const osc = this.ctx.createOscillator();
-    osc.type = 'sawtooth';
+    // Vocal cord carrier: Dual detuned sawtooth for rich vocal cord roughness
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    osc1.type = 'sawtooth';
+    osc2.type = 'sawtooth';
 
-    // Pitch trajectory: starts low ~110Hz, rises to ~150Hz, sustained vibrato, falls to ~95Hz
-    osc.frequency.setValueAtTime(110, t);
-    osc.frequency.linearRampToValueAtTime(148, t + 0.35);
-    osc.frequency.setValueAtTime(145, t + 1.15);
-    osc.frequency.exponentialRampToValueAtTime(95, t + duration);
+    const baseF = 112 * pr;
+    const peakF = 152 * pr;
+    const endF = 90 * pr;
 
-    // Warm throat vibrato (4.8 Hz)
+    osc1.frequency.setValueAtTime(baseF, t);
+    osc1.frequency.exponentialRampToValueAtTime(peakF, t + 0.38);
+    osc1.frequency.setValueAtTime(peakF * 0.98, t + 1.25);
+    osc1.frequency.exponentialRampToValueAtTime(endF, t + duration);
+
+    osc2.frequency.setValueAtTime(baseF + 1.2, t);
+    osc2.frequency.exponentialRampToValueAtTime(peakF + 1.5, t + 0.38);
+    osc2.frequency.setValueAtTime((peakF * 0.98) + 1.2, t + 1.25);
+    osc2.frequency.exponentialRampToValueAtTime(endF + 0.8, t + duration);
+
+    // Warm throat vibrato (4.6 Hz)
     const vibrato = this.ctx.createOscillator();
     const vibratoGain = this.ctx.createGain();
-    vibrato.frequency.setValueAtTime(4.8, t);
-    vibratoGain.gain.setValueAtTime(3.5, t);
-    vibratoGain.gain.linearRampToValueAtTime(6.0, t + 0.5);
-    vibratoGain.gain.linearRampToValueAtTime(2.0, t + duration);
-    vibrato.connect(osc.frequency);
+    vibrato.frequency.setValueAtTime(4.6, t);
+    vibratoGain.gain.setValueAtTime(3.2 * pr, t);
+    vibratoGain.gain.linearRampToValueAtTime(5.8 * pr, t + 0.6);
+    vibratoGain.gain.linearRampToValueAtTime(2.0 * pr, t + duration);
+    vibrato.connect(osc1.frequency);
+    vibrato.connect(osc2.frequency);
 
-    // Formant 1: Chest resonance (~420Hz)
+    // Vocal cords distortion shaper for organic warmth
+    const shaper = this.ctx.createWaveShaper();
+    shaper.curve = this.makeDistortionCurve(16);
+
+    const voiceMix = this.ctx.createGain();
+    voiceMix.gain.setValueAtTime(0.5, t);
+    osc1.connect(shaper);
+    osc2.connect(shaper);
+    shaper.connect(voiceMix);
+
+    // PARALLEL ACOUSTIC VOCAL TRACT FORMANTS (Fant's Speech Production Model)
+    // Formant 1: Chest Resonance (~420Hz)
     const f1 = this.ctx.createBiquadFilter();
+    const g1 = this.ctx.createGain();
     f1.type = 'bandpass';
     f1.frequency.setValueAtTime(380, t);
-    f1.frequency.linearRampToValueAtTime(480, t + 0.4);
+    f1.frequency.linearRampToValueAtTime(460, t + 0.4);
     f1.frequency.linearRampToValueAtTime(360, t + duration);
-    f1.Q.setValueAtTime(3.2, t);
+    f1.Q.setValueAtTime(3.0, t);
+    g1.gain.setValueAtTime(0.44, t);
+    voiceMix.connect(f1);
+    f1.connect(g1);
 
-    // Formant 2: Mouth/Muzzle vowel transition (/u/ to /o/ around 800Hz)
+    // Formant 2: Mouth/Muzzle Vowel sweep (/u/ to /a/ to /o/)
     const f2 = this.ctx.createBiquadFilter();
+    const g2 = this.ctx.createGain();
     f2.type = 'bandpass';
-    f2.frequency.setValueAtTime(750, t);
-    f2.frequency.linearRampToValueAtTime(920, t + 0.4);
-    f2.frequency.linearRampToValueAtTime(700, t + duration);
-    f2.Q.setValueAtTime(2.5, t);
+    f2.frequency.setValueAtTime(700, t);
+    f2.frequency.linearRampToValueAtTime(940, t + 0.45);
+    f2.frequency.linearRampToValueAtTime(680, t + duration);
+    f2.Q.setValueAtTime(2.6, t);
+    g2.gain.setValueAtTime(0.38, t);
+    voiceMix.connect(f2);
+    f2.connect(g2);
 
-    // Formant 3: Nasal resonance (~1250Hz)
+    // Formant 3: Nasal cavity overtone (~1320Hz)
     const f3 = this.ctx.createBiquadFilter();
-    f3.type = 'peaking';
-    f3.frequency.setValueAtTime(1250, t);
-    f3.gain.setValueAtTime(4.0, t);
-    f3.Q.setValueAtTime(3.0, t);
+    const g3 = this.ctx.createGain();
+    f3.type = 'bandpass';
+    f3.frequency.setValueAtTime(1320, t);
+    f3.Q.setValueAtTime(3.4, t);
+    g3.gain.setValueAtTime(0.18, t);
+    voiceMix.connect(f3);
+    f3.connect(g3);
 
-    // Soft saturation for vocal cord warmth
-    const shaper = this.ctx.createWaveShaper();
-    shaper.curve = this.makeDistortionCurve(12);
+    // Sub-chest deep bass presence (Triangle wave at fundamental)
+    const subOsc = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    subOsc.type = 'triangle';
+    subOsc.frequency.setValueAtTime(baseF * 0.5, t);
+    subOsc.frequency.linearRampToValueAtTime(peakF * 0.5, t + 0.4);
+    subOsc.frequency.linearRampToValueAtTime(endF * 0.5, t + duration);
+    subGain.gain.setValueAtTime(0.24, t);
+    subOsc.connect(subGain);
 
-    // Master Amplitude Envelope
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.001, t);
-    gain.gain.linearRampToValueAtTime(0.48, t + 0.28);
-    gain.gain.setValueAtTime(0.44, t + 1.25);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    // Nostril air turbulence at vocal onset (gentle breath puff)
+    const bufSize = Math.floor(this.ctx.sampleRate * 0.28);
+    const noiseBuf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const nData = noiseBuf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) {
+      nData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.35));
+    }
+    const noiseSrc = this.ctx.createBufferSource();
+    noiseSrc.buffer = noiseBuf;
+    const noiseFilt = this.ctx.createBiquadFilter();
+    noiseFilt.type = 'bandpass';
+    noiseFilt.frequency.setValueAtTime(520, t);
+    noiseFilt.Q.setValueAtTime(2.0, t);
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.18, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.26);
+    noiseSrc.connect(noiseFilt);
+    noiseFilt.connect(noiseGain);
 
-    osc.connect(shaper);
-    shaper.connect(f1);
-    f1.connect(f2);
-    f2.connect(f3);
-    f3.connect(gain);
-    gain.connect(this.getDestination());
+    // Master Amplitude Vowel Envelope
+    const masterGain = this.ctx.createGain();
+    masterGain.gain.setValueAtTime(0.001, t);
+    masterGain.gain.linearRampToValueAtTime(0.52, t + 0.25);
+    masterGain.gain.setValueAtTime(0.48, t + 1.25);
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+    g1.connect(masterGain);
+    g2.connect(masterGain);
+    g3.connect(masterGain);
+    subGain.connect(masterGain);
+    noiseGain.connect(masterGain);
+
+    masterGain.connect(this.getDestination());
+    this.registerVoice(masterGain, 6, duration);
 
     vibrato.start(t);
-    osc.start(t);
-    vibrato.stop(t + duration);
-    osc.stop(t + duration);
+    osc1.start(t);
+    osc2.start(t);
+    subOsc.start(t);
+    noiseSrc.start(t);
 
-    // Accompanying cow bell jingle
-    setTimeout(() => this.playCowBell(), 300);
+    vibrato.stop(t + duration);
+    osc1.stop(t + duration);
+    osc2.stop(t + duration);
+    subOsc.stop(t + duration);
+    noiseSrc.stop(t + 0.28);
+
+    // Accompanying sweet cow bell jingle
+    setTimeout(() => {
+      if (!this.isMuted) this.playCowBell();
+    }, 280);
   }
 
   // 2. Adorable Baby Calf Moo (Bachhda: "Maaa-aaa~")
-  playCalfMoo() {
+  // Features: Higher tender pitch, flutter vibrato, parallel nasal formants.
+  playCalfMoo(pitchRatio) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(20);
 
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
     const t = this.ctx.currentTime;
-    const duration = 1.15;
+    const duration = 1.25;
 
-    const osc = this.ctx.createOscillator();
-    osc.type = 'sawtooth';
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    osc1.type = 'sawtooth';
+    osc2.type = 'triangle';
 
-    // Higher baby fundamental: 250Hz -> 340Hz -> 210Hz
-    osc.frequency.setValueAtTime(250, t);
-    osc.frequency.linearRampToValueAtTime(340, t + 0.25);
-    osc.frequency.setValueAtTime(330, t + 0.65);
-    osc.frequency.exponentialRampToValueAtTime(210, t + duration);
+    const baseF = 265 * pr;
+    const peakF = 355 * pr;
+    const endF = 215 * pr;
 
-    // Rapid baby vocal tremolo (7.2 Hz)
+    osc1.frequency.setValueAtTime(baseF, t);
+    osc1.frequency.linearRampToValueAtTime(peakF, t + 0.25);
+    osc1.frequency.setValueAtTime(peakF * 0.96, t + 0.7);
+    osc1.frequency.exponentialRampToValueAtTime(endF, t + duration);
+
+    osc2.frequency.setValueAtTime(baseF * 0.5, t);
+    osc2.frequency.linearRampToValueAtTime(peakF * 0.5, t + 0.25);
+    osc2.frequency.setValueAtTime((peakF * 0.96) * 0.5, t + 0.7);
+    osc2.frequency.exponentialRampToValueAtTime(endF * 0.5, t + duration);
+
+    // Rapid baby vocal tremolo (7.4 Hz)
     const trem = this.ctx.createOscillator();
     const tremGain = this.ctx.createGain();
-    trem.frequency.setValueAtTime(7.2, t);
-    tremGain.gain.setValueAtTime(8.0, t);
-    trem.connect(osc.frequency);
+    trem.frequency.setValueAtTime(7.4, t);
+    tremGain.gain.setValueAtTime(9.0 * pr, t);
+    trem.connect(osc1.frequency);
 
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(850, t);
-    filter.frequency.linearRampToValueAtTime(1100, t + 0.3);
-    filter.frequency.linearRampToValueAtTime(750, t + duration);
-    filter.Q.setValueAtTime(3.0, t);
+    // Parallel formants for baby nasal bleat
+    const f1 = this.ctx.createBiquadFilter();
+    const g1 = this.ctx.createGain();
+    f1.type = 'bandpass';
+    f1.frequency.setValueAtTime(820, t);
+    f1.frequency.linearRampToValueAtTime(1080, t + 0.3);
+    f1.frequency.linearRampToValueAtTime(760, t + duration);
+    f1.Q.setValueAtTime(2.8, t);
+    g1.gain.setValueAtTime(0.44, t);
+
+    const f2 = this.ctx.createBiquadFilter();
+    const g2 = this.ctx.createGain();
+    f2.type = 'bandpass';
+    f2.frequency.setValueAtTime(1650, t);
+    f2.Q.setValueAtTime(3.2, t);
+    g2.gain.setValueAtTime(0.28, t);
+
+    osc1.connect(f1);
+    osc1.connect(f2);
+    f1.connect(g1);
+    f2.connect(g2);
 
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0.001, t);
-    gain.gain.linearRampToValueAtTime(0.42, t + 0.15);
-    gain.gain.setValueAtTime(0.38, t + 0.65);
+    gain.gain.linearRampToValueAtTime(0.44, t + 0.15);
+    gain.gain.setValueAtTime(0.38, t + 0.7);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
 
-    osc.connect(filter);
-    filter.connect(gain);
+    g1.connect(gain);
+    g2.connect(gain);
+    osc2.connect(gain);
+
     gain.connect(this.getDestination());
+    this.registerVoice(gain, 6, duration);
 
     trem.start(t);
-    osc.start(t);
+    osc1.start(t);
+    osc2.start(t);
+
     trem.stop(t + duration);
-    osc.stop(t + duration);
+    osc1.stop(t + duration);
+    osc2.stop(t + duration);
   }
 
   // 3. Brass Cow Bell (Gau Ghanti)
@@ -413,87 +519,288 @@ class ToddlerAudio {
     });
   }
 
-  // 5. Royal Peacock Call (Mayur: "Pee-hu! Pee-hu!")
-  playPeacockCall() {
+  // 5. Royal Peacock Call (Mayur: "May-Aauuh! Pee-hu!")
+  // Features: Realistic two-tone trumpet cry with syrinx harmonics and natural echo.
+  playPeacockCall(pitchRatio) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
+    this.vibrate(22);
 
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
     const t = this.ctx.currentTime;
 
-    // "Pee" (high rising trumpet)
-    const osc1 = this.ctx.createOscillator();
-    const gain1 = this.ctx.createGain();
-    osc1.type = 'sawtooth';
-    osc1.frequency.setValueAtTime(1750, t);
-    osc1.frequency.exponentialRampToValueAtTime(2600, t + 0.22);
+    const playOneCall = (startTime, isEcho) => {
+      const amp = isEcho ? 0.26 : 0.42;
 
-    const filter1 = this.ctx.createBiquadFilter();
-    filter1.type = 'bandpass';
-    filter1.frequency.setValueAtTime(2200, t);
-    filter1.Q.setValueAtTime(4.0, t);
+      // Syrinx Trumpet Glides: 1250Hz -> 2300Hz -> 1100Hz
+      const osc = this.ctx.createOscillator();
+      const oscHarmonic = this.ctx.createOscillator();
+      osc.type = 'sawtooth';
+      oscHarmonic.type = 'triangle';
 
-    gain1.gain.setValueAtTime(0.01, t);
-    gain1.gain.linearRampToValueAtTime(0.36, t + 0.08);
-    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+      const base1 = 1250 * pr;
+      const peak1 = 2320 * pr;
+      const fall1 = 1080 * pr;
 
-    osc1.connect(filter1);
-    filter1.connect(gain1);
-    gain1.connect(this.getDestination());
-    osc1.start(t);
-    osc1.stop(t + 0.3);
+      osc.frequency.setValueAtTime(base1, startTime);
+      osc.frequency.exponentialRampToValueAtTime(peak1, startTime + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(fall1, startTime + 0.44);
 
-    // "Huuu" (descending resonant glide)
-    const t2 = t + 0.28;
-    const osc2 = this.ctx.createOscillator();
-    const gain2 = this.ctx.createGain();
-    osc2.type = 'sawtooth';
-    osc2.frequency.setValueAtTime(2400, t2);
-    osc2.frequency.exponentialRampToValueAtTime(1350, t2 + 0.45);
+      oscHarmonic.frequency.setValueAtTime(base1 * 1.5, startTime);
+      oscHarmonic.frequency.exponentialRampToValueAtTime(peak1 * 1.5, startTime + 0.12);
+      oscHarmonic.frequency.exponentialRampToValueAtTime(fall1 * 1.5, startTime + 0.44);
 
-    const filter2 = this.ctx.createBiquadFilter();
-    filter2.type = 'bandpass';
-    filter2.frequency.setValueAtTime(1800, t2);
-    filter2.Q.setValueAtTime(3.5, t2);
+      // High Q Syrinx Screech Formants
+      const f1 = this.ctx.createBiquadFilter();
+      f1.type = 'bandpass';
+      f1.frequency.setValueAtTime(2150 * pr, startTime);
+      f1.Q.setValueAtTime(4.2, startTime);
 
-    gain2.gain.setValueAtTime(0.01, t2);
-    gain2.gain.linearRampToValueAtTime(0.38, t2 + 0.06);
-    gain2.gain.exponentialRampToValueAtTime(0.001, t2 + 0.48);
+      const f2 = this.ctx.createBiquadFilter();
+      f2.type = 'bandpass';
+      f2.frequency.setValueAtTime(3200 * pr, startTime);
+      f2.Q.setValueAtTime(3.8, startTime);
 
-    osc2.connect(filter2);
-    filter2.connect(gain2);
-    gain2.connect(this.getDestination());
-    osc2.start(t2);
-    osc2.stop(t2 + 0.5);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.01, startTime);
+      gain.gain.linearRampToValueAtTime(amp, startTime + 0.08);
+      gain.gain.setValueAtTime(amp * 0.9, startTime + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.48);
+
+      osc.connect(f1);
+      oscHarmonic.connect(f2);
+      f1.connect(gain);
+      f2.connect(gain);
+      gain.connect(this.getDestination());
+      this.registerVoice(gain, 6, 0.5);
+
+      osc.start(startTime);
+      oscHarmonic.start(startTime);
+      osc.stop(startTime + 0.5);
+      oscHarmonic.stop(startTime + 0.5);
+    };
+
+    // First loud royal call
+    playOneCall(t, false);
+    // Second softer natural echo call
+    playOneCall(t + 0.48, true);
   }
 
-  // 6. Elephant Trumpet (Gajaraj)
-  playElephantTrumpet() {
+  // 6. Elephant Trumpet (Gajaraj Chinhar)
+  // Features: Heavy brass horn buzz, trunk lip flutter (22Hz), resonant horn filter, deep chest presence.
+  playElephantTrumpet(pitchRatio) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(30);
+
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
+    const t = this.ctx.currentTime;
+    const dur = 0.85;
+
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sawtooth';
+    const fStart = 210 * pr;
+    const fPeak = 480 * pr;
+    const fEnd = 240 * pr;
+
+    osc.frequency.setValueAtTime(fStart, t);
+    osc.frequency.linearRampToValueAtTime(fPeak, t + 0.28);
+    osc.frequency.exponentialRampToValueAtTime(fEnd, t + dur);
+
+    // Trunk lip flutter vibrato (22 Hz)
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.setValueAtTime(22, t);
+    lfoGain.gain.setValueAtTime(36 * pr, t);
+    lfo.connect(osc.frequency);
+
+    // Parallel brass horn acoustic filters
+    const hornFilter = this.ctx.createBiquadFilter();
+    hornFilter.type = 'bandpass';
+    hornFilter.frequency.setValueAtTime(820, t);
+    hornFilter.Q.setValueAtTime(3.2, t);
+
+    const flareFilter = this.ctx.createBiquadFilter();
+    flareFilter.type = 'peaking';
+    flareFilter.frequency.setValueAtTime(1750, t);
+    flareFilter.gain.setValueAtTime(6.0, t);
+    flareFilter.Q.setValueAtTime(3.5, t);
+
+    // Sub-bass rumble for massive body
+    const subOsc = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    subOsc.type = 'sine';
+    subOsc.frequency.setValueAtTime(48, t);
+    subGain.gain.setValueAtTime(0.3, t);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    subOsc.connect(subGain);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.linearRampToValueAtTime(0.46, t + 0.16);
+    gain.gain.setValueAtTime(0.42, t + 0.45);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    osc.connect(hornFilter);
+    hornFilter.connect(flareFilter);
+    flareFilter.connect(gain);
+    subGain.connect(gain);
+
+    gain.connect(this.getDestination());
+    this.registerVoice(gain, 6, dur);
+
+    lfo.start(t);
+    osc.start(t);
+    subOsc.start(t);
+
+    lfo.stop(t + dur);
+    osc.stop(t + dur);
+    subOsc.stop(t + dur);
+  }
+
+  // 7. Sweet Indian Cuckoo (Koel: "Koo-hoo! Koo-hoo!")
+  // Features: Pure musical ascending whistle with dual-harmonic warmth and air.
+  playKoelCall(pitchRatio) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
 
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
     const t = this.ctx.currentTime;
+
+    const syllables = [
+      { delay: 0.0, f1: 720 * pr, f2: 1120 * pr, dur: 0.28, vol: 0.32 },
+      { delay: 0.36, f1: 860 * pr, f2: 1380 * pr, dur: 0.34, vol: 0.38 }
+    ];
+
+    syllables.forEach(s => {
+      const st = t + s.delay;
+      const osc = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(s.f1, st);
+      osc.frequency.exponentialRampToValueAtTime(s.f2, st + s.dur * 0.9);
+
+      // Subtle warm 2nd harmonic
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(s.f1 * 2, st);
+      osc2.frequency.exponentialRampToValueAtTime(s.f2 * 2, st + s.dur * 0.9);
+      const gain2 = this.ctx.createGain();
+      gain2.gain.setValueAtTime(0.12, st);
+      osc2.connect(gain2);
+
+      gain.gain.setValueAtTime(0.01, st);
+      gain.gain.linearRampToValueAtTime(s.vol, st + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, st + s.dur);
+
+      osc.connect(gain);
+      gain2.connect(gain);
+      gain.connect(this.getDestination());
+      this.registerVoice(gain, 5, s.dur);
+
+      osc.start(st);
+      osc2.start(st);
+      osc.stop(st + s.dur + 0.02);
+      osc2.stop(st + s.dur + 0.02);
+    });
+  }
+
+  // 7b. Gentle Vrindavan Goat / Lamb (Bakri / Aja: "Mê-ê-h!")
+  // Features: Rapid 8.8Hz vocal flutter, vowel formants (Gandhara / Ga Swara).
+  playGoatBleat(pitchRatio) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(18);
+
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
+    const t = this.ctx.currentTime;
+    const dur = 0.85;
+
     const osc = this.ctx.createOscillator();
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(280, t);
-    osc.frequency.linearRampToValueAtTime(560, t + 0.3);
-    osc.frequency.exponentialRampToValueAtTime(320, t + 0.7);
+    const baseF = 270 * pr;
+    osc.frequency.setValueAtTime(baseF, t);
+    osc.frequency.linearRampToValueAtTime(baseF * 1.15, t + 0.2);
+    osc.frequency.linearRampToValueAtTime(baseF * 0.92, t + dur);
 
-    // Heavy brass flutter vibrato (16 Hz)
+    // Rapid throat tremor flutter (8.8 Hz)
+    const flutter = this.ctx.createOscillator();
+    const flutterGain = this.ctx.createGain();
+    flutter.frequency.setValueAtTime(8.8, t);
+    flutterGain.gain.setValueAtTime(14 * pr, t);
+    flutter.connect(osc.frequency);
+
+    // Parallel formants (/ae/ bleat sound)
+    const f1 = this.ctx.createBiquadFilter();
+    const g1 = this.ctx.createGain();
+    f1.type = 'bandpass';
+    f1.frequency.setValueAtTime(860, t);
+    f1.Q.setValueAtTime(2.8, t);
+    g1.gain.setValueAtTime(0.4, t);
+
+    const f2 = this.ctx.createBiquadFilter();
+    const g2 = this.ctx.createGain();
+    f2.type = 'bandpass';
+    f2.frequency.setValueAtTime(1750, t);
+    f2.Q.setValueAtTime(3.2, t);
+    g2.gain.setValueAtTime(0.25, t);
+
+    osc.connect(f1);
+    osc.connect(f2);
+    f1.connect(g1);
+    f2.connect(g2);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.38, t + 0.1);
+    gain.gain.setValueAtTime(0.35, t + 0.55);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    g1.connect(gain);
+    g2.connect(gain);
+    gain.connect(this.getDestination());
+    this.registerVoice(gain, 6, dur);
+
+    flutter.start(t);
+    osc.start(t);
+    flutter.stop(t + dur);
+    osc.stop(t + dur);
+  }
+
+  // 7c. Vrindavan Horse (Ashwa Whinny & Snort - Dhaivata / Dha Swara)
+  // Features: Joyful high whinny swooping down with 11Hz flutter, followed by soft snort.
+  playHorseNeigh(pitchRatio) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(22);
+
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
+    const t = this.ctx.currentTime;
+    const whinnyDur = 0.85;
+
+    // High excited whinny
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(880 * pr, t);
+    osc.frequency.linearRampToValueAtTime(1150 * pr, t + 0.2);
+    osc.frequency.exponentialRampToValueAtTime(460 * pr, t + whinnyDur);
+
     const lfo = this.ctx.createOscillator();
     const lfoGain = this.ctx.createGain();
-    lfo.frequency.setValueAtTime(16, t);
-    lfoGain.gain.setValueAtTime(32, t);
+    lfo.frequency.setValueAtTime(11.2, t);
+    lfoGain.gain.setValueAtTime(32 * pr, t);
     lfo.connect(osc.frequency);
 
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(800, t);
-    filter.Q.setValueAtTime(3.0, t);
+    filter.frequency.setValueAtTime(1300, t);
+    filter.Q.setValueAtTime(2.6, t);
 
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0.01, t);
-    gain.gain.linearRampToValueAtTime(0.42, t + 0.15);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.75);
+    gain.gain.linearRampToValueAtTime(0.36, t + 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + whinnyDur);
 
     osc.connect(filter);
     filter.connect(gain);
@@ -501,33 +808,75 @@ class ToddlerAudio {
 
     lfo.start(t);
     osc.start(t);
-    lfo.stop(t + 0.78);
-    osc.stop(t + 0.78);
+    lfo.stop(t + whinnyDur);
+    osc.stop(t + whinnyDur);
+
+    // Followed by gentle breathy horse snort puff
+    const snortT = t + 0.85;
+    const bufSize = Math.floor(this.ctx.sampleRate * 0.25);
+    const snortBuf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const sData = snortBuf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) {
+      sData[i] = (Math.random() * 2 - 1) * Math.sin((i / bufSize) * Math.PI);
+    }
+    const sNoise = this.ctx.createBufferSource();
+    sNoise.buffer = snortBuf;
+    const sFilt = this.ctx.createBiquadFilter();
+    sFilt.type = 'lowpass';
+    sFilt.frequency.setValueAtTime(420, snortT);
+    const sGain = this.ctx.createGain();
+    sGain.gain.setValueAtTime(0.22, snortT);
+    sGain.gain.exponentialRampToValueAtTime(0.001, snortT + 0.24);
+
+    sNoise.connect(sFilt);
+    sFilt.connect(sGain);
+    sGain.connect(this.getDestination());
+    sNoise.start(snortT);
+    sNoise.stop(snortT + 0.25);
   }
 
-  // 7. Sweet Cuckoo (Koel: "Koo-hoo!")
-  playKoelCall() {
+  // 7d. Sacred Swan / Water Crane (Hamsa Honk - Madhyama / Ma Swara)
+  // Features: Resonant waterbird trumpet honk with dual throat resonances.
+  playSwanCall(pitchRatio) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
+    this.vibrate(18);
 
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
     const t = this.ctx.currentTime;
-    [0, 0.32].forEach((st, idx) => {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      const baseFreq = 740 + idx * 40;
-      osc.frequency.setValueAtTime(baseFreq, t + st);
-      osc.frequency.linearRampToValueAtTime(baseFreq * 1.35, t + st + 0.2);
+    const dur = 0.55;
 
-      gain.gain.setValueAtTime(0.01, t + st);
-      gain.gain.linearRampToValueAtTime(0.32, t + st + 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + st + 0.24);
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sawtooth';
+    const baseF = 460 * pr;
+    osc.frequency.setValueAtTime(baseF, t);
+    osc.frequency.linearRampToValueAtTime(baseF * 1.18, t + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(baseF * 0.88, t + dur);
 
-      osc.connect(gain);
-      gain.connect(this.getDestination());
-      osc.start(t + st);
-      osc.stop(t + st + 0.25);
-    });
+    const f1 = this.ctx.createBiquadFilter();
+    f1.type = 'bandpass';
+    f1.frequency.setValueAtTime(940 * pr, t);
+    f1.Q.setValueAtTime(3.2, t);
+
+    const f2 = this.ctx.createBiquadFilter();
+    f2.type = 'bandpass';
+    f2.frequency.setValueAtTime(1860 * pr, t);
+    f2.Q.setValueAtTime(3.8, t);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.linearRampToValueAtTime(0.36, t + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    osc.connect(f1);
+    osc.connect(f2);
+    f1.connect(gain);
+    f2.connect(gain);
+    gain.connect(this.getDestination());
+    this.registerVoice(gain, 6, dur);
+
+    osc.start(t);
+    osc.stop(t + dur);
   }
 
   // 8. Kanha's Silver Ankle Bells (Ghungroo Chham-Chham)
@@ -553,26 +902,34 @@ class ToddlerAudio {
   }
 
   // 8b. Vrindavan Parrot (Shuka / Tota - Vidhya 42)
-  playShukaCall() {
+  // Features: Crisp metallic double chirps: "Mithu! Mithu!" with syrinx harmonics.
+  playShukaCall(pitchRatio) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(18);
 
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
     const t = this.ctx.currentTime;
-    // Cheerful high dual chirps: "Mithu! Mithu!"
-    [0, 0.18].forEach((st) => {
+
+    [0, 0.16].forEach((st) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(1400, t + st);
-      osc.frequency.exponentialRampToValueAtTime(2400, t + st + 0.08);
-      osc.frequency.exponentialRampToValueAtTime(1600, t + st + 0.14);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(1550 * pr, t + st);
+      osc.frequency.exponentialRampToValueAtTime(2700 * pr, t + st + 0.07);
+      osc.frequency.exponentialRampToValueAtTime(1700 * pr, t + st + 0.13);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2400 * pr, t + st);
+      filter.Q.setValueAtTime(3.5, t + st);
 
       gain.gain.setValueAtTime(0.01, t + st);
-      gain.gain.linearRampToValueAtTime(0.28, t + st + 0.04);
+      gain.gain.linearRampToValueAtTime(0.32, t + st + 0.03);
       gain.gain.exponentialRampToValueAtTime(0.001, t + st + 0.14);
 
-      osc.connect(gain);
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(this.getDestination());
       osc.start(t + st);
       osc.stop(t + st + 0.15);
@@ -580,20 +937,21 @@ class ToddlerAudio {
   }
 
   // 8c. Gentle Forest Deer (Mriga Bleat)
-  playDeerCall() {
+  playDeerCall(pitchRatio) {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(15);
 
+    const pr = (typeof pitchRatio === 'number' && pitchRatio > 0.2 && pitchRatio < 5) ? pitchRatio : 1.0;
     const t = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const filter = this.ctx.createBiquadFilter();
     const gain = this.ctx.createGain();
 
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(420, t);
-    osc.frequency.linearRampToValueAtTime(540, t + 0.15);
-    osc.frequency.exponentialRampToValueAtTime(380, t + 0.45);
+    osc.frequency.setValueAtTime(420 * pr, t);
+    osc.frequency.linearRampToValueAtTime(540 * pr, t + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(380 * pr, t + 0.45);
 
     filter.type = 'bandpass';
     filter.frequency.setValueAtTime(950, t);
@@ -610,28 +968,28 @@ class ToddlerAudio {
     osc.stop(t + 0.48);
   }
 
-  // 8d. Playful Vrindavan Monkey (Vanar Giggle)
+  // 8d. Playful Vrindavan Monkey (Vanar Chatter & Giggle)
   playMonkeySound() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
     this.vibrate(18);
 
     const t = this.ctx.currentTime;
-    // Rapid staccato vocal chattering
-    [0, 0.1, 0.2].forEach((st, idx) => {
+    // Rapid staccato vocal chattering "Whoop! Whoop! Khee-khee!"
+    [0, 0.09, 0.19].forEach((st, idx) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(500 + idx * 80, t + st);
-      osc.frequency.exponentialRampToValueAtTime(800 + idx * 100, t + st + 0.07);
+      osc.frequency.setValueAtTime(520 + idx * 90, t + st);
+      osc.frequency.exponentialRampToValueAtTime(840 + idx * 110, t + st + 0.06);
 
       const filter = this.ctx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1200, t + st);
-      filter.Q.setValueAtTime(2.5, t + st);
+      filter.frequency.setValueAtTime(1250, t + st);
+      filter.Q.setValueAtTime(2.8, t + st);
 
       gain.gain.setValueAtTime(0.01, t + st);
-      gain.gain.linearRampToValueAtTime(0.24, t + st + 0.02);
+      gain.gain.linearRampToValueAtTime(0.26, t + st + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.001, t + st + 0.08);
 
       osc.connect(filter);
@@ -640,6 +998,111 @@ class ToddlerAudio {
       osc.start(t + st);
       osc.stop(t + st + 0.09);
     });
+  }
+
+  playMonkeyChatter() {
+    this.playMonkeySound();
+  }
+
+  // Universal Animal Sound Router for Vedic Games
+  // Allows any game to play an authentic animal sound tuned to an optional musical frequency!
+  playAnimalSound(name, targetFreq) {
+    if (!name || this.isMuted) return;
+    const standardC4 = 261.63;
+    const pitchRatio = (typeof targetFreq === 'number' && targetFreq > 60) ? (targetFreq / standardC4) : 1.0;
+    const n = String(name).toLowerCase();
+
+    if (n === 'cow' || n === 'gau' || n === 'bull') {
+      this.playCowMoo(pitchRatio);
+    } else if (n === 'calf' || n === 'bachhda') {
+      this.playCalfMoo(pitchRatio);
+    } else if (n === 'peacock' || n === 'mayur' || n === 'mor') {
+      this.playPeacockCall(pitchRatio);
+    } else if (n === 'elephant' || n === 'gaja' || n === 'hathi') {
+      this.playElephantTrumpet(pitchRatio);
+    } else if (n === 'koel' || n === 'cuckoo' || n === 'kokila') {
+      this.playKoelCall(pitchRatio);
+    } else if (n === 'goat' || n === 'bakri' || n === 'aja') {
+      this.playGoatBleat(pitchRatio);
+    } else if (n === 'horse' || n === 'ashwa' || n === 'ghoda') {
+      this.playHorseNeigh(pitchRatio);
+    } else if (n === 'swan' || n === 'crane' || n === 'hamsa') {
+      this.playSwanCall(pitchRatio);
+    } else if (n === 'parrot' || n === 'shuka' || n === 'tota') {
+      this.playShukaCall(pitchRatio);
+    } else if (n === 'deer' || n === 'mriga' || n === 'hiran') {
+      this.playDeerCall(pitchRatio);
+    } else if (n === 'monkey' || n === 'vanar' || n === 'bandar') {
+      this.playMonkeySound();
+    } else if (n === 'bee' || n === 'bhramari') {
+      if (typeof this.playBhramariHum === 'function') {
+        this.playBhramariHum(1.8);
+      }
+    } else if (n === 'birds' || n === 'pakshi') {
+      if (typeof this.playForestBirdsChirp === 'function') {
+        this.playForestBirdsChirp();
+      }
+    } else {
+      this.playPeacockCall(pitchRatio);
+    }
+  }
+
+  // Frothy Milk / Butter Splash (Makhan Pop & Snana)
+  playMilkSplash() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    this.vibrate(15);
+
+    const t = this.ctx.currentTime;
+    const dur = 0.22;
+    const bufSize = Math.floor(this.ctx.sampleRate * dur);
+    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.25));
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1100, t);
+    filter.frequency.exponentialRampToValueAtTime(320, t + dur);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.32, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.getDestination());
+    noise.start(t);
+    noise.stop(t + dur);
+  }
+
+  // Gentle Water Sprinkle Drops (Prakriti Garden & Tulsi Seva)
+  playWaterSprinkle() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    for (let d = 0; d < 4; d++) {
+      const dt = t + d * 0.07 + (Math.random() * 0.02);
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      const startF = 1800 + Math.random() * 600;
+      osc.frequency.setValueAtTime(startF, dt);
+      osc.frequency.exponentialRampToValueAtTime(startF * 0.45, dt + 0.06);
+
+      gain.gain.setValueAtTime(0.12, dt);
+      gain.gain.exponentialRampToValueAtTime(0.001, dt + 0.06);
+
+      osc.connect(gain);
+      gain.connect(this.getDestination());
+      osc.start(dt);
+      osc.stop(dt + 0.07);
+    }
   }
 
   // 8e. Sacred Manjira / Khartal (Brass Finger Cymbals)

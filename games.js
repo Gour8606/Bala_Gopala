@@ -707,6 +707,21 @@ class PeekabooGame {
               <span class="snd-label">Vanar</span>
               <span class="snd-tag">Khee-Khee!</span>
             </button>
+            <button class="sound-card-btn" id="snd-goat" title="Gentle Goat (Bakri)">
+              <span class="snd-icon">🐐</span>
+              <span class="snd-label">Bakri</span>
+              <span class="snd-tag">Mê-ê-h!</span>
+            </button>
+            <button class="sound-card-btn" id="snd-horse" title="Royal Horse (Ashwa)">
+              <span class="snd-icon">🐴</span>
+              <span class="snd-label">Ashwa</span>
+              <span class="snd-tag">Neigh!</span>
+            </button>
+            <button class="sound-card-btn" id="snd-swan" title="Sacred Swan (Hamsa)">
+              <span class="snd-icon">🪿</span>
+              <span class="snd-label">Hamsa</span>
+              <span class="snd-tag">Honk!</span>
+            </button>
           </div>
         </div>
 
@@ -912,6 +927,36 @@ class PeekabooGame {
       });
     }
 
+    const sndGoat = this.container.querySelector('#snd-goat');
+    if (sndGoat) {
+      sndGoat.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        sndGoat.classList.add('snd-hit');
+        window.toddlerAudio.playGoatBleat();
+        setTimeout(() => sndGoat.classList.remove('snd-hit'), 300);
+      });
+    }
+
+    const sndHorse = this.container.querySelector('#snd-horse');
+    if (sndHorse) {
+      sndHorse.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        sndHorse.classList.add('snd-hit');
+        window.toddlerAudio.playHorseNeigh();
+        setTimeout(() => sndHorse.classList.remove('snd-hit'), 300);
+      });
+    }
+
+    const sndSwan = this.container.querySelector('#snd-swan');
+    if (sndSwan) {
+      sndSwan.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        sndSwan.classList.add('snd-hit');
+        window.toddlerAudio.playSwanCall();
+        setTimeout(() => sndSwan.classList.remove('snd-hit'), 300);
+      });
+    }
+
     // 6. Hiding spots
     const spots = this.container.querySelectorAll('.peekaboo-spot');
     spots.forEach(spot => {
@@ -924,7 +969,7 @@ class PeekabooGame {
 
   // Any-Key Keyboard Smash Handler
   handleAnyKey() {
-    const actions = ['cow', 'calf', 'peacock', 'elephant', 'feed', 'mala', 'koel', 'parrot', 'deer', 'monkey'];
+    const actions = ['cow', 'calf', 'peacock', 'elephant', 'feed', 'mala', 'koel', 'parrot', 'deer', 'monkey', 'goat', 'horse', 'swan'];
     const pick = actions[Math.floor(Math.random() * actions.length)];
 
     const dispatchTap = (selector) => {
@@ -960,6 +1005,12 @@ class PeekabooGame {
       dispatchTap('#snd-deer');
     } else if (pick === 'monkey') {
       dispatchTap('#snd-monkey');
+    } else if (pick === 'goat') {
+      dispatchTap('#snd-goat');
+    } else if (pick === 'horse') {
+      dispatchTap('#snd-horse');
+    } else if (pick === 'swan') {
+      dispatchTap('#snd-swan');
     } else {
       dispatchTap('#snd-koel');
     }
@@ -1020,17 +1071,18 @@ class PeekabooGame {
 class XylophoneGame {
   constructor(container) {
     this.container = container;
-    this.mode = 'bansuri';
+    this.mode = 'bansuri'; // 'bansuri', 'animals', or 'jaltarang'
     
+    // Ancient Vedic 7 Swaras rooted in nature's animal voices (Sangita Ratnakara)
     this.swaras = [
-      { note: 'Sa', freq: 261.63, animal: '🦚', col: '#DC2626' },
-      { note: 'Re', freq: 293.66, animal: '🐮', col: '#EA580C' },
-      { note: 'Ga', freq: 329.63, animal: '🐐', col: '#F59E0B' },
-      { note: 'Ma', freq: 349.23, animal: '🪿', col: '#10B981' },
-      { note: 'Pa', freq: 392.00, animal: '🐦', col: '#0284C7' },
-      { note: 'Dha', freq: 440.00, animal: '🐴', col: '#4F46E5' },
-      { note: 'Ni', freq: 493.88, animal: '🐘', col: '#7C3AED' },
-      { note: 'Sȧ', freq: 523.25, animal: '✨', col: '#DB2777' }
+      { note: 'Sa', freq: 261.63, animal: '🦚', animalKey: 'peacock', animalName: { hi: 'मयूर (मोर)', en: 'Peacock' }, col: '#DC2626' },
+      { note: 'Re', freq: 293.66, animal: '🐮', animalKey: 'cow', animalName: { hi: 'गऊ (गाय)', en: 'Cow' }, col: '#EA580C' },
+      { note: 'Ga', freq: 329.63, animal: '🐐', animalKey: 'goat', animalName: { hi: 'बकरी (अजा)', en: 'Goat' }, col: '#F59E0B' },
+      { note: 'Ma', freq: 349.23, animal: '🪿', animalKey: 'swan', animalName: { hi: 'हंस (क्रौंच)', en: 'Swan' }, col: '#10B981' },
+      { note: 'Pa', freq: 392.00, animal: '🐦', animalKey: 'koel', animalName: { hi: 'कोयल', en: 'Cuckoo' }, col: '#0284C7' },
+      { note: 'Dha', freq: 440.00, animal: '🐴', animalKey: 'horse', animalName: { hi: 'अश्व (घोड़ा)', en: 'Horse' }, col: '#4F46E5' },
+      { note: 'Ni', freq: 493.88, animal: '🐘', animalKey: 'elephant', animalName: { hi: 'गजराज (हाथी)', en: 'Elephant' }, col: '#7C3AED' },
+      { note: 'Sȧ', freq: 523.25, animal: '✨', animalKey: 'birds', animalName: { hi: 'वन पक्षी', en: 'Forest Birds' }, col: '#DB2777' }
     ];
 
     this.jalBowls = [
@@ -1066,8 +1118,9 @@ class XylophoneGame {
   render() {
     const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
     const activeBhajanName = this.bhajans[this.selectedBhajanIdx].name[lang] || this.bhajans[this.selectedBhajanIdx].name.en;
-    const bansuriLabel = lang === 'hi' ? '🪈 कान्हा की बांसुरी' : '🪈 Krishna Bansuri';
-    const jaltarangLabel = lang === 'hi' ? '🥣 जल तरंग' : '🥣 Jal Tarang (Water Bowls)';
+    const bansuriLabel = lang === 'hi' ? '🪈 बांसुरी' : '🪈 Bansuri';
+    const animalsLabel = lang === 'hi' ? '🦚 पशु-स्वर' : '🦚 Animal Swaras';
+    const jaltarangLabel = lang === 'hi' ? '🥣 जल तरंग' : '🥣 Jal Tarang';
     const helperState = this.magicBhajanMode ? (lang === 'hi' ? 'चालू' : 'ON') : (lang === 'hi' ? 'बंद' : 'OFF');
     const helperLabel = lang === 'hi' ? `🦚 भजन सहायक: ${helperState}` : `🦚 Bhajan Helper: ${helperState}`;
     const bellName = lang === 'hi' ? 'मन्दिर घंटी' : 'Mandir Ghanti';
@@ -1081,6 +1134,9 @@ class XylophoneGame {
           <div class="instrument-switch">
             <button class="switch-inst-btn ${this.mode === 'bansuri' ? 'active' : ''}" id="switch-bansuri">
               ${bansuriLabel}
+            </button>
+            <button class="switch-inst-btn ${this.mode === 'animals' ? 'active' : ''}" id="switch-animals">
+              ${animalsLabel}
             </button>
             <button class="switch-inst-btn ${this.mode === 'jaltarang' ? 'active' : ''}" id="switch-jaltarang">
               ${jaltarangLabel}
@@ -1125,7 +1181,23 @@ class XylophoneGame {
   }
 
   renderInstrumentContent() {
-    if (this.mode === 'bansuri') {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    if (this.mode === 'animals') {
+      return `
+        <div class="xylophone-board animal-swaras-board" id="xylo-board">
+          ${this.swaras.map((k, idx) => `
+            <div class="xylo-bar is-animal-bar" data-idx="${idx}" style="--bar-color: ${k.col}; height: ${100 - idx * 4.2}%">
+              <div class="note-animal-badge">${k.animal}</div>
+              <div class="xylo-bar-label">
+                <span class="note-letter">${k.note}</span>
+                <span class="animal-swara-name">${k.animalName[lang] || k.animalName.en}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else if (this.mode === 'bansuri') {
       return `
         <div class="xylophone-board" id="xylo-board">
           ${this.swaras.map((k, idx) => `
@@ -1156,35 +1228,56 @@ class XylophoneGame {
 
   bindEvents() {
     const btnBansuri = this.container.querySelector('#switch-bansuri');
+    const btnAnimals = this.container.querySelector('#switch-animals');
     const btnJal = this.container.querySelector('#switch-jaltarang');
 
-    btnBansuri.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      this.mode = 'bansuri';
-      this.render();
-    });
+    if (btnBansuri) {
+      btnBansuri.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.mode = 'bansuri';
+        this.render();
+      });
+    }
 
-    btnJal.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      this.mode = 'jaltarang';
-      this.render();
-    });
+    if (btnAnimals) {
+      btnAnimals.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.mode = 'animals';
+        this.render();
+        if (window.toddlerAudio) {
+          window.toddlerAudio.speak({
+            hi: "वैदिक पशु-स्वर! सा रे ग म प ध नि सा!",
+            en: "Vedic Animal Swaras! Hear Krishna's sacred animals sing!"
+          });
+        }
+      });
+    }
+
+    if (btnJal) {
+      btnJal.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.mode = 'jaltarang';
+        this.render();
+      });
+    }
 
     const toggle = this.container.querySelector('#magic-melody-toggle');
-    toggle.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      this.magicBhajanMode = !this.magicBhajanMode;
-      toggle.classList.toggle('active', this.magicBhajanMode);
-      toggle.textContent = `🦚 Bhajan Helper: ${this.magicBhajanMode ? 'ON' : 'OFF'}`;
-      this.updateGuideHighlight();
-      if (this.magicBhajanMode) {
-        const curName = this.bhajans[this.selectedBhajanIdx].name[window.toddlerAudio.currentLanguage] || this.bhajans[this.selectedBhajanIdx].name.en;
-        window.toddlerAudio.speak({
-          hi: curName + "! कोई भी बार बजाएं!",
-          en: "Magic bhajan on! Tap any key to play " + curName + "!"
-        });
-      }
-    });
+    if (toggle) {
+      toggle.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.magicBhajanMode = !this.magicBhajanMode;
+        toggle.classList.toggle('active', this.magicBhajanMode);
+        toggle.textContent = `🦚 Bhajan Helper: ${this.magicBhajanMode ? 'ON' : 'OFF'}`;
+        this.updateGuideHighlight();
+        if (this.magicBhajanMode) {
+          const curName = this.bhajans[this.selectedBhajanIdx].name[window.toddlerAudio.currentLanguage] || this.bhajans[this.selectedBhajanIdx].name.en;
+          window.toddlerAudio.speak({
+            hi: curName + "! कोई भी बार बजाएं!",
+            en: "Magic bhajan on! Tap any key to play " + curName + "!"
+          });
+        }
+      });
+    }
 
     const btnBhajanSelect = this.container.querySelector('#bhajan-select-btn');
     if (btnBhajanSelect) {
@@ -1255,7 +1348,7 @@ class XylophoneGame {
   updateGuideHighlight() {
     const bars = this.container.querySelectorAll('.xylo-bar');
     bars.forEach(b => b.classList.remove('guide-glow'));
-    if (this.magicBhajanMode && this.mode === 'bansuri') {
+    if (this.magicBhajanMode && (this.mode === 'bansuri' || this.mode === 'animals')) {
       const activeNotes = this.bhajans[this.selectedBhajanIdx].notes;
       const nextIdx = activeNotes[this.bhajanIndex % activeNotes.length];
       const target = this.container.querySelector(`.xylo-bar[data-idx="${nextIdx}"]`);
@@ -1265,7 +1358,7 @@ class XylophoneGame {
 
   // Any-Key Keyboard Smash Handler
   handleAnyKey() {
-    if (this.mode === 'bansuri') {
+    if (this.mode === 'bansuri' || this.mode === 'animals') {
       const nextIdx = this.magicBhajanMode ? this.bhajan[this.bhajanIndex] : Math.floor(Math.random() * this.swaras.length);
       this.hitKey(nextIdx);
     } else {
@@ -1302,7 +1395,18 @@ class XylophoneGame {
     }
 
     const keyData = this.swaras[playIdx];
-    window.toddlerAudio.playBansuri(keyData.freq);
+    if (this.mode === 'animals') {
+      window.toddlerAudio.playAnimalSound(keyData.animalKey, keyData.freq);
+      setTimeout(() => {
+        if (window.toddlerAudio) window.toddlerAudio.playBansuri(keyData.freq);
+      }, 90);
+      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      const aName = keyData.animalName[lang] || keyData.animalName.en;
+      window.toddlerAudio.speak(keyData.note + '! ' + aName);
+    } else {
+      window.toddlerAudio.playBansuri(keyData.freq);
+    }
+
     if (window.ToddlerRewards) {
       window.ToddlerRewards.award('bansuri_vadak');
     }
@@ -2790,6 +2894,30 @@ class AksharaGame {
         break;
       case 'elephant':
         window.toddlerAudio.playElephantTrumpet();
+        break;
+      case 'goat':
+      case 'bakri':
+        window.toddlerAudio.playGoatBleat();
+        break;
+      case 'horse':
+      case 'ghoda':
+        window.toddlerAudio.playHorseNeigh();
+        break;
+      case 'parrot':
+      case 'tota':
+      case 'shuka':
+        window.toddlerAudio.playShukaCall();
+        break;
+      case 'swan':
+      case 'hamsa':
+        window.toddlerAudio.playSwanCall();
+        break;
+      case 'koel':
+        window.toddlerAudio.playKoelCall();
+        break;
+      case 'deer':
+      case 'mriga':
+        window.toddlerAudio.playDeerCall();
         break;
       case 'monkey':
         window.toddlerAudio.playMonkeyChatter();

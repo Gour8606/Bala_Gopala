@@ -755,6 +755,11 @@ class ToddlerApp {
           () => window.toddlerAudio.playPeacockCall(),
           () => window.toddlerAudio.playKoelCall(),
           () => window.toddlerAudio.playElephantTrumpet(),
+          () => window.toddlerAudio.playGoatBleat(),
+          () => window.toddlerAudio.playHorseNeigh(),
+          () => window.toddlerAudio.playSwanCall(),
+          () => window.toddlerAudio.playShukaCall(),
+          () => window.toddlerAudio.playBabyGiggle(),
           () => window.toddlerAudio.playGhungroo()
         ];
         const soundPick = surpriseSounds[Math.floor(Math.random() * surpriseSounds.length)];
