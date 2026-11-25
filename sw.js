@@ -3,7 +3,7 @@
  * Commercial-grade PWA caching for uninterrupted offline play
  */
 
-const CACHE_NAME = 'bala-gopala-v4.1';
+const CACHE_NAME = 'bala-gopala-v4.2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -43,10 +43,10 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+    caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         // Return cached asset, fetch fresh copy in background
-        fetch(event.request).then((networkResponse) => {
+        fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
           }
@@ -55,7 +55,7 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
 
-      return fetch(event.request).then((networkResponse) => {
+      return fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
         if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
           return networkResponse;
         }
@@ -67,10 +67,13 @@ self.addEventListener('fetch', (event) => {
 
         return networkResponse;
       }).catch(() => {
-        // If offline and request is for page navigation, fallback to index.html
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
+        // Offline fallback: ignoreSearch matches pre-cached unversioned assets
+        return caches.match(event.request, { ignoreSearch: true }).then((fallback) => {
+          if (fallback) return fallback;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+        });
       });
     })
   );

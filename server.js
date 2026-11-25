@@ -64,7 +64,7 @@ const server = http.createServer((req, res) => {
 
     // Service worker should never be cached aggressively so updates are instant
     const isSW = path.basename(filePath) === 'sw.js';
-    const cacheHeader = isSW ? 'no-cache, no-store, must-revalidate' : 'public, max-age=3600';
+    const cacheHeader = isSW ? 'no-cache, no-store, must-revalidate' : 'no-cache, must-revalidate';
 
     res.writeHead(200, {
       'Content-Type': contentType,

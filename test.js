@@ -244,7 +244,7 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v4.1'), 'sw.js caches with updated v4.1 identifier');
+assert(swCode.includes('bala-gopala-v4.2'), 'sw.js caches with updated v4.2 identifier');
 assert(swCode.includes('ignoreSearch: true'), 'sw.js uses ignoreSearch: true for reliable offline cache-busted asset hits');
 assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
 assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
@@ -260,7 +260,7 @@ assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided 
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
 assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
 assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
-assert(indexHtml.includes('games.js?v=4.1'), 'index.html specifies cache-busting script versioning ?v=4.1');
+assert(indexHtml.includes('games.js?v=4.2'), 'index.html specifies cache-busting script versioning ?v=4.2');
 assert(indexHtml.includes('id="story-modal"'), 'index.html defines interactive Bala Lila Storyteller modal');
 assert(indexHtml.includes('id="ambience-btn"'), 'index.html defines Vrindavan Nature Ambience toggle button');
 assert(audioCode.includes('toggleNatureAmbience('), 'audio.js implements toggleNatureAmbience() for Vrindavan ambience');
