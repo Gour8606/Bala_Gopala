@@ -2164,47 +2164,88 @@ class ToddlerAudio {
     }
   }
 
-  // 18. Bilingual Speech Synthesizer (Loud, Clear, Crystal-Sharp)
+  // Select the most natural-sounding available SpeechSynthesis voice for a language
+  _pickNaturalVoice(voices, targetLang) {
+    if (!voices || voices.length === 0) return null;
+    var isHi = targetLang === 'hi';
+    var langMatches = voices.filter(function(v) {
+      if (isHi) return v.lang && (v.lang.indexOf('hi') !== -1 || v.lang === 'en-IN');
+      return v.lang && (v.lang.indexOf('en-') === 0 || v.lang === 'en');
+    });
+    var pool = langMatches.length > 0 ? langMatches : voices;
+
+    // Prioritize natural/neural/Google voices over robotic default OS voices
+    var preferredKeywords = isHi
+      ? ['Swara', 'Madhur', 'Google हिन्दी', 'Google', 'Natural', 'Neural', 'Neerja', 'Prabhat', 'Online']
+      : ['Natural', 'Neural', 'Google', 'Aria', 'Jenny', 'Neerja', 'Prabhat', 'Ava', 'Samantha', 'Online'];
+
+    // First prefer exact language match with a natural voice keyword
+    var exactLangPool = isHi
+      ? pool.filter(function(v) { return v.lang && v.lang.indexOf('hi') !== -1; })
+      : pool.filter(function(v) { return v.lang && v.lang.indexOf('en') === 0; });
+    var searchPool = exactLangPool.length > 0 ? exactLangPool : pool;
+
+    for (var k = 0; k < preferredKeywords.length; k++) {
+      var kw = preferredKeywords[k];
+      var found = searchPool.find(function(v) {
+        return v.name && v.name.indexOf(kw) !== -1;
+      });
+      if (found) return found;
+    }
+    return searchPool[0] || pool[0];
+  }
+
+  // 18. Bilingual Speech Synthesizer (Natural, Clear, Crystal-Sharp Voice-Over)
   speak(textObject, onComplete) {
+    this._speechSeq = (this._speechSeq || 0) + 1;
+    var seq = this._speechSeq;
+
     if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) {
       if (typeof onComplete === 'function') onComplete();
       return;
     }
 
-    let textToSpeak = typeof textObject === 'string' ? textObject : (textObject[this.currentLanguage] || textObject['en']);
+    var textToSpeak = typeof textObject === 'string' ? textObject : (textObject[this.currentLanguage] || textObject['en']);
+    if (!textToSpeak) {
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
+
+    // Auto-detect Devanagari script so Hindi words always use a Hindi voice
+    // and English A-Z phonics always use an English voice, even across mode switches
+    var hasDevanagari = /[\u0900-\u097F]/.test(textToSpeak);
+    var speechLang = hasDevanagari ? 'hi' : (this.currentLanguage === 'hi' && /[a-zA-Z]/.test(textToSpeak) ? 'en' : this.currentLanguage);
 
     try {
       window.speechSynthesis.cancel();
       window.speechSynthesis.resume();
 
-      setTimeout(() => {
+      var self = this;
+      setTimeout(function() {
+        if (seq !== self._speechSeq) return;
         try {
-          const utterance = new SpeechSynthesisUtterance(textToSpeak);
-          utterance.pitch = 1.25;
-          utterance.rate = 0.88;
-          utterance.volume = 1.0; // Full clear volume
+          var utterance = new SpeechSynthesisUtterance(textToSpeak);
+          utterance.lang = speechLang === 'hi' ? 'hi-IN' : 'en-IN';
+          utterance.pitch = 1.08;
+          utterance.rate = 0.84;
+          utterance.volume = 1.0;
 
-          const voices = this.cachedVoices.length > 0 ? this.cachedVoices : window.speechSynthesis.getVoices();
-          if (voices && voices.length > 0) {
-            if (this.currentLanguage === 'hi') {
-              const hindiVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN'));
-              if (hindiVoice) utterance.voice = hindiVoice;
-            } else {
-              const engVoice = voices.find(v => v.lang.startsWith('en-') || v.lang.startsWith('en') || v.lang.includes('IN'));
-              if (engVoice) utterance.voice = engVoice;
-            }
-          }
+          var voices = self.cachedVoices.length > 0 ? self.cachedVoices : window.speechSynthesis.getVoices();
+          var pickedVoice = self._pickNaturalVoice(voices, speechLang);
+          if (pickedVoice) utterance.voice = pickedVoice;
 
-          let done = false;
-          const triggerDone = () => {
+          var done = false;
+          var triggerDone = function() {
             if (!done) {
               done = true;
-              if (typeof onComplete === 'function') onComplete();
+              if (seq === self._speechSeq && typeof onComplete === 'function') {
+                onComplete();
+              }
             }
           };
 
           utterance.onend = triggerDone;
-          utterance.onerror = () => {
+          utterance.onerror = function() {
             try { window.speechSynthesis.resume(); } catch (err) {}
             triggerDone();
           };
@@ -2212,52 +2253,72 @@ class ToddlerAudio {
           window.speechSynthesis.speak(utterance);
 
           // Dynamic fallback timer in case speech engine onend is delayed or dropped by OS
-          const fallbackMs = Math.max(3500, (textToSpeak ? textToSpeak.length : 10) * 160);
+          var fallbackMs = Math.max(3500, (textToSpeak ? textToSpeak.length : 10) * 155);
           setTimeout(triggerDone, fallbackMs);
         } catch (err) {
-          if (typeof onComplete === 'function') onComplete();
+          if (seq === self._speechSeq && typeof onComplete === 'function') onComplete();
         }
       }, 35);
     } catch (e) {
       console.warn("Speech synthesis error:", e);
-      if (typeof onComplete === 'function') onComplete();
+      if (seq === this._speechSeq && typeof onComplete === 'function') onComplete();
     }
   }
 
-  // Speak Alphabet Letter with Phonics Word association & optional follow-up chant/sound
-  speakLetter(letter, wordPhrase, onComplete) {
+  // Speak Alphabet Letter with clear phonics pronunciation sequence:
+  // 1. Phonetic sound of the letter ("Ka!")
+  // 2. Brief pause
+  // 3. Association phrase ("Ka se Kanha!")
+  // Then optional follow-up natural sound via onComplete callback
+  speakLetter(letter, wordPhrase, onComplete, phonics) {
     if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) {
       if (typeof onComplete === 'function') onComplete();
       return;
     }
-    const lang = this.currentLanguage || 'hi';
-    let text = letter;
+    var lang = this.currentLanguage || 'hi';
+    var phoneticSound = phonics || letter;
+    var associationPhrase = '';
     if (wordPhrase) {
       if (typeof wordPhrase === 'string') {
-        text = letter + '! ' + wordPhrase;
+        associationPhrase = wordPhrase;
       } else if (typeof wordPhrase === 'object') {
-        const phrase = wordPhrase[lang] || wordPhrase.en || '';
-        text = letter + '! ' + phrase;
+        associationPhrase = wordPhrase[lang] || wordPhrase.en || '';
       }
     }
+
+    // Build a clear, slow phonics-first utterance for toddlers
+    // "Ka! ... Ka se Kanha!" — phonetic sound first, then association
+    var text = phoneticSound + '! ... ' + associationPhrase;
     this.speak(text, onComplete);
   }
 
-  // Speak Sacred Number & Phonics Counting
+  // Speak Sacred Number & Phonics Counting clearly without parenthetical clutter
   speakNumber(num, details, onComplete) {
     if (this.isMuted || !this.speechEnabled || !('speechSynthesis' in window)) {
       if (typeof onComplete === 'function') onComplete();
       return;
     }
-    const lang = this.currentLanguage || 'hi';
-    let text = num;
+    var lang = this.currentLanguage || 'hi';
+    var text = String(num);
     if (details) {
       if (typeof details === 'string') {
         text = num + '! ' + details;
       } else if (typeof details === 'object') {
-        const phrase = details.word ? (details.word[lang] || details.word.en || '') : '';
-        const sanskrit = details.sanskrit ? details.sanskrit : '';
-        text = num + '! ' + (sanskrit ? sanskrit + ', ' : '') + phrase;
+        var phraseObj = details.shortWord || details.word || details.name;
+        var phrase = '';
+        if (phraseObj && typeof phraseObj === 'object') {
+          phrase = phraseObj[lang] || phraseObj.en || '';
+        } else if (typeof phraseObj === 'string') {
+          phrase = phraseObj;
+        }
+        // Strip leading number/dash if already present (e.g., "1 - One Ekam" -> "One Ekam")
+        phrase = phrase.replace(/^[0-9१२३४५६७८९०]+\s*[-–]\s*/, '');
+        var sanskrit = details.sanskrit ? details.sanskrit.replace(/\s*\([^)]*\)/g, '').trim() : '';
+        if (lang === 'hi') {
+          text = (phrase || num) + (sanskrit ? '! ' + sanskrit : '');
+        } else {
+          text = num + '! ' + (phrase || sanskrit);
+        }
       }
     }
     this.speak(text, onComplete);

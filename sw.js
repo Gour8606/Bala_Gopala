@@ -3,7 +3,7 @@
  * Commercial-grade PWA caching for uninterrupted offline play
  */
 
-const CACHE_NAME = 'bala-gopala-v3.4';
+const CACHE_NAME = 'bala-gopala-v3.5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

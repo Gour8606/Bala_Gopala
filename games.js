@@ -511,11 +511,14 @@ class BubbleGame {
     const isMatka = el.dataset.type === 'matka';
 
     if (this.category === 'numbers') {
-      window.toddlerAudio.speak(symbol);
-      window.toddlerAudio.playAscendingPop(parseInt(symbol, 10) || 1);
+      // Clear spoken number pronunciation without drowning it in pop tones
+      const hiNums = ['एक', 'दो', 'तीन', 'चार', 'पाँच', 'छह', 'सात', 'आठ', 'नौ', 'दस'];
+      const nIdx = parseInt(symbol, 10);
+      const spokenNum = (window.toddlerAudio.currentLanguage === 'hi' && hiNums[nIdx - 1]) ? hiNums[nIdx - 1] : symbol;
+      window.toddlerAudio.speak(spokenNum);
     } else if (this.category === 'letters') {
+      // Clear spoken letter pronunciation without drowning it in pop tones
       window.toddlerAudio.speakLetter(symbol);
-      window.toddlerAudio.playAscendingPop(this.popCount);
     } else if (this.category === 'flowers') {
       window.toddlerAudio.playAartiChimes();
       CelebrationPetalShower.shower();
@@ -1855,11 +1858,11 @@ class ShapeMatchGame {
     if (target.classList.contains('matched')) return;
     target.classList.add('matched');
 
-    window.toddlerAudio.playTempleBell();
-    window.toddlerAudio.playGhungroo();
     window.toddlerAudio.speak({
       hi: "सुन्दर समर्पण! शुभम्!",
       en: "Beautiful sacred offering! Haribol!"
+    }, () => {
+      if (window.toddlerAudio) window.toddlerAudio.playTempleBell();
     });
     if (window.ToddlerRewards) {
       window.ToddlerRewards.award('pushpa_archak');
@@ -2491,68 +2494,68 @@ class AksharaGame {
     this.currentIndex = 0;
 
     this.lettersEn = [
-      { char: 'A', name: { en: 'A for Aarti', hi: 'A से आरती' }, icon: '🪔', word: 'Aarti', color: '#F59E0B', sound: 'aarti' },
-      { char: 'B', name: { en: 'B for Bansuri', hi: 'B से बांसुरी' }, icon: '🪈', word: 'Bansuri', color: '#0284C7', sound: 'bansuri' },
-      { char: 'C', name: { en: 'C for Chakra', hi: 'C से चक्र' }, icon: '☸️', word: 'Chakra', color: '#EA580C', sound: 'manjira' },
-      { char: 'D', name: { en: 'D for Diya', hi: 'D से दीपक' }, icon: '🪔', word: 'Diya', color: '#FBBF24', sound: 'damru' },
-      { char: 'E', name: { en: 'E for Elephant', hi: 'E से गजराज' }, icon: '🐘', word: 'Elephant', color: '#64748B', sound: 'elephant' },
-      { char: 'F', name: { en: 'F for Flute', hi: 'F से बांसुरी' }, icon: '🪈', word: 'Flute', color: '#0D9488', sound: 'flute' },
-      { char: 'G', name: { en: 'G for Gau-Mata', hi: 'G से गऊ माता' }, icon: '🐮', word: 'Gau-Mata', color: '#10B981', sound: 'cow' },
-      { char: 'H', name: { en: 'H for Hanuman', hi: 'H से हनुमान' }, icon: '🐒', word: 'Hanuman', color: '#DC2626', sound: 'monkey' },
-      { char: 'I', name: { en: 'I for Incense', hi: 'I से अगरबत्ती' }, icon: '💨', word: 'Incense', color: '#8B5CF6', sound: 'breeze' },
-      { char: 'J', name: { en: 'J for Jal Tarang', hi: 'J से जल तरंग' }, icon: '🥣', word: 'Jal Tarang', color: '#38BDF8', sound: 'jaltarang' },
-      { char: 'K', name: { en: 'K for Krishna', hi: 'K से कान्हा' }, icon: '🦚', word: 'Krishna', color: '#0284C7', sound: 'giggle' },
-      { char: 'L', name: { en: 'L for Lotus', hi: 'L से कमल' }, icon: '🪷', word: 'Lotus', color: '#EC4899', sound: 'bell' },
-      { char: 'M', name: { en: 'M for Makhan', hi: 'M से माखन' }, icon: '🍯', word: 'Makhan', color: '#F59E0B', sound: 'makhan' },
-      { char: 'N', name: { en: 'N for Namaste', hi: 'N से नमस्ते' }, icon: '🙏', word: 'Namaste', color: '#FBBF24', sound: 'bell' },
-      { char: 'O', name: { en: 'O for Om', hi: 'O से ॐ' }, icon: '🕉️', word: 'Om', color: '#DC2626', sound: 'om' },
-      { char: 'P', name: { en: 'P for Peacock', hi: 'P से मोर पंख' }, icon: '🦚', word: 'Peacock', color: '#059669', sound: 'peacock' },
-      { char: 'Q', name: { en: 'Q for Queen Yashoda', hi: 'Q से रानी यशोदा' }, icon: '👑', word: 'Queen', color: '#A855F7', sound: 'ghungroo' },
-      { char: 'R', name: { en: 'R for Radha', hi: 'R से राधा' }, icon: '🌸', word: 'Radha', color: '#F43F5E', sound: 'manjira' },
-      { char: 'S', name: { en: 'S for Shankha', hi: 'S से शंख' }, icon: '🐚', word: 'Shankha', color: '#0EA5E9', sound: 'shankha' },
-      { char: 'T', name: { en: 'T for Tulsi', hi: 'T से तुलसी' }, icon: '🌿', word: 'Tulsi', color: '#10B981', sound: 'bell' },
-      { char: 'U', name: { en: 'U for Ujjain Gurukul', hi: 'U से उज्जैन' }, icon: '🏛️', word: 'Ujjain', color: '#D97706', sound: 'bell' },
-      { char: 'V', name: { en: 'V for Vrindavan', hi: 'V से वृन्दावन' }, icon: '🌳', word: 'Vrindavan', color: '#16A34A', sound: 'birds' },
-      { char: 'W', name: { en: 'W for Water (Yamuna)', hi: 'W से यमुना जल' }, icon: '💧', word: 'Water', color: '#0284C7', sound: 'yamuna' },
-      { char: 'X', name: { en: 'X for Xylophone', hi: 'X से वाद्य यंत्र' }, icon: '🎶', word: 'Xylophone', color: '#6366F1', sound: 'jaltarang' },
-      { char: 'Y', name: { en: 'Y for Yamuna', hi: 'Y से यमुना जी' }, icon: '🌊', word: 'Yamuna', color: '#0284C7', sound: 'yamuna' },
-      { char: 'Z', name: { en: 'Z for Zinnia Flower', hi: 'Z से पुष्प' }, icon: '🌺', word: 'Zinnia', color: '#DB2777', sound: 'birds' }
+      { char: 'A', phonics: 'A, Ah', name: { en: 'A for Aarti', hi: 'A से आरती' }, icon: '🪔', word: 'Aarti', color: '#F59E0B', sound: null },
+      { char: 'B', phonics: 'B, Buh', name: { en: 'B for Bansuri', hi: 'B से बांसुरी' }, icon: '🪈', word: 'Bansuri', color: '#0284C7', sound: 'bansuri' },
+      { char: 'C', phonics: 'C, Kuh', name: { en: 'C for Chakra', hi: 'C से चक्र' }, icon: '☸️', word: 'Chakra', color: '#EA580C', sound: null },
+      { char: 'D', phonics: 'D, Duh', name: { en: 'D for Diya', hi: 'D से दीपक' }, icon: '🪔', word: 'Diya', color: '#FBBF24', sound: null },
+      { char: 'E', phonics: 'E, Eh', name: { en: 'E for Elephant', hi: 'E से गजराज' }, icon: '🐘', word: 'Elephant', color: '#64748B', sound: 'elephant' },
+      { char: 'F', phonics: 'F, Fuh', name: { en: 'F for Flute', hi: 'F से बांसुरी' }, icon: '🪈', word: 'Flute', color: '#0D9488', sound: 'flute' },
+      { char: 'G', phonics: 'G, Guh', name: { en: 'G for Gau-Mata', hi: 'G से गऊ माता' }, icon: '🐮', word: 'Gau-Mata', color: '#10B981', sound: 'cow' },
+      { char: 'H', phonics: 'H, Huh', name: { en: 'H for Hanuman', hi: 'H से हनुमान' }, icon: '🐒', word: 'Hanuman', color: '#DC2626', sound: 'monkey' },
+      { char: 'I', phonics: 'I, Ih', name: { en: 'I for Incense', hi: 'I से अगरबत्ती' }, icon: '💨', word: 'Incense', color: '#8B5CF6', sound: null },
+      { char: 'J', phonics: 'J, Juh', name: { en: 'J for Jal Tarang', hi: 'J से जल तरंग' }, icon: '🥣', word: 'Jal Tarang', color: '#38BDF8', sound: 'jaltarang' },
+      { char: 'K', phonics: 'K, Kuh', name: { en: 'K for Krishna', hi: 'K से कान्हा' }, icon: '🦚', word: 'Krishna', color: '#0284C7', sound: null },
+      { char: 'L', phonics: 'L, Luh', name: { en: 'L for Lotus', hi: 'L से कमल' }, icon: '🪷', word: 'Lotus', color: '#EC4899', sound: null },
+      { char: 'M', phonics: 'M, Muh', name: { en: 'M for Makhan', hi: 'M से माखन' }, icon: '🍯', word: 'Makhan', color: '#F59E0B', sound: null },
+      { char: 'N', phonics: 'N, Nuh', name: { en: 'N for Namaste', hi: 'N से नमस्ते' }, icon: '🙏', word: 'Namaste', color: '#FBBF24', sound: null },
+      { char: 'O', phonics: 'O, Oh', name: { en: 'O for Om', hi: 'O से ॐ' }, icon: '🕉️', word: 'Om', color: '#DC2626', sound: 'om' },
+      { char: 'P', phonics: 'P, Puh', name: { en: 'P for Peacock', hi: 'P से मोर पंख' }, icon: '🦚', word: 'Peacock', color: '#059669', sound: 'peacock' },
+      { char: 'Q', phonics: 'Q, Kwuh', name: { en: 'Q for Queen Yashoda', hi: 'Q से रानी यशोदा' }, icon: '👑', word: 'Queen', color: '#A855F7', sound: null },
+      { char: 'R', phonics: 'R, Ruh', name: { en: 'R for Radha', hi: 'R से राधा' }, icon: '🌸', word: 'Radha', color: '#F43F5E', sound: null },
+      { char: 'S', phonics: 'S, Suh', name: { en: 'S for Shankha', hi: 'S से शंख' }, icon: '🐚', word: 'Shankha', color: '#0EA5E9', sound: 'shankha' },
+      { char: 'T', phonics: 'T, Tuh', name: { en: 'T for Tulsi', hi: 'T से तुलसी' }, icon: '🌿', word: 'Tulsi', color: '#10B981', sound: null },
+      { char: 'U', phonics: 'U, Uh', name: { en: 'U for Ujjain Gurukul', hi: 'U से उज्जैन' }, icon: '🏛️', word: 'Ujjain', color: '#D97706', sound: null },
+      { char: 'V', phonics: 'V, Vuh', name: { en: 'V for Vrindavan', hi: 'V से वृन्दावन' }, icon: '🌳', word: 'Vrindavan', color: '#16A34A', sound: 'birds' },
+      { char: 'W', phonics: 'W, Wuh', name: { en: 'W for Water (Yamuna)', hi: 'W से यमुना जल' }, icon: '💧', word: 'Water', color: '#0284C7', sound: 'yamuna' },
+      { char: 'X', phonics: 'X, Eks', name: { en: 'X for Xylophone', hi: 'X से वाद्य यंत्र' }, icon: '🎶', word: 'Xylophone', color: '#6366F1', sound: 'jaltarang' },
+      { char: 'Y', phonics: 'Y, Yuh', name: { en: 'Y for Yamuna', hi: 'Y से यमुना जी' }, icon: '🌊', word: 'Yamuna', color: '#0284C7', sound: 'yamuna' },
+      { char: 'Z', phonics: 'Z, Zuh', name: { en: 'Z for Zinnia Flower', hi: 'Z से पुष्प' }, icon: '🌺', word: 'Zinnia', color: '#DB2777', sound: null }
     ];
 
     this.lettersHi = [
-      { char: 'अ', key: 'A', name: { en: 'A for Achyuta', hi: 'अ से अच्युत' }, icon: '🦚', word: 'अच्युत', color: '#0284C7', sound: 'flute' },
-      { char: 'आ', key: 'A', name: { en: 'Aa for Aarti', hi: 'आ से आरती' }, icon: '🪔', word: 'आरती', color: '#F59E0B', sound: 'aarti' },
-      { char: 'इ', key: 'I', name: { en: 'I for Indradhanush', hi: 'इ से इन्द्रधनुष' }, icon: '🌈', word: 'इन्द्रधनुष', color: '#38BDF8', sound: 'jaltarang' },
-      { char: 'ई', key: 'E', name: { en: 'Ee for Ishwara', hi: 'ई से ईश्वर' }, icon: '🕉️', word: 'ईश्वर', color: '#DC2626', sound: 'om' },
-      { char: 'उ', key: 'U', name: { en: 'U for Utsav', hi: 'उ से उत्सव' }, icon: '✨', word: 'उत्सव', color: '#FBBF24', sound: 'celebration' },
-      { char: 'ऊ', key: 'U', name: { en: 'Oo for Oorja', hi: 'ऊ से दिव्य ऊर्जा' }, icon: '☀️', word: 'ऊर्जा', color: '#EA580C', sound: 'aarti' },
-      { char: 'ऋ', key: 'R', name: { en: 'Ri for Rishi Sandipani', hi: 'ऋ से ऋषि सान्दीपनि' }, icon: '📜', word: 'ऋषि', color: '#7C3AED', sound: 'bell' },
-      { char: 'ए', key: 'E', name: { en: 'E for Ekam (One Lord)', hi: 'ए से एकम् परमात्मा' }, icon: '🪔', word: 'एकम्', color: '#0284C7', sound: 'om' },
-      { char: 'ऐ', key: 'A', name: { en: 'Ai for Airavata Elephant', hi: 'ऐ से ऐरावत गजराज' }, icon: '🐘', word: 'ऐरावत', color: '#64748B', sound: 'elephant' },
-      { char: 'ओ', key: 'O', name: { en: 'O for Omkar', hi: 'ओ से ॐ ओंकार' }, icon: '🕉️', word: 'ओंकार', color: '#DC2626', sound: 'om' },
-      { char: 'औ', key: 'O', name: { en: 'Au for Aushadhi (Tulsi Herbs)', hi: 'औ से दिव्य औषधि' }, icon: '🌿', word: 'औषधि', color: '#10B981', sound: 'breeze' },
-      { char: 'क', key: 'K', name: { en: 'Ka for Kanha', hi: 'क से कान्हा' }, icon: '👶', word: 'कान्हा', color: '#0284C7', sound: 'giggle' },
-      { char: 'ख', key: 'K', name: { en: 'Kha for Khaga (Birds)', hi: 'ख से खग पक्षी' }, icon: '🐦', word: 'खग', color: '#16A34A', sound: 'birds' },
-      { char: 'ग', key: 'G', name: { en: 'Ga for Gau-Mata', hi: 'ग से गऊ माता' }, icon: '🐮', word: 'गऊ माता', color: '#10B981', sound: 'cow' },
-      { char: 'घ', key: 'G', name: { en: 'Gha for Ghungroo', hi: 'घ से घुँघरू' }, icon: '👣', word: 'घुँघरू', color: '#F59E0B', sound: 'ghungroo' },
-      { char: 'च', key: 'C', name: { en: 'Cha for Chakra', hi: 'च से सुदर्शन चक्र' }, icon: '☸️', word: 'चक्र', color: '#EA580C', sound: 'manjira' },
-      { char: 'छ', key: 'C', name: { en: 'Chha for Chhari', hi: 'छ से ग्वाल छड़ी' }, icon: '🎋', word: 'छड़ी', color: '#D97706', sound: 'flute' },
-      { char: 'ज', key: 'J', name: { en: 'Ja for Jal Tarang', hi: 'ज से जल तरंग' }, icon: '🥣', word: 'जल तरंग', color: '#38BDF8', sound: 'jaltarang' },
-      { char: 'झ', key: 'J', name: { en: 'Jha for Jhula', hi: 'झ से झूला' }, icon: '🌸', word: 'झूला', color: '#EC4899', sound: 'breeze' },
-      { char: 'ड', key: 'D', name: { en: 'Da for Damru', hi: 'ड से डमरू' }, icon: '🪘', word: 'डमरू', color: '#DC2626', sound: 'damru' },
-      { char: 'त', key: 'T', name: { en: 'Ta for Tulsi', hi: 'त से तुलसी दल' }, icon: '🌿', word: 'तुलसी', color: '#10B981', sound: 'bell' },
-      { char: 'द', key: 'D', name: { en: 'Da for Deepak', hi: 'द से दीपक' }, icon: '🪔', word: 'दीपक', color: '#F59E0B', sound: 'damru' },
-      { char: 'ध', key: 'D', name: { en: 'Dha for Dhenu', hi: 'ध से धेनु गऊ' }, icon: '🐄', word: 'धेनु', color: '#10B981', sound: 'calf' },
-      { char: 'न', key: 'N', name: { en: 'Na for Navaneeta', hi: 'न से नवनीत माखन' }, icon: '🍯', word: 'नवनीत', color: '#FBBF24', sound: 'makhan' },
-      { char: 'प', key: 'P', name: { en: 'Pa for Pankh', hi: 'प से मोर पंख' }, icon: '🦚', word: 'मोर पंख', color: '#059669', sound: 'peacock' },
-      { char: 'ब', key: 'B', name: { en: 'Ba for Bansuri', hi: 'ब से बांसुरी' }, icon: '🪈', word: 'बांसुरी', color: '#0284C7', sound: 'bansuri' },
-      { char: 'म', key: 'M', name: { en: 'Ma for Makhan', hi: 'म से माखन मटकी' }, icon: '🍯', word: 'माखन', color: '#D97706', sound: 'makhan' },
-      { char: 'य', key: 'Y', name: { en: 'Ya for Yamuna', hi: 'य से यमुना जी' }, icon: '🌊', word: 'यमुना', color: '#0284C7', sound: 'yamuna' },
-      { char: 'र', key: 'R', name: { en: 'Ra for Radha', hi: 'र से राधा रानी' }, icon: '🌸', word: 'राधा', color: '#EC4899', sound: 'manjira' },
-      { char: 'ल', key: 'L', name: { en: 'La for Laddu', hi: 'ल से मोदक लड्डू' }, icon: '🟡', word: 'लड्डू', color: '#F59E0B', sound: 'giggle' },
-      { char: 'व', key: 'V', name: { en: 'Va for Vrindavan', hi: 'व से वृन्दावन धाम' }, icon: '🌳', word: 'वृन्दावन', color: '#16A34A', sound: 'birds' },
-      { char: 'श', key: 'S', name: { en: 'Sha for Shankha', hi: 'श से शंख' }, icon: '🐚', word: 'शंख', color: '#0EA5E9', sound: 'shankha' },
-      { char: 'ह', key: 'H', name: { en: 'Ha for Hanuman', hi: 'ह से हनुमान जी' }, icon: '🐒', word: 'हनुमान', color: '#DC2626', sound: 'monkey' }
+      { char: 'अ', phonics: 'अ', key: 'A', name: { en: 'A for Achyuta', hi: 'अ से अच्युत' }, icon: '🦚', word: 'अच्युत', color: '#0284C7', sound: null },
+      { char: 'आ', phonics: 'आ', key: 'A', name: { en: 'Aa for Aarti', hi: 'आ से आरती' }, icon: '🪔', word: 'आरती', color: '#F59E0B', sound: null },
+      { char: 'इ', phonics: 'इ', key: 'I', name: { en: 'I for Indradhanush', hi: 'इ से इन्द्रधनुष' }, icon: '🌈', word: 'इन्द्रधनुष', color: '#38BDF8', sound: null },
+      { char: 'ई', phonics: 'ई', key: 'E', name: { en: 'Ee for Ishwara', hi: 'ई से ईश्वर' }, icon: '🕉️', word: 'ईश्वर', color: '#DC2626', sound: 'om' },
+      { char: 'उ', phonics: 'उ', key: 'U', name: { en: 'U for Utsav', hi: 'उ से उत्सव' }, icon: '✨', word: 'उत्सव', color: '#FBBF24', sound: null },
+      { char: 'ऊ', phonics: 'ऊ', key: 'U', name: { en: 'Oo for Oorja', hi: 'ऊ से दिव्य ऊर्जा' }, icon: '☀️', word: 'ऊर्जा', color: '#EA580C', sound: null },
+      { char: 'ऋ', phonics: 'ऋ', key: 'R', name: { en: 'Ri for Rishi Sandipani', hi: 'ऋ से ऋषि सान्दीपनि' }, icon: '📜', word: 'ऋषि', color: '#7C3AED', sound: null },
+      { char: 'ए', phonics: 'ए', key: 'E', name: { en: 'E for Ekam (One Lord)', hi: 'ए से एकम् परमात्मा' }, icon: '🪔', word: 'एकम्', color: '#0284C7', sound: null },
+      { char: 'ऐ', phonics: 'ऐ', key: 'A', name: { en: 'Ai for Airavata Elephant', hi: 'ऐ से ऐरावत गजराज' }, icon: '🐘', word: 'ऐरावत', color: '#64748B', sound: 'elephant' },
+      { char: 'ओ', phonics: 'ओ', key: 'O', name: { en: 'O for Omkar', hi: 'ओ से ॐ ओंकार' }, icon: '🕉️', word: 'ओंकार', color: '#DC2626', sound: 'om' },
+      { char: 'औ', phonics: 'औ', key: 'O', name: { en: 'Au for Aushadhi (Tulsi Herbs)', hi: 'औ से दिव्य औषधि' }, icon: '🌿', word: 'औषधि', color: '#10B981', sound: null },
+      { char: 'क', phonics: 'क', key: 'K', name: { en: 'Ka for Kanha', hi: 'क से कान्हा' }, icon: '👶', word: 'कान्हा', color: '#0284C7', sound: null },
+      { char: 'ख', phonics: 'ख', key: 'K', name: { en: 'Kha for Khaga (Birds)', hi: 'ख से खग पक्षी' }, icon: '🐦', word: 'खग', color: '#16A34A', sound: 'birds' },
+      { char: 'ग', phonics: 'ग', key: 'G', name: { en: 'Ga for Gau-Mata', hi: 'ग से गऊ माता' }, icon: '🐮', word: 'गऊ माता', color: '#10B981', sound: 'cow' },
+      { char: 'घ', phonics: 'घ', key: 'G', name: { en: 'Gha for Ghungroo', hi: 'घ से घुँघरू' }, icon: '👣', word: 'घुँघरू', color: '#F59E0B', sound: 'ghungroo' },
+      { char: 'च', phonics: 'च', key: 'C', name: { en: 'Cha for Chakra', hi: 'च से सुदर्शन चक्र' }, icon: '☸️', word: 'चक्र', color: '#EA580C', sound: null },
+      { char: 'छ', phonics: 'छ', key: 'C', name: { en: 'Chha for Chhari', hi: 'छ से ग्वाल छड़ी' }, icon: '🎋', word: 'छड़ी', color: '#D97706', sound: null },
+      { char: 'ज', phonics: 'ज', key: 'J', name: { en: 'Ja for Jal Tarang', hi: 'ज से जल तरंग' }, icon: '🥣', word: 'जल तरंग', color: '#38BDF8', sound: 'jaltarang' },
+      { char: 'झ', phonics: 'झ', key: 'J', name: { en: 'Jha for Jhula', hi: 'झ से झूला' }, icon: '🌸', word: 'झूला', color: '#EC4899', sound: null },
+      { char: 'ड', phonics: 'ड', key: 'D', name: { en: 'Da for Damru', hi: 'ड से डमरू' }, icon: '🪘', word: 'डमरू', color: '#DC2626', sound: 'damru' },
+      { char: 'त', phonics: 'त', key: 'T', name: { en: 'Ta for Tulsi', hi: 'त से तुलसी दल' }, icon: '🌿', word: 'तुलसी', color: '#10B981', sound: null },
+      { char: 'द', phonics: 'द', key: 'D', name: { en: 'Da for Deepak', hi: 'द से दीपक' }, icon: '🪔', word: 'दीपक', color: '#F59E0B', sound: null },
+      { char: 'ध', phonics: 'ध', key: 'D', name: { en: 'Dha for Dhenu', hi: 'ध से धेनु गऊ' }, icon: '🐄', word: 'धेनु', color: '#10B981', sound: 'calf' },
+      { char: 'न', phonics: 'न', key: 'N', name: { en: 'Na for Navaneeta', hi: 'न से नवनीत माखन' }, icon: '🍯', word: 'नवनीत', color: '#FBBF24', sound: null },
+      { char: 'प', phonics: 'प', key: 'P', name: { en: 'Pa for Pankh', hi: 'प से मोर पंख' }, icon: '🦚', word: 'मोर पंख', color: '#059669', sound: 'peacock' },
+      { char: 'ब', phonics: 'ब', key: 'B', name: { en: 'Ba for Bansuri', hi: 'ब से बांसुरी' }, icon: '🪈', word: 'बांसुरी', color: '#0284C7', sound: 'bansuri' },
+      { char: 'म', phonics: 'म', key: 'M', name: { en: 'Ma for Makhan', hi: 'म से माखन मटकी' }, icon: '🍯', word: 'माखन', color: '#D97706', sound: null },
+      { char: 'य', phonics: 'य', key: 'Y', name: { en: 'Ya for Yamuna', hi: 'य से यमुना जी' }, icon: '🌊', word: 'यमुना', color: '#0284C7', sound: 'yamuna' },
+      { char: 'र', phonics: 'र', key: 'R', name: { en: 'Ra for Radha', hi: 'र से राधा रानी' }, icon: '🌸', word: 'राधा', color: '#EC4899', sound: null },
+      { char: 'ल', phonics: 'ल', key: 'L', name: { en: 'La for Laddu', hi: 'ल से मोदक लड्डू' }, icon: '🟡', word: 'लड्डू', color: '#F59E0B', sound: null },
+      { char: 'व', phonics: 'व', key: 'V', name: { en: 'Va for Vrindavan', hi: 'व से वृन्दावन धाम' }, icon: '🌳', word: 'वृन्दावन', color: '#16A34A', sound: 'birds' },
+      { char: 'श', phonics: 'श', key: 'S', name: { en: 'Sha for Shankha', hi: 'श से शंख' }, icon: '🐚', word: 'शंख', color: '#0EA5E9', sound: 'shankha' },
+      { char: 'ह', phonics: 'ह', key: 'H', name: { en: 'Ha for Hanuman', hi: 'ह से हनुमान जी' }, icon: '🐒', word: 'हनुमान', color: '#DC2626', sound: 'monkey' }
     ];
 
     this.numbersList = [
@@ -2751,7 +2754,7 @@ class AksharaGame {
               `).join('') : ''}
             </div>
 
-            <div class="giant-letter-prompt">${promptText}</div>
+            <div class="giant-letter-prompt">🔊 ${lang === 'hi' ? 'उच्चारण सुनने के लिए कार्ड छूएं!' : 'Tap card to hear pronunciation!'}</div>
           </div>
         </div>
 
@@ -2829,9 +2832,11 @@ class AksharaGame {
         }
         orb.classList.add('orb-tapped');
         const countVal = parseInt(orb.dataset.count, 10);
+        const hiNums = ['एक', 'दो', 'तीन', 'चार', 'पाँच', 'छह', 'सात', 'आठ', 'नौ', 'दस'];
         if (window.toddlerAudio) {
           window.toddlerAudio.triggerHaptic('light');
-          window.toddlerAudio.speak(String(countVal));
+          const spokenNum = (window.toddlerAudio.currentLanguage === 'hi' && hiNums[countVal - 1]) ? hiNums[countVal - 1] : String(countVal);
+          window.toddlerAudio.speak(spokenNum);
         }
         if (initTappedCount >= initTotalCount) {
           setTimeout(() => {
@@ -3014,9 +3019,11 @@ class AksharaGame {
             }
             orb.classList.add('orb-tapped');
             const countVal = parseInt(orb.dataset.count, 10);
+            const hiNums = ['एक', 'दो', 'तीन', 'चार', 'पाँच', 'छह', 'सात', 'आठ', 'नौ', 'दस'];
             if (window.toddlerAudio) {
               window.toddlerAudio.triggerHaptic('light');
-              window.toddlerAudio.speak(String(countVal));
+              const spokenNum = (window.toddlerAudio.currentLanguage === 'hi' && hiNums[countVal - 1]) ? hiNums[countVal - 1] : String(countVal);
+              window.toddlerAudio.speak(spokenNum);
             }
             if (tappedCount >= totalCount) {
               setTimeout(() => {
@@ -3048,20 +3055,28 @@ class AksharaGame {
       activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
-    // Audio, Speech & Haptic (No interfering key sound - phonics speak clearly, followed by authentic chant/sound)
+    // Audio, Speech & Haptic (Clear phonics voice-over first, then contextual real-world sound only if relevant)
     if (shouldVocalize !== false && window.toddlerAudio) {
       window.toddlerAudio.triggerHaptic('light');
+      if (card) card.classList.add('is-speaking');
+
+      const finishSpeaking = () => {
+        if (card) card.classList.remove('is-speaking');
+      };
 
       if (isNumMode) {
-        window.toddlerAudio.speakNumber(item.char, item);
+        window.toddlerAudio.speakNumber(item.char, item, finishSpeaking);
         if (item.count === 10) {
           window.toddlerAudio.triggerHaptic('celebration');
           CelebrationPetalShower.shower();
         }
       } else {
         window.toddlerAudio.speakLetter(item.char, item.name, () => {
-          this.playLetterChantOrSound(item.sound);
-        });
+          finishSpeaking();
+          if (item.sound) {
+            this.playLetterChantOrSound(item.sound);
+          }
+        }, item.phonics);
         if (idx === list.length - 1) {
           window.toddlerAudio.triggerHaptic('celebration');
           CelebrationPetalShower.shower();
