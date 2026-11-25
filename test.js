@@ -131,7 +131,8 @@ const expectedGames = [
   'BalaYogaGame',
   'RituChakraGame',
   'KolamSymmetryGame',
-  'SanskaraValuesGame'
+  'SanskaraValuesGame',
+  'MandirBuilderGame'
 ];
 
 expectedGames.forEach((gameClass) => {
@@ -244,7 +245,7 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v4.2'), 'sw.js caches with updated v4.2 identifier');
+assert(swCode.includes('bala-gopala-v4.3'), 'sw.js caches with updated v4.3 identifier');
 assert(swCode.includes('ignoreSearch: true'), 'sw.js uses ignoreSearch: true for reliable offline cache-busted asset hits');
 assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
 assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
@@ -260,7 +261,7 @@ assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided 
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
 assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
 assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
-assert(indexHtml.includes('games.js?v=4.2'), 'index.html specifies cache-busting script versioning ?v=4.2');
+assert(indexHtml.includes('games.js?v=4.3'), 'index.html specifies cache-busting script versioning ?v=4.3');
 assert(indexHtml.includes('id="story-modal"'), 'index.html defines interactive Bala Lila Storyteller modal');
 assert(indexHtml.includes('id="ambience-btn"'), 'index.html defines Vrindavan Nature Ambience toggle button');
 assert(audioCode.includes('toggleNatureAmbience('), 'audio.js implements toggleNatureAmbience() for Vrindavan ambience');
@@ -286,8 +287,8 @@ assert(stylesCode.includes('.bhramari-bee-flight'), 'styles.css defines bhramari
 assert(appCode.includes('speakCurrentGameGuidance('), 'app.js implements speakCurrentGameGuidance() for instant audio instructions');
 assert(appCode.includes('initGameGuidance()'), 'app.js implements initGameGuidance() with bilingual instructions');
 assert(appCode.includes('openRewardsModal('), 'app.js implements openRewardsModal() for Lila Sticker Album');
-const all21Games = ['bubbles', 'peekaboo', 'xylophone', 'aarti', 'shapes', 'sparkles', 'shringar', 'akshara', 'prakriti', 'dhyana', 'matki', 'bhuta', 'utsava', 'vadya', 'pattern', 'dinacharya', 'habitat', 'yoga', 'ritu', 'kolam', 'sanskara'];
-all21Games.forEach(g => {
+const all22Games = ['bubbles', 'peekaboo', 'xylophone', 'aarti', 'shapes', 'sparkles', 'shringar', 'akshara', 'prakriti', 'dhyana', 'matki', 'bhuta', 'utsava', 'vadya', 'pattern', 'dinacharya', 'habitat', 'yoga', 'ritu', 'kolam', 'sanskara', 'mandir'];
+all22Games.forEach(g => {
   assert(appCode.includes(`${g}: {`), `app.js defines complete verbal guidance for game '${g}'`);
 });
 assert(audioCode.includes('Math.max(3500'), 'audio.js implements dynamic duration speech fallback timer');

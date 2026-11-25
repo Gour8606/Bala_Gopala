@@ -69,7 +69,8 @@ class ToddlerApp {
       yoga: BalaYogaGame,
       ritu: RituChakraGame,
       kolam: KolamSymmetryGame,
-      sanskara: SanskaraValuesGame
+      sanskara: SanskaraValuesGame,
+      mandir: MandirBuilderGame
     };
 
     // Commercial Memory Object Pools (Zero runtime GC stutter)
@@ -1253,6 +1254,10 @@ class ToddlerApp {
       sanskara: {
         hi: "दिव्य संस्कार! प्यासी चिड़िया को जल पिलाना, गऊ माता की सेवा और मित्रों के साथ भोजन बाँटना सीखो!",
         en: "Divya Sanskara! Choose loving, kind actions like giving water to a bird, serving Gau-Mata, and sharing with friends!"
+      },
+      mandir: {
+        hi: "मन्दिर शिल्प! चौकोर आधार, स्तम्भ, त्रिकोण शिखर, गोलाकार कलश और ध्वजा क्रम से जोड़कर अपना पावन मन्दिर बनाओ!",
+        en: "Mandir Builder! Stack the square base, pillars, triangle dome, golden sphere Kalash, and flag in order!"
       }
     };
   }

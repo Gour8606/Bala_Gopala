@@ -5596,6 +5596,85 @@ html, body {
 .sc-opt-icon { font-size: 2.5rem; }
 .sc-opt-label { font-size: 0.95rem; text-align: center; }
 
+/* 22. Froebel Mandir Silpakala (Temple Builder) */
+.game-mandir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px 16px 36px;
+  min-height: 100%;
+}
+.mandir-header h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #78350F;
+  background: rgba(255, 251, 235, 0.92);
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 3px solid #FDE68A;
+  text-align: center;
+}
+.mandir-stage {
+  min-height: 220px;
+  min-width: 260px;
+  background: linear-gradient(180deg, #E0F2FE 0%, #FEF3C7 85%, #FDE68A 100%);
+  border: 5px solid #F59E0B;
+  border-radius: 30px;
+  padding: 18px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  box-shadow: 0 12px 28px rgba(245, 158, 11, 0.2);
+}
+.mandir-stage.is-complete {
+  box-shadow: 0 0 32px rgba(251, 191, 36, 0.65);
+}
+.mandir-built-layer {
+  font-size: 2.4rem;
+  line-height: 1.05;
+  animation: giant-card-bounce 0.4s ease;
+}
+.mandir-empty-hint {
+  font-weight: 800;
+  color: #92400E;
+  font-size: 1.05rem;
+  margin: auto 0;
+}
+.mandir-tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.mandir-piece-btn {
+  background: #FFF;
+  border: 3px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #451A03;
+}
+.mandir-piece-btn.is-next {
+  border-color: #F59E0B;
+  background: #FFFBEB;
+  transform: scale(1.06);
+}
+.mandir-piece-btn.is-used {
+  opacity: 0.45;
+  cursor: default;
+}
+.mandir-piece-icon { font-size: 2rem; }
+.mandir-piece-label { font-size: 0.85rem; }
+
 
 
 

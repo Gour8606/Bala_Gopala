@@ -6104,6 +6104,125 @@ class SanskaraValuesGame {
   }
 }
 
+// ==========================================================================
+// 22. MANDIR SILPAKALA (Froebel Geometric Gifts & Hindu Temple Architecture)
+// ==========================================================================
+class MandirBuilderGame {
+  constructor(container) {
+    this.container = container;
+    this.builtCount = 0;
+    this.parts = [
+      { id: 'base', shape: '🟫', label: { hi: '१. चौकोर आधार (Square Base)', en: '1. Square Foundation' }, cssClass: 'mandir-part-base', voice: { hi: 'चौकोर आधार शिला! मन्दिर की मजबूत नींव!', en: 'Square foundation stone! A strong temple base!' } },
+      { id: 'pillars', shape: '🏛️', label: { hi: '२. स्तम्भ (Pillars)', en: '2. Sacred Pillars' }, cssClass: 'mandir-part-pillars', voice: { hi: 'सुन्दर स्तम्भ! मन्दिर के खम्भे लग गए!', en: 'Tall pillars placed! Supporting the temple!' } },
+      { id: 'shikhara', shape: '🔺', label: { hi: '३. त्रिकोण शिखर (Triangle Dome)', en: '3. Triangle Shikhara' }, cssClass: 'mandir-part-shikhara', voice: { hi: 'त्रिकोण शिखर! स्वर्ण गुम्बद तैयार!', en: 'Triangle Shikhara dome placed high!' } },
+      { id: 'kalash', shape: '🟡', label: { hi: '४. गोलाकार कलश (Sphere Kalash)', en: '4. Golden Sphere Kalash' }, cssClass: 'mandir-part-kalash', voice: { hi: 'स्वर्ण कलश! सूर्य की तरह चमकता हुआ!', en: 'Golden sphere Kalash shining like the sun!' } },
+      { id: 'dhwaja', shape: '🚩', label: { hi: '५. पावन ध्वजा (Temple Flag)', en: '5. Sacred Flag' }, cssClass: 'mandir-part-dhwaja', voice: { hi: 'जय श्री कृष्णा! पावन मन्दिर पूरा हुआ!', en: 'Jai Shri Krishna! Your sacred temple is complete!' } }
+    ];
+  }
+
+  start() {
+    this.builtCount = 0;
+    this.render();
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const headerTitle = lang === 'hi'
+      ? '🛕 मन्दिर शिल्प (Froebel Geometry): क्रम से ज्यामितीय आकार जोड़कर मन्दिर बनाएं!'
+      : '🛕 Mandir Builder (Froebel Geometry): Stack Geometric Shapes to Build a Temple!';
+    const isComplete = this.builtCount >= this.parts.length;
+
+    // Render built parts from top to bottom inside the temple stage
+    const builtVisuals = [];
+    for (let i = this.builtCount - 1; i >= 0; i--) {
+      const p = this.parts[i];
+      builtVisuals.push(`<div class="mandir-built-layer ${p.cssClass}">${p.shape}</div>`);
+    }
+
+    this.container.innerHTML = `
+      <div class="game-mandir vedic-theme">
+        <div class="mandir-header">
+          <h2>${headerTitle}</h2>
+        </div>
+        <div class="mandir-stage ${isComplete ? 'is-complete' : ''}">
+          ${builtVisuals.length > 0 ? builtVisuals.join('') : `<div class="mandir-empty-hint">✨ ${lang === 'hi' ? 'नीचे से पहला आकार चुनें!' : 'Pick the first shape below!'}</div>`}
+        </div>
+        <div class="mandir-tray">
+          ${this.parts.map((p, idx) => {
+            const isUsed = idx < this.builtCount;
+            const isNext = idx === this.builtCount;
+            return `
+              <button class="mandir-piece-btn ${isUsed ? 'is-used' : ''} ${isNext ? 'is-next' : ''}" data-idx="${idx}" ${isUsed ? 'disabled' : ''}>
+                <span class="mandir-piece-icon">${p.shape}</span>
+                <span class="mandir-piece-label">${p.label[lang] || p.label.en}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+        ${isComplete ? `<button class="dinacharya-reset-btn" id="mandir-reset-btn">🔄 ${lang === 'hi' ? 'नया मन्दिर बनाएं' : 'Build Again'}</button>` : ''}
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const btns = this.container.querySelectorAll('.mandir-piece-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (idx === this.builtCount) {
+          const part = this.parts[idx];
+          this.builtCount++;
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic(this.builtCount >= this.parts.length ? 'celebration' : 'medium');
+            window.toddlerAudio.playTempleBell(523.25 + idx * 110);
+            setTimeout(() => window.toddlerAudio.speak(part.voice[lang] || part.voice.en), 300);
+          }
+          if (this.builtCount >= this.parts.length) {
+            CelebrationPetalShower.shower();
+          }
+          this.render();
+        } else if (idx > this.builtCount) {
+          btn.classList.add('pattern-nudge');
+          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
+          const nextPart = this.parts[this.builtCount];
+          if (window.toddlerAudio && nextPart) {
+            window.toddlerAudio.speak({
+              hi: 'पहले ' + nextPart.label.hi + ' लगाएं!',
+              en: 'First place ' + nextPart.label.en + '!'
+            });
+          }
+        }
+      });
+    });
+
+    const resetBtn = this.container.querySelector('#mandir-reset-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.builtCount = 0;
+        this.render();
+      });
+    }
+  }
+
+  handleAnyKey() {
+    if (this.builtCount >= this.parts.length) {
+      this.builtCount = 0;
+      this.render();
+      return;
+    }
+    const nextBtn = this.container.querySelector(`.mandir-piece-btn[data-idx="${this.builtCount}"]`);
+    if (nextBtn) nextBtn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+  }
+}
+
 // Global Exports
 if (typeof window !== 'undefined') {
   window.BubbleGame = BubbleGame;
@@ -6127,6 +6246,7 @@ if (typeof window !== 'undefined') {
   window.RituChakraGame = RituChakraGame;
   window.KolamSymmetryGame = KolamSymmetryGame;
   window.SanskaraValuesGame = SanskaraValuesGame;
+  window.MandirBuilderGame = MandirBuilderGame;
   window.CelebrationPetalShower = CelebrationPetalShower;
 }
 
@@ -6153,6 +6273,7 @@ if (typeof module !== 'undefined' && module.exports) {
     RituChakraGame,
     KolamSymmetryGame,
     SanskaraValuesGame,
+    MandirBuilderGame,
     CelebrationPetalShower,
     ToddlerPersistence,
     ElementPool
