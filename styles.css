@@ -5096,6 +5096,223 @@ html, body {
   to { transform: translateY(6px) rotate(3deg); }
 }
 
+/* Beat-Reactive Aarti Pulse */
+.aarti-plate-body.aarti-beat-pulse {
+  filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.9));
+  transform: scale(1.06);
+}
+.aarti-lyric-pill.lyric-beat-pulse {
+  transform: scale(1.04);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+}
+
+/* Nature Ambience Active Toggle */
+#ambience-btn.active {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #FFF;
+  border-color: #A7F3D0;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+}
+
+/* Akshara "Find It!" Interactive Phonics Quiz */
+.akshara-quiz-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 16px 28px;
+  flex: 1;
+}
+.akshara-quiz-prompt-card {
+  background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+  border: 4px solid #F59E0B;
+  border-radius: 24px;
+  padding: 14px 28px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.22);
+  transition: transform 0.2s ease;
+}
+.akshara-quiz-prompt-card:hover {
+  transform: scale(1.03);
+}
+.quiz-prompt-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #92400E;
+}
+.quiz-prompt-sub {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #B45309;
+  margin-top: 4px;
+}
+.akshara-quiz-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 210px));
+  gap: 16px;
+  justify-content: center;
+}
+.akshara-quiz-card {
+  background: #FFF;
+  border: 5px solid var(--letter-color, #F59E0B);
+  border-radius: 28px;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.akshara-quiz-card:hover {
+  transform: scale(1.05);
+}
+.quiz-card-char {
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: var(--letter-color, #EA580C);
+  line-height: 1;
+}
+.quiz-card-icon {
+  font-size: 2.4rem;
+}
+.quiz-card-word {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #451A03;
+}
+.akshara-quiz-card.quiz-correct {
+  background: #ECFDF5;
+  border-color: #10B981;
+  transform: scale(1.08);
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.45);
+}
+.akshara-quiz-card.quiz-nudge {
+  animation: quiz-gentle-wobble 0.45s ease;
+}
+@keyframes quiz-gentle-wobble {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* Interactive Animated Bala Lila Storyteller Modal */
+.story-modal-card {
+  max-width: 680px;
+  width: 94vw;
+}
+.story-stage-scene {
+  border-radius: 24px;
+  padding: 24px 16px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 16px;
+  border: 4px solid #FDE68A;
+  overflow: hidden;
+  position: relative;
+}
+.story-bg-gokul {
+  background: linear-gradient(180deg, #FEF3C7 0%, #FDE68A 65%, #D97706 100%);
+}
+.story-bg-meadow {
+  background: linear-gradient(180deg, #E0F2FE 0%, #DCFCE7 65%, #86EFAC 100%);
+}
+.story-bg-yamuna {
+  background: linear-gradient(180deg, #DDD6FE 0%, #BAE6FD 65%, #38BDF8 100%);
+}
+.story-actor-btn {
+  background: rgba(255, 255, 255, 0.72);
+  border: 3px solid #FDE68A;
+  border-radius: 24px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.story-actor-svg {
+  width: 115px;
+  height: 115px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.story-actor-svg svg {
+  width: 100%;
+  height: 100%;
+}
+.story-actor-label {
+  font-weight: 800;
+  color: #78350F;
+  font-size: 1rem;
+}
+.story-bob { animation: story-bob-anim 2.6s ease-in-out infinite; }
+.story-swing { animation: story-swing-anim 2.2s ease-in-out infinite; }
+.story-hop { animation: story-hop-anim 2.0s ease-in-out infinite; }
+.story-actor-btn.actor-excited {
+  transform: scale(1.16) !important;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.55);
+}
+@keyframes story-bob-anim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes story-swing-anim {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes story-hop-anim {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.04); }
+}
+.story-caption-box {
+  background: #FFFBEB;
+  border-radius: 18px;
+  padding: 12px 18px;
+  margin-top: 12px;
+  text-align: center;
+  border: 2px solid #FDE68A;
+}
+.story-scene-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #B45309;
+  margin-bottom: 4px;
+}
+.story-caption-box p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #451A03;
+}
+.story-controls-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.story-nav-btn {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.story-speak-btn {
+  background: linear-gradient(135deg, #F59E0B, #EA580C);
+  color: #FFF;
+}
+
 
 
 

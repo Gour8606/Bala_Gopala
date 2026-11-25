@@ -187,6 +187,18 @@ class ToddlerApp {
     this.closeRewardsModal = document.getElementById('close-rewards-modal');
     this.stickersAlbumGrid = document.getElementById('stickers-album-grid');
     this.rewardsCountBadge = document.getElementById('rewards-count-badge');
+
+    // Nature Ambience & Interactive Bala Lila Storyteller Controls
+    this.ambienceBtn = document.getElementById('ambience-btn');
+    this.storyBtn = document.getElementById('story-btn');
+    this.storyModal = document.getElementById('story-modal');
+    this.closeStoryModal = document.getElementById('close-story-modal');
+    this.storyStageScene = document.getElementById('story-stage-scene');
+    this.storyCaptionBox = document.getElementById('story-caption-box');
+    this.storyPrevBtn = document.getElementById('story-prev-btn');
+    this.storyListenBtn = document.getElementById('story-listen-btn');
+    this.storyNextBtn = document.getElementById('story-next-btn');
+    this.storyIndex = 0;
   }
 
   bindEvents() {
@@ -441,6 +453,55 @@ class ToddlerApp {
       this.closeRewardsModal.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (this.rewardsModal) this.rewardsModal.classList.add('hidden');
+      });
+    }
+
+    // Vrindavan Nature Ambience toggle
+    if (this.ambienceBtn) {
+      this.ambienceBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (window.toddlerAudio && typeof window.toddlerAudio.toggleNatureAmbience === 'function') {
+          const isOn = window.toddlerAudio.toggleNatureAmbience();
+          this.ambienceBtn.classList.toggle('active', isOn);
+          window.toddlerAudio.speak(isOn
+            ? { hi: 'वृन्दावन के मधुर प्राकृत स्वर शुरू!', en: 'Vrindavan nature ambience on!' }
+            : { hi: 'प्राकृत स्वर बंद!', en: 'Nature ambience off!' });
+        }
+      });
+    }
+
+    // Interactive Bala Lila Storyteller controls
+    if (this.storyBtn) {
+      this.storyBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.openStoryModal();
+      });
+    }
+    if (this.closeStoryModal) {
+      this.closeStoryModal.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.storyModal) this.storyModal.classList.add('hidden');
+        if (window.toddlerAudio && window.toddlerAudio.stopSpeech) window.toddlerAudio.stopSpeech();
+      });
+    }
+    if (this.storyPrevBtn) {
+      this.storyPrevBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.storyIndex = (this.storyIndex + 2) % 3;
+        this.renderStoryScene(true);
+      });
+    }
+    if (this.storyNextBtn) {
+      this.storyNextBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.storyIndex = (this.storyIndex + 1) % 3;
+        this.renderStoryScene(true);
+      });
+    }
+    if (this.storyListenBtn) {
+      this.storyListenBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.speakCurrentStoryScene();
       });
     }
   }
@@ -1248,6 +1309,112 @@ class ToddlerApp {
     }
 
     this.rewardsModal.classList.remove('hidden');
+  }
+
+  // INTERACTIVE ANIMATED BALA LILA STORYTELLER (100% Offline SVG + Voice)
+  getStoryScenes() {
+    return [
+      {
+        title: { hi: '१. माखन चोर कान्हा', en: '1. Makhan Chor Kanha' },
+        caption: {
+          hi: 'नन्हे कान्हा को मीठा माखन बहुत पसंद है! मटकी और कान्हा को छूकर देखें!',
+          en: 'Little Kanha loves fresh sweet butter! Tap Kanha and the butter pot!'
+        },
+        bgClass: 'story-bg-gokul',
+        actors: [
+          { id: 'kanha', svgKey: 'balaKrishna', label: { hi: 'कान्हा', en: 'Kanha' }, sound: 'giggle', anim: 'story-bob' },
+          { id: 'matka', svgKey: 'makhanMatka', label: { hi: 'माखन मटकी', en: 'Butter Pot' }, sound: 'makhan', anim: 'story-swing' }
+        ]
+      },
+      {
+        title: { hi: '२. गऊ माता और नन्हा बछड़ा', en: '2. Gau-Mata & Baby Calf' },
+        caption: {
+          hi: 'वृन्दावन की हरी घास में गऊ माता और बछड़ा खेलते हैं! दोनों को छूकर सुनें!',
+          en: 'Gau-Mata and baby calf play in Vrindavan! Tap them to hear them moo!'
+        },
+        bgClass: 'story-bg-meadow',
+        actors: [
+          { id: 'cow', svgKey: 'gauMata', label: { hi: 'गऊ माता', en: 'Gau Mata' }, sound: 'cow', anim: 'story-bob' },
+          { id: 'calf', svgKey: 'littleCalf', label: { hi: 'नन्हा बछड़ा', en: 'Baby Calf' }, sound: 'calf', anim: 'story-hop' }
+        ]
+      },
+      {
+        title: { hi: '३. यमुना तट पर बांसुरी व मयूर', en: '3. Yamuna Flute & Dancing Mayur' },
+        caption: {
+          hi: 'कान्हा की मधुर बांसुरी सुनकर सुन्दर मयूर नाच उठता है!',
+          en: 'Hearing Kanha play the flute, the beautiful peacock dances with joy!'
+        },
+        bgClass: 'story-bg-yamuna',
+        actors: [
+          { id: 'kanha2', svgKey: 'mindfulKrishna', label: { hi: 'मुरलीधर', en: 'Flute Kanha' }, sound: 'flute', anim: 'story-bob' },
+          { id: 'mayur', svgKey: 'mayur', label: { hi: 'मयूर', en: 'Peacock' }, sound: 'peacock', anim: 'story-hop' }
+        ]
+      }
+    ];
+  }
+
+  openStoryModal() {
+    if (!this.storyModal) return;
+    this.storyIndex = 0;
+    this.storyModal.classList.remove('hidden');
+    this.renderStoryScene(true);
+  }
+
+  renderStoryScene(autoSpeak) {
+    const scenes = this.getStoryScenes();
+    const scene = scenes[this.storyIndex] || scenes[0];
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+
+    if (this.storyCaptionBox) {
+      this.storyCaptionBox.innerHTML = `<div class="story-scene-title">${scene.title[lang] || scene.title.en}</div><p>${scene.caption[lang] || scene.caption.en}</p>`;
+    }
+
+    if (this.storyStageScene) {
+      this.storyStageScene.className = 'story-stage-scene ' + scene.bgClass;
+      this.storyStageScene.innerHTML = scene.actors.map(actor => {
+        const svgMarkup = (typeof VedicAssets !== 'undefined' && VedicAssets[actor.svgKey]) ? VedicAssets[actor.svgKey] : '🦚';
+        return `
+          <button class="story-actor-btn ${actor.anim}" data-sound="${actor.sound}" data-label="${actor.label[lang] || actor.label.en}">
+            <div class="story-actor-svg">${svgMarkup}</div>
+            <span class="story-actor-label">${actor.label[lang] || actor.label.en}</span>
+          </button>
+        `;
+      }).join('');
+
+      const actorBtns = this.storyStageScene.querySelectorAll('.story-actor-btn');
+      actorBtns.forEach(btn => {
+        btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          btn.classList.add('actor-excited');
+          setTimeout(() => btn.classList.remove('actor-excited'), 700);
+          const snd = btn.dataset.sound;
+          const lbl = btn.dataset.label;
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('light');
+            if (snd === 'giggle') window.toddlerAudio.playBabyGiggle();
+            else if (snd === 'makhan') window.toddlerAudio.playMakhanPop();
+            else if (snd === 'cow') window.toddlerAudio.playCowMoo();
+            else if (snd === 'calf') window.toddlerAudio.playCalfMoo();
+            else if (snd === 'flute') window.toddlerAudio.playDivineFlutePhrase();
+            else if (snd === 'peacock') window.toddlerAudio.playPeacockCall();
+            setTimeout(() => window.toddlerAudio.speak(lbl), 550);
+          }
+        });
+      });
+    }
+
+    if (autoSpeak) {
+      setTimeout(() => this.speakCurrentStoryScene(), 250);
+    }
+  }
+
+  speakCurrentStoryScene() {
+    const scenes = this.getStoryScenes();
+    const scene = scenes[this.storyIndex] || scenes[0];
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    if (window.toddlerAudio) {
+      window.toddlerAudio.speak((scene.title[lang] || scene.title.en) + '! ' + (scene.caption[lang] || scene.caption.en));
+    }
   }
 
   toggleFullscreen() {

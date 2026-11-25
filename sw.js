@@ -3,7 +3,7 @@
  * Commercial-grade PWA caching for uninterrupted offline play
  */
 
-const CACHE_NAME = 'bala-gopala-v3.8';
+const CACHE_NAME = 'bala-gopala-v3.9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -43,7 +43,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
         // Return cached asset, fetch fresh copy in background
         fetch(event.request).then((networkResponse) => {

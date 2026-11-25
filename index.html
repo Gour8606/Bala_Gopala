@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=3.8">
+  <link rel="stylesheet" href="styles.css?v=3.9">
 </head>
 <body oncontextmenu="return false;">
 
@@ -71,6 +71,8 @@
         <button class="ctrl-btn rewards-btn" id="rewards-btn" title="Vrindavan Lila Rewards & Stickers (लीला उपहार)">
           🎁 <span class="rewards-count-badge" id="rewards-count-badge">0</span>
         </button>
+        <button class="ctrl-btn" id="story-btn" title="Bala Lila Animated Stories (बाल लीला कथा)">📖</button>
+        <button class="ctrl-btn" id="ambience-btn" title="Vrindavan Nature Ambience (वन स्वर)">🌿</button>
         <button class="ctrl-btn" id="shanti-mode-btn" title="Bedtime Shanti Mode (Tanpura & Twilight)">🌙</button>
         <button class="ctrl-btn" id="mute-btn" title="Toggle Sound">🔊</button>
         <button class="ctrl-btn" id="timer-btn" title="Gentle Screen Time Timer">⏳</button>
@@ -430,13 +432,34 @@
         </div>
       </div>
     </div>
+    <!-- Interactive Animated Bala Lila Storyteller Modal -->
+    <div id="story-modal" class="overlay-modal hidden">
+      <div class="modal-card story-modal-card">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-title-icon">📖</span>
+            <span class="modal-title-text" id="story-modal-title">बाल लीला कथा (Bala Lila Story)</span>
+          </div>
+          <button class="modal-close-btn" id="close-story-modal">✖</button>
+        </div>
+        <div class="story-stage-scene" id="story-stage-scene">
+          <!-- Dynamically populated animated SVG story scene with tappable characters -->
+        </div>
+        <div class="story-caption-box" id="story-caption-box"></div>
+        <div class="story-controls-row">
+          <button class="story-nav-btn" id="story-prev-btn">⬅️ पिछला / Prev</button>
+          <button class="story-nav-btn story-speak-btn" id="story-listen-btn">🔊 सुनें / Listen</button>
+          <button class="story-nav-btn" id="story-next-btn">अगला / Next ➡️</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->
-  <script src="audio.js?v=3.8"></script>
-  <script src="vedic-assets.js?v=3.8"></script>
-  <script src="games.js?v=3.8"></script>
-  <script src="app.js?v=3.8"></script>
+  <script src="audio.js?v=3.9"></script>
+  <script src="vedic-assets.js?v=3.9"></script>
+  <script src="games.js?v=3.9"></script>
+  <script src="app.js?v=3.9"></script>
 
   <!-- PWA Service Worker Registration -->
   <script>

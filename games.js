@@ -1601,6 +1601,7 @@ class AartiGame {
             window.ToddlerRewards.award('aarti_bhakt');
           }
           if (window.toddlerAudio && typeof window.toddlerAudio.chantAarti === 'function') {
+            const plate = this.container.querySelector('#aarti-plate');
             window.toddlerAudio.chantAarti(
               (line) => {
                 if (lyricDisplay) lyricDisplay.textContent = '🪔 ' + line;
@@ -1611,6 +1612,19 @@ class AartiGame {
                 btnSingAarti.classList.remove('is-singing');
                 btnSingAarti.textContent = lang === 'hi' ? '🙏 पूरी आरती गाएं (आरती कुंजबिहारी की)' : '🙏 Sing Full Aarti (Aarti Kunj Bihari Ki)';
                 if (lyricDisplay) lyricDisplay.classList.add('hidden');
+                if (plate) plate.classList.remove('aarti-beat-pulse');
+              },
+              (barBeat) => {
+                if (barBeat === 0 || barBeat === 2) {
+                  if (plate) {
+                    plate.classList.add('aarti-beat-pulse');
+                    setTimeout(() => plate.classList.remove('aarti-beat-pulse'), 200);
+                  }
+                  if (lyricDisplay) {
+                    lyricDisplay.classList.add('lyric-beat-pulse');
+                    setTimeout(() => lyricDisplay.classList.remove('lyric-beat-pulse'), 200);
+                  }
+                }
               }
             );
           }
@@ -2760,7 +2774,34 @@ class AksharaGame {
 
   getActiveList() {
     if (this.mode === 'num') return this.numbersList;
+    if (this.mode === 'quiz') {
+      var lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+      return lang === 'hi' ? this.lettersHi : this.lettersEn;
+    }
     return this.mode === 'hi' ? this.lettersHi : this.lettersEn;
+  }
+
+  prepareQuizRound() {
+    var pool = this.getActiveList().slice();
+    for (var i = pool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = pool[i];
+      pool[i] = pool[j];
+      pool[j] = tmp;
+    }
+    this.quizOptions = pool.slice(0, 4);
+    this.quizTarget = this.quizOptions[Math.floor(Math.random() * this.quizOptions.length)];
+    this.quizSolved = false;
+  }
+
+  speakQuizPrompt() {
+    if (!this.quizTarget || !window.toddlerAudio) return;
+    var lang = window.toddlerAudio.currentLanguage || 'hi';
+    var t = this.quizTarget;
+    var prompt = lang === 'hi'
+      ? ('कहाँ है ' + t.char + ' से ' + t.word + '?')
+      : ('Where is ' + t.char + ' for ' + t.word + '?');
+    window.toddlerAudio.speak(prompt);
   }
 
   start() {
@@ -2785,6 +2826,10 @@ class AksharaGame {
     const headerTitle = lang === 'hi' ? 'दिव्य अक्षर, संख्या व स्वर: कोई भी कुंजी दबाएं या छूकर सुनें! 🔤✨' : 'Divya Akshara & Numbers: Press Any Key or Tap to Hear It Speak! 🔤✨';
     const promptText = lang === 'hi' ? 'कुंजी दबाएं या छूकर अक्षर सुनें!' : 'Press any key or tap to hear phonics!';
     const isNumMode = this.mode === 'num';
+    const isQuizMode = this.mode === 'quiz';
+    if (isQuizMode && (!this.quizOptions || this.quizOptions.length < 4)) {
+      this.prepareQuizRound();
+    }
 
     this.container.innerHTML = `
       <div class="game-akshara vedic-theme">
@@ -2792,15 +2837,35 @@ class AksharaGame {
           <h2>${headerTitle}</h2>
         </div>
 
-        <!-- Mode Pills Selector: A-Z / Hindi / 1-10 Numbers -->
+        <!-- Mode Pills Selector: A-Z / Hindi / 1-10 Numbers / Find It Quiz -->
         <div class="akshara-mode-bar">
           <div class="akshara-mode-pills">
             <button class="mode-pill-btn ${this.mode === 'en' ? 'active' : ''}" data-mode="en">🔤 A-Z (English)</button>
             <button class="mode-pill-btn ${this.mode === 'hi' ? 'active' : ''}" data-mode="hi">🕉️ वर्णमाला (हिन्दी)</button>
             <button class="mode-pill-btn ${this.mode === 'num' ? 'active' : ''}" data-mode="num">🔢 १-१० संख्या (Numbers)</button>
+            <button class="mode-pill-btn ${this.mode === 'quiz' ? 'active' : ''}" data-mode="quiz">🎯 ${lang === 'hi' ? 'खोजो (Find It!)' : 'Find It! (Quiz)'}</button>
           </div>
         </div>
 
+        ${isQuizMode ? `
+          <div class="akshara-quiz-stage">
+            <div class="akshara-quiz-prompt-card" id="quiz-repeat-btn">
+              <div class="quiz-prompt-text">
+                🔊 ${lang === 'hi' ? `कहाँ है <strong>${this.quizTarget.char}</strong> (${this.quizTarget.word})?` : `Where is <strong>${this.quizTarget.char}</strong> for ${this.quizTarget.word}?`}
+              </div>
+              <div class="quiz-prompt-sub">${lang === 'hi' ? 'फिर से सुनने के लिए छूएं' : 'Tap to hear again'}</div>
+            </div>
+            <div class="akshara-quiz-grid">
+              ${this.quizOptions.map((opt, qIdx) => `
+                <button class="akshara-quiz-card" data-qidx="${qIdx}" style="--letter-color: ${opt.color};">
+                  <span class="quiz-card-char">${opt.char}</span>
+                  <span class="quiz-card-icon">${opt.icon}</span>
+                  <span class="quiz-card-word">${opt.word}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        ` : `
         <!-- Nature Sounds Sanctuary Bar -->
         <div class="akshara-nature-bar">
           <span class="nature-bar-label">🌿 ${lang === 'hi' ? 'प्राकृत स्वर:' : 'Nature Sounds:'}</span>
@@ -2847,6 +2912,7 @@ class AksharaGame {
             `).join('')}
           </div>
         </div>
+        `}
       </div>
     `;
 
@@ -2864,8 +2930,70 @@ class AksharaGame {
           if (window.toddlerAudio) window.toddlerAudio.triggerHaptic('medium');
           this.mode = newMode;
           this.currentIndex = 0;
-          this.render();
-          this.triggerLetterByIndex(0, true);
+          if (newMode === 'quiz') {
+            this.prepareQuizRound();
+            this.render();
+            setTimeout(() => this.speakQuizPrompt(), 200);
+          } else {
+            this.render();
+            this.triggerLetterByIndex(0, true);
+          }
+        }
+      });
+    });
+
+    // Quiz Mode Interactions ("Find It!")
+    const quizRepeatBtn = this.container.querySelector('#quiz-repeat-btn');
+    if (quizRepeatBtn) {
+      quizRepeatBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.speakQuizPrompt();
+      });
+    }
+
+    const quizCards = this.container.querySelectorAll('.akshara-quiz-card');
+    quizCards.forEach(qCard => {
+      qCard.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.quizSolved) return;
+        const qIdx = parseInt(qCard.dataset.qidx, 10);
+        const picked = this.quizOptions ? this.quizOptions[qIdx] : null;
+        if (!picked || !this.quizTarget) return;
+
+        const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+        if (picked.char === this.quizTarget.char) {
+          this.quizSolved = true;
+          qCard.classList.add('quiz-correct');
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('celebration');
+            const praise = lang === 'hi'
+              ? ('शाबाश! बिल्कुल सही! ' + picked.char + ' से ' + picked.word)
+              : ('Wonderful! ' + picked.char + ' for ' + picked.word);
+            window.toddlerAudio.speak(praise, () => {
+              if (picked.sound) this.playLetterChantOrSound(picked.sound);
+            });
+          }
+          if (window.ToddlerRewards) {
+            window.ToddlerRewards.award('akshara_vidya');
+          }
+          CelebrationPetalShower.shower();
+          setTimeout(() => {
+            if (this.mode === 'quiz') {
+              this.prepareQuizRound();
+              this.render();
+              setTimeout(() => this.speakQuizPrompt(), 250);
+            }
+          }, 2600);
+        } else {
+          qCard.classList.add('quiz-nudge');
+          setTimeout(() => qCard.classList.remove('quiz-nudge'), 600);
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('light');
+            const coach = lang === 'hi'
+              ? ('यह तो ' + picked.word + ' है! चलो ' + this.quizTarget.word + ' ढूंढें!')
+              : ('That is ' + picked.word + '! Let us find ' + this.quizTarget.word + '!');
+            window.toddlerAudio.speak(coach);
+          }
         }
       });
     });

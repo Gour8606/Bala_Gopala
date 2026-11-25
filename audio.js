@@ -2145,15 +2145,8 @@ class ToddlerAudio {
 
   // Emergency Panic Stop (All continuous drones, oscillators & speech)
   stopAllSounds() {
-    this._aartiActive = false;
-    if (this._aartiBeatInterval) {
-      clearInterval(this._aartiBeatInterval);
-      this._aartiBeatInterval = null;
-    }
-    if (this._aartiTimer) {
-      clearTimeout(this._aartiTimer);
-      this._aartiTimer = null;
-    }
+    this.stopAarti();
+    this.stopNatureAmbience();
     this.stopTanpuraDrone(true);
     if (this.activeVoices && this.ctx) {
       this.activeVoices.forEach(v => {
@@ -2408,7 +2401,7 @@ class ToddlerAudio {
   // 20. Rhythmic Temple Aarti — "Aarti Kunj Bihari Ki"
   // Combines continuous Kaharwa Taal (Mridangam + Manjira beat), Harmonium melody,
   // and smooth couplet voice-over so it feels musical and soothing for kids
-  chantAarti(onLineCallback, onCompleteCallback) {
+  chantAarti(onLineCallback, onCompleteCallback, onBeatCallback) {
     if (this.isMuted) return;
     var self = this;
     this.stopAarti();
@@ -2490,6 +2483,10 @@ class ToddlerAudio {
         self.playManjiraClink();
       }
 
+      if (typeof onBeatCallback === 'function') {
+        onBeatCallback(barBeat, beatStep);
+      }
+
       beatStep++;
     }, 420);
   }
@@ -2507,6 +2504,47 @@ class ToddlerAudio {
     this._speechSeq = (this._speechSeq || 0) + 1;
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+  }
+
+  // 21. Vrindavan Nature Ambience Soundscape (Yamuna stream + distant birds)
+  startNatureAmbience() {
+    if (this.isMuted || this.isNatureAmbiencePlaying) return;
+    this.ensureContext();
+    this.isNatureAmbiencePlaying = true;
+    var self = this;
+
+    // Play a soft initial Yamuna breeze + bird chirp
+    if (typeof this.playKadambaBreeze === 'function') this.playKadambaBreeze();
+
+    this._natureAmbienceTimer = setInterval(function() {
+      if (!self.isNatureAmbiencePlaying || self.isMuted) return;
+      var r = Math.random();
+      if (r < 0.45 && typeof self.playForestBirdsChirp === 'function') {
+        self.playForestBirdsChirp();
+      } else if (r < 0.8 && typeof self.playKadambaBreeze === 'function') {
+        self.playKadambaBreeze();
+      } else if (typeof self.playYamunaStream === 'function') {
+        self.playYamunaStream();
+      }
+    }, 5500);
+  }
+
+  stopNatureAmbience() {
+    this.isNatureAmbiencePlaying = false;
+    if (this._natureAmbienceTimer) {
+      clearInterval(this._natureAmbienceTimer);
+      this._natureAmbienceTimer = null;
+    }
+  }
+
+  toggleNatureAmbience() {
+    if (this.isNatureAmbiencePlaying) {
+      this.stopNatureAmbience();
+      return false;
+    } else {
+      this.startNatureAmbience();
+      return true;
     }
   }
 

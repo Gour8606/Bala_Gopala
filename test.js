@@ -237,7 +237,8 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v3.8'), 'sw.js caches with updated v3.8 identifier');
+assert(swCode.includes('bala-gopala-v3.9'), 'sw.js caches with updated v3.9 identifier');
+assert(swCode.includes('ignoreSearch: true'), 'sw.js uses ignoreSearch: true for reliable offline cache-busted asset hits');
 assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
 assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
 assert(gamesCode.includes('id="switch-animals"'), 'games.js implements Vedic Animal Swaras mode switch in XylophoneGame');
@@ -252,7 +253,12 @@ assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided 
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
 assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
 assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
-assert(indexHtml.includes('games.js?v=3.8'), 'index.html specifies cache-busting script versioning ?v=3.8');
+assert(indexHtml.includes('games.js?v=3.9'), 'index.html specifies cache-busting script versioning ?v=3.9');
+assert(indexHtml.includes('id="story-modal"'), 'index.html defines interactive Bala Lila Storyteller modal');
+assert(indexHtml.includes('id="ambience-btn"'), 'index.html defines Vrindavan Nature Ambience toggle button');
+assert(audioCode.includes('toggleNatureAmbience('), 'audio.js implements toggleNatureAmbience() for Vrindavan ambience');
+assert(gamesCode.includes('prepareQuizRound('), 'games.js AksharaGame implements Find It phonics quiz mode');
+assert(appCode.includes('openStoryModal('), 'app.js implements openStoryModal() for Bala Lila animated stories');
 assert(audioCode.includes('playHarmoniumNote('), 'audio.js implements playHarmoniumNote() for warm temple harmonium melody');
 assert(audioCode.includes('_aartiBeatInterval'), 'audio.js implements Kaharwa Taal rhythm clock for Aarti');
 assert(audioCode.includes('chantAarti('), 'audio.js implements chantAarti() for real line-by-line Aarti chanting');
