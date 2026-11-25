@@ -787,7 +787,7 @@ class PeekabooGame {
       e.preventDefault();
       cowCard.classList.add('cow-nodding');
       window.toddlerAudio.playCowMoo();
-      window.toddlerAudio.speak({ hi: "हम्बा! प्यारी गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" });
+      setTimeout(() => window.toddlerAudio.speak({ hi: "हम्बा! प्यारी गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" }), 650);
       this.triggerBlessing(cowCard, '🐮', '💖');
       setTimeout(() => cowCard.classList.remove('cow-nodding'), 900);
     });
@@ -809,7 +809,7 @@ class PeekabooGame {
       e.preventDefault();
       calfCard.classList.add('calf-delighted');
       window.toddlerAudio.playCalfMoo();
-      window.toddlerAudio.speak({ hi: "प्यारा नन्हा बछड़ा! मां-मां!", en: "Sweet baby calf! Maaa-aaa!" });
+      setTimeout(() => window.toddlerAudio.speak({ hi: "प्यारा नन्हा बछड़ा! मां-मां!", en: "Sweet baby calf! Maaa-aaa!" }), 550);
       this.triggerBlessing(calfCard, '🐄', '🌸');
       setTimeout(() => calfCard.classList.remove('calf-delighted'), 800);
     });
@@ -857,6 +857,7 @@ class PeekabooGame {
       e.preventDefault();
       sndCow.classList.add('snd-hit');
       window.toddlerAudio.playCowMoo();
+      setTimeout(() => window.toddlerAudio.speak({ hi: 'गाय! मूऊऊ!', en: 'Cow! Mooo!' }), 600);
       setTimeout(() => sndCow.classList.remove('snd-hit'), 300);
     });
 
@@ -865,6 +866,7 @@ class PeekabooGame {
       e.preventDefault();
       sndCalf.classList.add('snd-hit');
       window.toddlerAudio.playCalfMoo();
+      setTimeout(() => window.toddlerAudio.speak({ hi: 'बछड़ा! मां-मां!', en: 'Baby Calf! Maaa!' }), 500);
       setTimeout(() => sndCalf.classList.remove('snd-hit'), 300);
     });
 
@@ -873,6 +875,7 @@ class PeekabooGame {
       e.preventDefault();
       sndPeacock.classList.add('snd-hit');
       window.toddlerAudio.playPeacockCall();
+      setTimeout(() => window.toddlerAudio.speak({ hi: 'मोर! पीहू पीहू!', en: 'Peacock! Pee-hu!' }), 700);
       setTimeout(() => sndPeacock.classList.remove('snd-hit'), 300);
     });
 
@@ -881,6 +884,7 @@ class PeekabooGame {
       e.preventDefault();
       sndElephant.classList.add('snd-hit');
       window.toddlerAudio.playElephantTrumpet();
+      setTimeout(() => window.toddlerAudio.speak({ hi: 'हाथी! तुर्र-तुर्र!', en: 'Elephant! Trumpet!' }), 700);
       setTimeout(() => sndElephant.classList.remove('snd-hit'), 300);
     });
 
@@ -889,6 +893,7 @@ class PeekabooGame {
       e.preventDefault();
       sndKoel.classList.add('snd-hit');
       window.toddlerAudio.playKoelCall();
+      setTimeout(() => window.toddlerAudio.speak({ hi: 'कोयल! कूहू कूहू!', en: 'Cuckoo! Koo-hoo!' }), 600);
       setTimeout(() => sndKoel.classList.remove('snd-hit'), 300);
     });
 
@@ -897,6 +902,7 @@ class PeekabooGame {
       e.preventDefault();
       sndGhungroo.classList.add('snd-hit');
       window.toddlerAudio.playGhungroo();
+      setTimeout(() => window.toddlerAudio.speak({ hi: 'घुँघरू! छम-छम!', en: 'Anklet bells! Chham-chham!' }), 400);
       setTimeout(() => sndGhungroo.classList.remove('snd-hit'), 300);
     });
 
@@ -906,6 +912,7 @@ class PeekabooGame {
         e.preventDefault();
         sndParrot.classList.add('snd-hit');
         window.toddlerAudio.playShukaCall();
+        setTimeout(() => window.toddlerAudio.speak({ hi: 'तोता! मिठू-मिठू!', en: 'Parrot! Mithu-mithu!' }), 500);
         setTimeout(() => sndParrot.classList.remove('snd-hit'), 300);
       });
     }
@@ -916,6 +923,7 @@ class PeekabooGame {
         e.preventDefault();
         sndDeer.classList.add('snd-hit');
         window.toddlerAudio.playDeerCall();
+        setTimeout(() => window.toddlerAudio.speak({ hi: 'हिरण! मृग!', en: 'Deer!' }), 500);
         setTimeout(() => sndDeer.classList.remove('snd-hit'), 300);
       });
     }
@@ -926,6 +934,7 @@ class PeekabooGame {
         e.preventDefault();
         sndMonkey.classList.add('snd-hit');
         window.toddlerAudio.playMonkeySound();
+        setTimeout(() => window.toddlerAudio.speak({ hi: 'बन्दर! खी-खी!', en: 'Monkey! Khee-khee!' }), 500);
         setTimeout(() => sndMonkey.classList.remove('snd-hit'), 300);
       });
     }
@@ -936,6 +945,7 @@ class PeekabooGame {
         e.preventDefault();
         sndGoat.classList.add('snd-hit');
         window.toddlerAudio.playGoatBleat();
+        setTimeout(() => window.toddlerAudio.speak({ hi: 'बकरी! में-में!', en: 'Goat! Meh-eh-h!' }), 500);
         setTimeout(() => sndGoat.classList.remove('snd-hit'), 300);
       });
     }
@@ -946,6 +956,7 @@ class PeekabooGame {
         e.preventDefault();
         sndHorse.classList.add('snd-hit');
         window.toddlerAudio.playHorseNeigh();
+        setTimeout(() => window.toddlerAudio.speak({ hi: 'घोड़ा! हिन-हिन!', en: 'Horse! Neigh!' }), 600);
         setTimeout(() => sndHorse.classList.remove('snd-hit'), 300);
       });
     }
@@ -956,6 +967,7 @@ class PeekabooGame {
         e.preventDefault();
         sndSwan.classList.add('snd-hit');
         window.toddlerAudio.playSwanCall();
+        setTimeout(() => window.toddlerAudio.speak({ hi: 'हंस! सुन्दर राजहंस!', en: 'Swan! Beautiful swan!' }), 500);
         setTimeout(() => sndSwan.classList.remove('snd-hit'), 300);
       });
     }
@@ -1043,19 +1055,19 @@ class PeekabooGame {
         krishna: () => {
           window.toddlerAudio.playBansuri(523.25);
           window.toddlerAudio.playGhungroo();
-          window.toddlerAudio.speak({ hi: "जय श्री कृष्णा! नन्हे कान्हा!", en: "Jai Shri Krishna! Little Kanha!" });
+          setTimeout(() => window.toddlerAudio.speak({ hi: "जय श्री कृष्णा! नन्हे कान्हा!", en: "Jai Shri Krishna! Little Kanha!" }), 500);
         },
         cow: () => {
           window.toddlerAudio.playCowMoo();
-          window.toddlerAudio.speak({ hi: "हम्बा! गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" });
+          setTimeout(() => window.toddlerAudio.speak({ hi: "हम्बा! गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" }), 650);
         },
         peacock: () => {
           window.toddlerAudio.playPeacockCall();
-          window.toddlerAudio.speak({ hi: "पीहू पीहू! सुन्दर मयूर!", en: "Pee-hu! Dancing Mayur!" });
+          setTimeout(() => window.toddlerAudio.speak({ hi: "पीहू पीहू! सुन्दर मयूर!", en: "Pee-hu! Dancing Mayur!" }), 700);
         },
         lotus: () => {
           window.toddlerAudio.playAartiChimes();
-          window.toddlerAudio.speak({ hi: "सुन्दर दिव्य कमल!", en: "Sacred Pink Lotus!" });
+          setTimeout(() => window.toddlerAudio.speak({ hi: "सुन्दर दिव्य कमल!", en: "Sacred Pink Lotus!" }), 400);
         }
       };
 
@@ -1453,6 +1465,10 @@ class AartiGame {
   }
 
   stop() {
+    if (window.toddlerAudio && typeof window.toddlerAudio.stopAarti === 'function') {
+      window.toddlerAudio.stopAarti();
+    }
+    this.isChantingAarti = false;
     this.container.innerHTML = '';
   }
 
@@ -1461,6 +1477,7 @@ class AartiGame {
     const headerTitle = lang === 'hi' ? 'संध्या आरती: कान्हा के लिए आरती की थाली घुमाएं! 🪔✨' : 'Sandhya Aarti: Move the Diya Thali in Circles for Kanha! 🪔✨';
     const incenseHint = lang === 'hi' ? '💨 अगरबत्ती' : '💨 Incense';
     const circleHint = lang === 'hi' ? '⭕ गोल-गोल घुमाएं / कोई बटन दबाएं' : '⭕ Trace Circles / Press Any Key';
+    const singLabel = lang === 'hi' ? '🙏 पूरी आरती गाएं (आरती कुंजबिहारी की)' : '🙏 Sing Full Aarti (Aarti Kunj Bihari Ki)';
     const roseLabel = lang === 'hi' ? '🌹 गुलाब की पंखुड़ियां' : '🌹 Rose Petals';
     const marigoldLabel = lang === 'hi' ? '🌼 गेंदे के फूल' : '🌼 Marigolds';
     const tulsiLabel = lang === 'hi' ? '🌿 तुलसी दल' : '🌿 Tulsi Dal';
@@ -1470,6 +1487,10 @@ class AartiGame {
       <div class="game-aarti vedic-theme">
         <div class="aarti-header">
           <h2>${headerTitle}</h2>
+          <div class="aarti-chant-bar">
+            <button class="aarti-sing-btn" id="btn-sing-aarti">${singLabel}</button>
+            <div class="aarti-lyric-pill hidden" id="aarti-lyric-display">🪔 आरती कुंजबिहारी की</div>
+          </div>
         </div>
 
         <div class="aarti-stage-area">
@@ -1554,11 +1575,56 @@ class AartiGame {
       }
     };
 
+    const btnSingAarti = this.container.querySelector('#btn-sing-aarti');
+    const lyricDisplay = this.container.querySelector('#aarti-lyric-display');
+    if (btnSingAarti) {
+      btnSingAarti.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+        if (this.isChantingAarti) {
+          this.isChantingAarti = false;
+          btnSingAarti.classList.remove('is-singing');
+          btnSingAarti.textContent = lang === 'hi' ? '🙏 पूरी आरती गाएं (आरती कुंजबिहारी की)' : '🙏 Sing Full Aarti (Aarti Kunj Bihari Ki)';
+          if (lyricDisplay) lyricDisplay.classList.add('hidden');
+          if (window.toddlerAudio && typeof window.toddlerAudio.stopAarti === 'function') {
+            window.toddlerAudio.stopAarti();
+          }
+        } else {
+          this.isChantingAarti = true;
+          btnSingAarti.classList.add('is-singing');
+          btnSingAarti.textContent = lang === 'hi' ? '⏹️ आरती रोकें (Stop Aarti)' : '⏹️ Stop Aarti';
+          if (lyricDisplay) {
+            lyricDisplay.classList.remove('hidden');
+            lyricDisplay.textContent = '🪔 आरती कुंजबिहारी की...';
+          }
+          if (window.ToddlerRewards) {
+            window.ToddlerRewards.award('aarti_bhakt');
+          }
+          if (window.toddlerAudio && typeof window.toddlerAudio.chantAarti === 'function') {
+            window.toddlerAudio.chantAarti(
+              (line) => {
+                if (lyricDisplay) lyricDisplay.textContent = '🪔 ' + line;
+                this.showerAltarPetals(Math.random() > 0.5 ? '🌸' : '✨');
+              },
+              () => {
+                this.isChantingAarti = false;
+                btnSingAarti.classList.remove('is-singing');
+                btnSingAarti.textContent = lang === 'hi' ? '🙏 पूरी आरती गाएं (आरती कुंजबिहारी की)' : '🙏 Sing Full Aarti (Aarti Kunj Bihari Ki)';
+                if (lyricDisplay) lyricDisplay.classList.add('hidden');
+              }
+            );
+          }
+        }
+      });
+    }
+
     plateWrap.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       this.isRotating = true;
       window.toddlerAudio.playAartiChimes();
-      window.toddlerAudio.speak({ hi: "आरती कुंजबिहारी की! जय श्री कृष्णा!", en: "Aarti for Little Krishna!" });
+      if (!this.isChantingAarti) {
+        setTimeout(() => window.toddlerAudio.speak({ hi: "आरती कुंजबिहारी की! जय श्री कृष्णा!", en: "Aarti for Little Krishna!" }), 450);
+      }
       if (window.ToddlerRewards) {
         window.ToddlerRewards.award('aarti_bhakt');
       }
@@ -1583,10 +1649,12 @@ class AartiGame {
         shankhaWrap.classList.add('shankha-blowing');
         window.toddlerAudio.playShankha();
         window.toddlerAudio.triggerHaptic('heavy');
-        window.toddlerAudio.speak({
-          hi: "पावन शंख नाद! जय श्री कृष्णा!",
-          en: "Divine Shankha Naad! Jai Shri Krishna!"
-        });
+        if (!this.isChantingAarti) {
+          setTimeout(() => window.toddlerAudio.speak({
+            hi: "पावन शंख नाद! जय श्री कृष्णा!",
+            en: "Divine Shankha Naad! Jai Shri Krishna!"
+          }), 750);
+        }
         this.showerAltarPetals('🪷');
         setTimeout(() => shankhaWrap.classList.remove('shankha-blowing'), 1400);
       });
@@ -1607,20 +1675,24 @@ class AartiGame {
     btnRose.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       window.toddlerAudio.playAartiChimes();
-      window.toddlerAudio.speak({
-        hi: "गुलाब की पंखुड़ियां! पावन समर्पण!",
-        en: "Fragrant rose petals for Little Krishna!"
-      });
+      if (!this.isChantingAarti) {
+        setTimeout(() => window.toddlerAudio.speak({
+          hi: "गुलाब की पंखुड़ियां! पावन समर्पण!",
+          en: "Fragrant rose petals for Little Krishna!"
+        }), 350);
+      }
       this.showerAltarPetals('🌹');
     });
 
     btnGenda.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       window.toddlerAudio.playTempleBell(880);
-      window.toddlerAudio.speak({
-        hi: "गेंदे के दिव्य फूल! कान्हा प्रसन्न!",
-        en: "Golden marigolds offered to Kanha!"
-      });
+      if (!this.isChantingAarti) {
+        setTimeout(() => window.toddlerAudio.speak({
+          hi: "गेंदे के दिव्य फूल! कान्हा प्रसन्न!",
+          en: "Golden marigolds offered to Kanha!"
+        }), 350);
+      }
       this.showerAltarPetals('🌼');
     });
 
@@ -1628,10 +1700,12 @@ class AartiGame {
       btnTulsi.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         window.toddlerAudio.playTempleBell(1046.5);
-        window.toddlerAudio.speak({
-          hi: "पावन तुलसी दल! श्री कृष्णा को अति प्रिय!",
-          en: "Sacred Tulsi leaves! Most beloved to Krishna!"
-        });
+        if (!this.isChantingAarti) {
+          setTimeout(() => window.toddlerAudio.speak({
+            hi: "पावन तुलसी दल! श्री कृष्णा को अति प्रिय!",
+            en: "Sacred Tulsi leaves! Most beloved to Krishna!"
+          }), 350);
+        }
         this.showerAltarPetals('🌿');
       });
     }
@@ -1640,10 +1714,12 @@ class AartiGame {
       btnMogra.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         window.toddlerAudio.playAartiChimes();
-        window.toddlerAudio.speak({
-          hi: "सुगन्धित मोगरा पुष्प! जय श्री कृष्णा!",
-          en: "Sweet jasmine blossoms for Kanha!"
-        });
+        if (!this.isChantingAarti) {
+          setTimeout(() => window.toddlerAudio.speak({
+            hi: "सुगन्धित मोगरा पुष्प! जय श्री कृष्णा!",
+            en: "Sweet jasmine blossoms for Kanha!"
+          }), 350);
+        }
         this.showerAltarPetals('🌸');
       });
     }
@@ -1652,10 +1728,12 @@ class AartiGame {
       agarbatti.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         window.toddlerAudio.playAartiChimes();
-        window.toddlerAudio.speak({
-          hi: "सुगन्धित दिव्य धूप और अगरबत्ती!",
-          en: "Sweet fragrant incense for Kanha!"
-        });
+        if (!this.isChantingAarti) {
+          setTimeout(() => window.toddlerAudio.speak({
+            hi: "सुगन्धित दिव्य धूप और अगरबत्ती!",
+            en: "Sweet fragrant incense for Kanha!"
+          }), 350);
+        }
         const rect = agarbatti.getBoundingClientRect();
         for (let s = 0; s < 5; s++) {
           const smoke = document.createElement('div');

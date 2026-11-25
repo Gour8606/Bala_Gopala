@@ -237,7 +237,7 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v3.5'), 'sw.js caches with updated v3.5 identifier');
+assert(swCode.includes('bala-gopala-v3.6'), 'sw.js caches with updated v3.6 identifier');
 assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
 assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
 assert(gamesCode.includes('id="switch-animals"'), 'games.js implements Vedic Animal Swaras mode switch in XylophoneGame');
@@ -252,12 +252,16 @@ assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided 
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
 assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
 assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
-assert(indexHtml.includes('games.js?v=3.5'), 'index.html specifies cache-busting script versioning ?v=3.5');
+assert(indexHtml.includes('games.js?v=3.6'), 'index.html specifies cache-busting script versioning ?v=3.6');
+assert(audioCode.includes('chantAarti('), 'audio.js implements chantAarti() for real line-by-line Aarti chanting');
+assert(audioCode.includes('stopAarti('), 'audio.js implements stopAarti() for clean Aarti stop');
+assert(gamesCode.includes('id="btn-sing-aarti"'), 'games.js AartiGame includes Sing Full Aarti toggle button');
 assert(audioCode.includes('_pickNaturalVoice('), 'audio.js implements _pickNaturalVoice() for natural voice selection');
 assert(audioCode.includes('_speechSeq'), 'audio.js uses _speechSeq token to prevent overlapping stale speech callbacks');
 assert(gamesCode.includes("phonics: 'A, Ah'"), 'games.js AksharaGame includes phonetic pronunciation data');
 const stylesCode = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
 assert(stylesCode.includes('.giant-letter-card.is-speaking'), 'styles.css defines speaking pulse for .giant-letter-card.is-speaking');
+assert(stylesCode.includes('.aarti-sing-btn'), 'styles.css styles .aarti-sing-btn for real Aarti chanting');
 assert(stylesCode.includes('.animal-swaras-board'), 'styles.css defines .animal-swaras-board for Vedic musical animals');
 assert(stylesCode.includes('.voice-help-btn'), 'styles.css styles .voice-help-btn');
 assert(stylesCode.includes('.voice-help-btn.is-speaking'), 'styles.css defines animated speech pulse for .voice-help-btn.is-speaking');

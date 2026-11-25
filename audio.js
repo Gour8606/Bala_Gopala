@@ -2145,6 +2145,11 @@ class ToddlerAudio {
 
   // Emergency Panic Stop (All continuous drones, oscillators & speech)
   stopAllSounds() {
+    this._aartiActive = false;
+    if (this._aartiTimer) {
+      clearTimeout(this._aartiTimer);
+      this._aartiTimer = null;
+    }
     this.stopTanpuraDrone(true);
     if (this.activeVoices && this.ctx) {
       this.activeVoices.forEach(v => {
@@ -2356,6 +2361,86 @@ class ToddlerAudio {
       this.stopAllSounds();
     }
     return this.isMuted;
+  }
+
+  // 20. Real Aarti Chanting — "Aarti Kunj Bihari Ki"
+  // Chants line by line via SpeechSynthesis with temple bell and aarti chime accompaniment
+  // Procedural, zero external audio files
+  chantAarti(onLineCallback, onCompleteCallback) {
+    if (this.isMuted) return;
+    var self = this;
+    this.stopAarti();
+    this._aartiActive = true;
+
+    var lines = [
+      'आरती कुंजबिहारी की',
+      'श्री गिरिधर कृष्ण मुरारी की',
+      'गले में बैजन्ती माला',
+      'बजावे मुरली मधुर बाला',
+      'श्रवण में कुण्डल झलकाला',
+      'नन्द के आनन्द नन्दलाला',
+      'गगन सम अंग कान्ति काली',
+      'राधिका चमक रही आली',
+      'लतन में ठाढ़े बनमाली',
+      'भ्रमर सी अलक, कस्तूरी तिलक',
+      'चन्द्र सी झलक',
+      'ललित छवि श्यामा प्यारी की',
+      'आरती कुंजबिहारी की'
+    ];
+
+    var lineIdx = 0;
+
+    var chantNext = function() {
+      if (!self._aartiActive || lineIdx >= lines.length) {
+        var wasActive = self._aartiActive;
+        self._aartiActive = false;
+        if (wasActive && typeof onCompleteCallback === 'function') {
+          onCompleteCallback();
+        }
+        return;
+      }
+      var line = lines[lineIdx];
+      lineIdx++;
+
+      // Ring bell softly on every 2nd line
+      if (lineIdx % 2 === 0 && !self.isMuted) {
+        self.playTempleBell(880);
+      }
+      // Aarti chime on every 4th line
+      if (lineIdx % 4 === 0 && !self.isMuted) {
+        self.playAartiChimes();
+      }
+
+      if (typeof onLineCallback === 'function') {
+        onLineCallback(line, lineIdx, lines.length);
+      }
+
+      self.speak(line, function() {
+        if (!self._aartiActive) return;
+        // Brief pause between lines for natural pacing
+        self._aartiTimer = setTimeout(chantNext, 350);
+      });
+    };
+
+    // Start with a temple bell
+    this.playTempleBell(880);
+    this._aartiTimer = setTimeout(function() {
+      if (!self._aartiActive) return;
+      self.playAartiChimes();
+      self._aartiTimer = setTimeout(chantNext, 500);
+    }, 400);
+  }
+
+  stopAarti() {
+    this._aartiActive = false;
+    if (this._aartiTimer) {
+      clearTimeout(this._aartiTimer);
+      this._aartiTimer = null;
+    }
+    this._speechSeq = (this._speechSeq || 0) + 1;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
   }
 
   // Compatibility helpers

@@ -1546,6 +1546,48 @@ html, body {
   text-align: center;
 }
 
+.aarti-chant-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.aarti-sing-btn {
+  background: linear-gradient(135deg, #F59E0B, #EA580C);
+  color: #FFF;
+  border: 2px solid #FDE68A;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aarti-sing-btn:hover {
+  transform: scale(1.04);
+}
+
+.aarti-sing-btn.is-singing {
+  background: linear-gradient(135deg, #DC2626, #B91C1C);
+  animation: giant-card-speak-pulse 1.2s ease-in-out infinite;
+}
+
+.aarti-lyric-pill {
+  background: rgba(255, 251, 235, 0.96);
+  color: #9A3412;
+  border: 2px solid #F59E0B;
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
 .aarti-stage-area {
   display: flex;
   flex-direction: column;
