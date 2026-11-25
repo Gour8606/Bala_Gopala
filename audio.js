@@ -2146,6 +2146,10 @@ class ToddlerAudio {
   // Emergency Panic Stop (All continuous drones, oscillators & speech)
   stopAllSounds() {
     this._aartiActive = false;
+    if (this._aartiBeatInterval) {
+      clearInterval(this._aartiBeatInterval);
+      this._aartiBeatInterval = null;
+    }
     if (this._aartiTimer) {
       clearTimeout(this._aartiTimer);
       this._aartiTimer = null;
@@ -2363,76 +2367,135 @@ class ToddlerAudio {
     return this.isMuted;
   }
 
-  // 20. Real Aarti Chanting — "Aarti Kunj Bihari Ki"
-  // Chants line by line via SpeechSynthesis with temple bell and aarti chime accompaniment
-  // Procedural, zero external audio files
+  // Warm Procedural Temple Harmonium Reed Note (100% Web Audio, toddler-ear safe)
+  playHarmoniumNote(freq, duration) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    var now = this.ctx.currentTime;
+    var dur = duration || 0.45;
+
+    var osc1 = this.ctx.createOscillator();
+    var osc2 = this.ctx.createOscillator();
+    var filter = this.ctx.createBiquadFilter();
+    var gain = this.ctx.createGain();
+
+    osc1.type = 'triangle';
+    osc2.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(freq, now);
+    osc2.frequency.setValueAtTime(freq * 1.003, now); // gentle chorus reed warmth
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1150, now);
+    filter.Q.setValueAtTime(1.2, now);
+
+    // Smooth bellows swell envelope
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.065, now + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.045, now + dur * 0.7);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.getDestination());
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + dur + 0.04);
+    osc2.stop(now + dur + 0.04);
+  }
+
+  // 20. Rhythmic Temple Aarti — "Aarti Kunj Bihari Ki"
+  // Combines continuous Kaharwa Taal (Mridangam + Manjira beat), Harmonium melody,
+  // and smooth couplet voice-over so it feels musical and soothing for kids
   chantAarti(onLineCallback, onCompleteCallback) {
     if (this.isMuted) return;
     var self = this;
     this.stopAarti();
+    this.ensureContext();
     this._aartiActive = true;
 
-    var lines = [
-      'आरती कुंजबिहारी की',
-      'श्री गिरिधर कृष्ण मुरारी की',
-      'गले में बैजन्ती माला',
-      'बजावे मुरली मधुर बाला',
-      'श्रवण में कुण्डल झलकाला',
-      'नन्द के आनन्द नन्दलाला',
-      'गगन सम अंग कान्ति काली',
-      'राधिका चमक रही आली',
-      'लतन में ठाढ़े बनमाली',
-      'भ्रमर सी अलक, कस्तूरी तिलक',
-      'चन्द्र सी झलक',
-      'ललित छवि श्यामा प्यारी की',
-      'आरती कुंजबिहारी की'
+    // 16-beat rhythmic Harmonium melody of "Aarti Kunj Bihari Ki, Shri Giridhar Krishna Murari Ki"
+    var melody = [
+      261.63, 293.66, 329.63, 329.63, // Aa-ra-ti Kun-ja
+      392.00, 329.63, 293.66, 261.63, // Bi-ha-ri ki
+      293.66, 329.63, 392.00, 440.00, // Shri Gi-ri-dhar Krish-na
+      392.00, 329.63, 293.66, 261.63, // Mu-ra-ri ki
+      392.00, 392.00, 440.00, 523.25, // Ga-le mein Bai-jan-ti
+      440.00, 392.00, 329.63, 392.00, // Maa-la...
+      329.63, 392.00, 440.00, 392.00, // Ba-jaa-ve Mu-ra-li
+      329.63, 293.66, 261.63, 261.63  // Ma-dhur Baa-la
     ];
 
-    var lineIdx = 0;
+    var couplets = [
+      'आरती कुंजबिहारी की, श्री गिरिधर कृष्ण मुरारी की',
+      'गले में बैजन्ती माला, बजावे मुरली मधुर बाला',
+      'श्रवण में कुण्डल झलकाला, नन्द के आनन्द नन्दलाला',
+      'गगन सम अंग कान्ति काली, राधिका चमक रही आली',
+      'लतन में ठाढ़े बनमाली, भ्रमर सी अलक कस्तूरी तिलक',
+      'चन्द्र सी झलक, ललित छवि श्यामा प्यारी की, आरती कुंजबिहारी की'
+    ];
 
+    // Continuous Kaharwa Taal rhythm + Harmonium melody clock (420ms per beat)
+    var beatStep = 0;
+    this._aartiBeatInterval = setInterval(function() {
+      if (!self._aartiActive || self.isMuted) return;
+      var barBeat = beatStep % 4;
+      var noteFreq = melody[beatStep % melody.length];
+
+      // Harmonium melody note
+      self.playHarmoniumNote(noteFreq, 0.44);
+
+      // Kaharwa Taal percussion pattern: Dha (bass) - Manjira - Ta (treble) - Manjira
+      if (barBeat === 0 && typeof self.playMridangaDha === 'function') {
+        self.playMridangaDha();
+      } else if (barBeat === 1 && typeof self.playManjiraClink === 'function') {
+        self.playManjiraClink();
+      } else if (barBeat === 2 && typeof self.playMridangaTa === 'function') {
+        self.playMridangaTa();
+      } else if (barBeat === 3 && typeof self.playManjiraClink === 'function') {
+        self.playManjiraClink();
+      }
+
+      beatStep++;
+    }, 420);
+
+    var lineIdx = 0;
     var chantNext = function() {
-      if (!self._aartiActive || lineIdx >= lines.length) {
+      if (!self._aartiActive || lineIdx >= couplets.length) {
         var wasActive = self._aartiActive;
-        self._aartiActive = false;
+        self.stopAarti();
         if (wasActive && typeof onCompleteCallback === 'function') {
           onCompleteCallback();
         }
         return;
       }
-      var line = lines[lineIdx];
+      var line = couplets[lineIdx];
       lineIdx++;
 
-      // Ring bell softly on every 2nd line
-      if (lineIdx % 2 === 0 && !self.isMuted) {
-        self.playTempleBell(880);
-      }
-      // Aarti chime on every 4th line
-      if (lineIdx % 4 === 0 && !self.isMuted) {
-        self.playAartiChimes();
-      }
-
       if (typeof onLineCallback === 'function') {
-        onLineCallback(line, lineIdx, lines.length);
+        onLineCallback(line, lineIdx, couplets.length);
       }
 
       self.speak(line, function() {
         if (!self._aartiActive) return;
-        // Brief pause between lines for natural pacing
-        self._aartiTimer = setTimeout(chantNext, 350);
+        // Soft temple bell at the end of each couplet, aligned with rhythm
+        self.playTempleBell(880);
+        self._aartiTimer = setTimeout(chantNext, 750);
       });
     };
 
-    // Start with a temple bell
+    // Warm opening temple bell + 2-beat musical intro before first couplet
     this.playTempleBell(880);
-    this._aartiTimer = setTimeout(function() {
-      if (!self._aartiActive) return;
-      self.playAartiChimes();
-      self._aartiTimer = setTimeout(chantNext, 500);
-    }, 400);
+    this._aartiTimer = setTimeout(chantNext, 900);
   }
 
   stopAarti() {
     this._aartiActive = false;
+    if (this._aartiBeatInterval) {
+      clearInterval(this._aartiBeatInterval);
+      this._aartiBeatInterval = null;
+    }
     if (this._aartiTimer) {
       clearTimeout(this._aartiTimer);
       this._aartiTimer = null;
