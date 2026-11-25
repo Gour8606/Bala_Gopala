@@ -62,7 +62,10 @@ class ToddlerApp {
       matki: MatkiTowerGame,
       bhuta: PanchaBhutaGame,
       utsava: UtsavaGame,
-      vadya: VadyaGame
+      vadya: VadyaGame,
+      pattern: PatternMalaGame,
+      dinacharya: DinacharyaGame,
+      habitat: HabitatGame
     };
 
     // Commercial Memory Object Pools (Zero runtime GC stutter)
@@ -1218,6 +1221,18 @@ class ToddlerApp {
       vadya: {
         hi: "दिव्य वाद्य संगीत! वीणा, मृदंग, बांसुरी और मंजीरा को छूकर भारतीय शास्त्रीय संगीत और भक्ति ताल का आनंद लो!",
         en: "Sacred Instruments! Tap to play the sweet Veena strings, Mridangam beats, holy Bansuri, and rhythmic Manjira cymbals!"
+      },
+      pattern: {
+        hi: "माला क्रम खेल! मोंटेसरी तर्क से मोतियों और फूलों का क्रम समझो, और अगला सही मोती चुनकर माला पूरी करो!",
+        en: "Pattern Mala! Notice the Montessori bead and flower sequence, and tap the next matching bead to complete the garland!"
+      },
+      dinacharya: {
+        hi: "कान्हा की दिनचर्या! सुबह उठने से लेकर रात को सोने तक की अच्छी आदतें क्रम से चुनो!",
+        en: "Daily Routine! Follow healthy Montessori practical life habits in order from morning namaste to peaceful bedtime!"
+      },
+      habitat: {
+        hi: "प्रकृति आवास! पता लगाओ कि गऊ माता, हंस, मयूर और कमल कहाँ रहते हैं—यमुना जल, कदम्ब वन या गऊ-शाला!",
+        en: "Habitat Inquiry! Discover where each Vrindavan friend lives—Yamuna water, forest trees, or the green meadow!"
       }
     };
   }

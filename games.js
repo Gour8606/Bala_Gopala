@@ -5275,6 +5275,380 @@ class VadyaGame {
   }
 }
 
+// ==========================================================================
+// 15. MONTESSORI PATTERN MALA (Sensorial Logic & IB: How the World Works)
+// ==========================================================================
+class PatternMalaGame {
+  constructor(container) {
+    this.container = container;
+    this.levelIdx = 0;
+    this.solved = false;
+    this.levels = [
+      {
+        seq: ['🪷', '🌼', '🪷', '🌼', '🪷'],
+        answer: '🌼',
+        choices: ['🌼', '🪷', '🌿'],
+        name: { hi: 'कमल और गेंदा माला', en: 'Lotus & Marigold Pattern' }
+      },
+      {
+        seq: ['🦚', '🐚', '🦚', '🐚', '🦚'],
+        answer: '🐚',
+        choices: ['🪷', '🐚', '🦚'],
+        name: { hi: 'मयूर और शंख क्रम', en: 'Peacock & Conch Pattern' }
+      },
+      {
+        seq: ['🍯', '🍯', '🐮', '🍯', '🍯'],
+        answer: '🐮',
+        choices: ['🐮', '🍯', '🌼'],
+        name: { hi: 'माखन और गऊ क्रम', en: 'Butter & Cow AAB Pattern' }
+      },
+      {
+        seq: ['🌿', '🌸', '🪔', '🌿', '🌸'],
+        answer: '🪔',
+        choices: ['🌿', '🪔', '🌸'],
+        name: { hi: 'तुलसी, पुष्प और दीपक क्रम', en: 'Tulsi, Flower & Diya ABC Pattern' }
+      }
+    ];
+  }
+
+  start() {
+    this.levelIdx = 0;
+    this.solved = false;
+    this.render();
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lvl = this.levels[this.levelIdx % this.levels.length];
+    const headerTitle = lang === 'hi'
+      ? '✨ माला क्रम (Montessori Pattern): अगला मोती चुनकर माला पूरी करें!'
+      : '✨ Pattern Mala (Montessori Logic): Pick the Next Bead to Complete the Garland!';
+
+    this.container.innerHTML = `
+      <div class="game-pattern vedic-theme">
+        <div class="pattern-header">
+          <h2>${headerTitle}</h2>
+          <div class="pattern-sub-badge">${lvl.name[lang] || lvl.name.en}</div>
+        </div>
+        <div class="pattern-mala-strand">
+          ${lvl.seq.map(item => `<div class="pattern-bead">${item}</div>`).join('')}
+          <div class="pattern-bead pattern-slot ${this.solved ? 'is-solved' : ''}" id="pattern-missing-slot">${this.solved ? lvl.answer : '❓'}</div>
+        </div>
+        <div class="pattern-choices-row">
+          ${lvl.choices.map((ch, idx) => `
+            <button class="pattern-choice-btn" data-choice="${ch}" data-idx="${idx}">${ch}</button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const lvl = this.levels[this.levelIdx % this.levels.length];
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const btns = this.container.querySelectorAll('.pattern-choice-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.solved) return;
+        const picked = btn.dataset.choice;
+        if (picked === lvl.answer) {
+          this.solved = true;
+          const slot = this.container.querySelector('#pattern-missing-slot');
+          if (slot) {
+            slot.textContent = picked;
+            slot.classList.add('is-solved');
+          }
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('celebration');
+            window.toddlerAudio.playTempleBell(1046.5);
+            window.toddlerAudio.speak({
+              hi: 'शाबाश! बिल्कुल सही! माला पूरी हुई!',
+              en: 'Wonderful! You completed the pattern!'
+            });
+          }
+          CelebrationPetalShower.shower();
+          setTimeout(() => {
+            this.levelIdx = (this.levelIdx + 1) % this.levels.length;
+            this.solved = false;
+            this.render();
+          }, 2200);
+        } else {
+          btn.classList.add('pattern-nudge');
+          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('light');
+            window.toddlerAudio.speak({
+              hi: 'ध्यान से देखें! अगला कौन सा आएगा?',
+              en: 'Look closely! Which one comes next?'
+            });
+          }
+        }
+      });
+    });
+  }
+
+  handleAnyKey() {
+    const lvl = this.levels[this.levelIdx % this.levels.length];
+    const correctBtn = this.container.querySelector(`.pattern-choice-btn[data-choice="${lvl.answer}"]`);
+    if (correctBtn) {
+      correctBtn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+    }
+  }
+}
+
+// ==========================================================================
+// 16. DINACHARYA PRACTICAL LIFE (Montessori Independence & IB: Who We Are)
+// ==========================================================================
+class DinacharyaGame {
+  constructor(container) {
+    this.container = container;
+    this.currentStep = 0;
+    this.steps = [
+      { id: 'wake', icon: '🌅', title: { hi: '१. प्रातः नमस्ते', en: '1. Morning Namaste' }, desc: { hi: 'सूरज दादा को प्रणाम! शुभ प्रभात!', en: 'Greet the morning sun! Good morning!' }, sound: 'bell' },
+      { id: 'bath', icon: '🛁', title: { hi: '२. स्नान व स्वच्छता', en: '2. Fresh Bath' }, desc: { hi: 'ताजे जल से स्नान करके स्वच्छ बनें!', en: 'Wash up fresh and clean!' }, sound: 'water' },
+      { id: 'meal', icon: '🥣', title: { hi: '३. सात्विक प्रसाद', en: '3. Healthy Meal' }, desc: { hi: 'धन्यवाद कहकर पौष्टिक भोजन करें!', en: 'Say thank you and eat healthy food!' }, sound: 'makhan' },
+      { id: 'tidy', icon: '🧸', title: { hi: '४. खिलौने समेटना', en: '4. Tidy Up Toys' }, desc: { hi: 'खेलने के बाद खिलौने सही जगह रखें!', en: 'Put toys back neatly after play!' }, sound: 'giggle' },
+      { id: 'sleep', icon: '🌙', title: { hi: '५. शुभ रात्रि', en: '5. Peaceful Sleep' }, desc: { hi: 'शान्त मन से मीठी नींद सो जाएं!', en: 'Rest peacefully under the stars!' }, sound: 'lullaby' }
+    ];
+  }
+
+  start() {
+    this.currentStep = 0;
+    this.render();
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const headerTitle = lang === 'hi'
+      ? '🌞 कान्हा की दिनचर्या (Practical Life): क्रम से दिन की अच्छी आदतें चुनें!'
+      : '🌞 Daily Routine (Montessori Practical Life): Follow Healthy Habits in Order!';
+    const allDone = this.currentStep >= this.steps.length;
+
+    this.container.innerHTML = `
+      <div class="game-dinacharya vedic-theme">
+        <div class="dinacharya-header">
+          <h2>${headerTitle}</h2>
+        </div>
+        <div class="dinacharya-timeline">
+          ${this.steps.map((st, idx) => {
+            const isDone = idx < this.currentStep;
+            const isNext = idx === this.currentStep;
+            return `
+              <button class="dinacharya-card ${isDone ? 'is-done' : ''} ${isNext ? 'is-next' : ''}" data-idx="${idx}">
+                <div class="dinacharya-icon">${st.icon}</div>
+                <div class="dinacharya-title">${st.title[lang] || st.title.en}</div>
+                <div class="dinacharya-status">${isDone ? '⭐' : (isNext ? '👆' : '⏳')}</div>
+              </button>
+            `;
+          }).join('')}
+        </div>
+        ${allDone ? `
+          <button class="dinacharya-reset-btn" id="dinacharya-reset">🔄 ${lang === 'hi' ? 'फिर से खेलें' : 'Play Again'}</button>
+        ` : ''}
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const cards = this.container.querySelectorAll('.dinacharya-card');
+    cards.forEach(card => {
+      card.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const idx = parseInt(card.dataset.idx, 10);
+        if (idx === this.currentStep) {
+          const st = this.steps[idx];
+          this.currentStep++;
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('medium');
+            if (st.sound === 'water') window.toddlerAudio.playWaterSprinkle();
+            else if (st.sound === 'makhan') window.toddlerAudio.playMakhanPop();
+            else if (st.sound === 'giggle') window.toddlerAudio.playBabyGiggle();
+            else if (st.sound === 'lullaby') window.toddlerAudio.playTempleBell(659.25);
+            else window.toddlerAudio.playTempleBell(880);
+            setTimeout(() => window.toddlerAudio.speak((st.title[lang] || st.title.en) + '! ' + (st.desc[lang] || st.desc.en)), 350);
+          }
+          if (this.currentStep >= this.steps.length) {
+            CelebrationPetalShower.shower();
+          }
+          this.render();
+        } else if (idx > this.currentStep) {
+          card.classList.add('pattern-nudge');
+          setTimeout(() => card.classList.remove('pattern-nudge'), 500);
+          const nextSt = this.steps[this.currentStep];
+          if (window.toddlerAudio && nextSt) {
+            window.toddlerAudio.speak({
+              hi: 'पहले ' + nextSt.title.hi + ' करें!',
+              en: 'First let us do ' + nextSt.title.en + '!'
+            });
+          }
+        }
+      });
+    });
+
+    const resetBtn = this.container.querySelector('#dinacharya-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.currentStep = 0;
+        this.render();
+      });
+    }
+  }
+
+  handleAnyKey() {
+    if (this.currentStep >= this.steps.length) {
+      this.currentStep = 0;
+      this.render();
+      return;
+    }
+    const nextCard = this.container.querySelector(`.dinacharya-card[data-idx="${this.currentStep}"]`);
+    if (nextCard) {
+      nextCard.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+    }
+  }
+}
+
+// ==========================================================================
+// 17. VRINDAVAN HABITAT INQUIRY (IB: Sharing the Planet & Montessori Zoology)
+// ==========================================================================
+class HabitatGame {
+  constructor(container) {
+    this.container = container;
+    this.itemIdx = 0;
+    this.solved = false;
+    this.habitats = [
+      { id: 'water', icon: '🌊', name: { hi: 'यमुना जल (Water)', en: 'Yamuna Water' }, color: '#0284C7' },
+      { id: 'forest', icon: '🌳', name: { hi: 'कदम्ब वन (Trees)', en: 'Forest & Trees' }, color: '#16A34A' },
+      { id: 'meadow', icon: '🌾', name: { hi: 'गऊ-शाला (Meadow)', en: 'Green Meadow' }, color: '#D97706' }
+    ];
+    this.creatures = [
+      { icon: '🐮', name: { hi: 'गऊ माता', en: 'Gau Mata' }, habitat: 'meadow', sound: 'cow', fact: { hi: 'गऊ माता हरी घास के मैदान में रहती हैं!', en: 'Gau Mata lives in the green meadow!' } },
+      { icon: '🪿', name: { hi: 'राजहंस', en: 'Sacred Swan' }, habitat: 'water', sound: 'swan', fact: { hi: 'हंस यमुना जी के निर्मल जल में तैरता है!', en: 'The swan swims in pure Yamuna water!' } },
+      { icon: '🦚', name: { hi: 'मयूर (मोर)', en: 'Peacock' }, habitat: 'forest', sound: 'peacock', fact: { hi: 'सुन्दर मयूर कदम्ब वन के पेड़ों में रहता है!', en: 'The peacock lives among the forest trees!' } },
+      { icon: '🐐', name: { hi: 'नन्ही बकरी', en: 'Little Goat' }, habitat: 'meadow', sound: 'goat', fact: { hi: 'बकरी हरे मैदान में चरती है!', en: 'The little goat grazes in the meadow!' } },
+      { icon: '🐒', name: { hi: 'नन्हा वानर', en: 'Playful Monkey' }, habitat: 'forest', sound: 'monkey', fact: { hi: 'वानर पेड़ों की डालियों पर कूदता है!', en: 'The monkey jumps on forest tree branches!' } },
+      { icon: '🪷', name: { hi: 'कमल पुष्प', en: 'Lotus Flower' }, habitat: 'water', sound: 'bell', fact: { hi: 'सुन्दर कमल हमेशा स्वच्छ जल में खिलता है!', en: 'The sacred lotus blooms in calm water!' } }
+    ];
+  }
+
+  start() {
+    this.itemIdx = 0;
+    this.solved = false;
+    this.render();
+    setTimeout(() => this.playCreatureSound(this.creatures[this.itemIdx]), 350);
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  playCreatureSound(c) {
+    if (!c || !window.toddlerAudio) return;
+    if (c.sound === 'cow') window.toddlerAudio.playCowMoo();
+    else if (c.sound === 'swan') window.toddlerAudio.playSwanCall();
+    else if (c.sound === 'peacock') window.toddlerAudio.playPeacockCall();
+    else if (c.sound === 'goat') window.toddlerAudio.playGoatBleat();
+    else if (c.sound === 'monkey') window.toddlerAudio.playMonkeyChatter();
+    else window.toddlerAudio.playTempleBell(880);
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const creature = this.creatures[this.itemIdx % this.creatures.length];
+    const headerTitle = lang === 'hi'
+      ? '🌍 प्रकृति आवास (IB Inquiry): यह मित्र कहाँ रहता है?'
+      : '🌍 Habitat Inquiry (Sharing the Planet): Where Does This Friend Live?';
+
+    this.container.innerHTML = `
+      <div class="game-habitat vedic-theme">
+        <div class="habitat-header">
+          <h2>${headerTitle}</h2>
+        </div>
+        <button class="habitat-creature-card" id="habitat-creature-btn">
+          <div class="habitat-creature-icon">${creature.icon}</div>
+          <div class="habitat-creature-name">${creature.name[lang] || creature.name.en}</div>
+          <div class="habitat-tap-sound">🔊 ${lang === 'hi' ? 'आवाज़ सुनें' : 'Hear Sound'}</div>
+        </button>
+        <div class="habitat-baskets-row">
+          ${this.habitats.map(h => `
+            <button class="habitat-basket-btn" data-habitat="${h.id}" style="--hab-color: ${h.color};">
+              <span class="hab-icon">${h.icon}</span>
+              <span class="hab-name">${h.name[lang] || h.name.en}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const creature = this.creatures[this.itemIdx % this.creatures.length];
+
+    const cBtn = this.container.querySelector('#habitat-creature-btn');
+    if (cBtn) {
+      cBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.playCreatureSound(creature);
+      });
+    }
+
+    const habBtns = this.container.querySelectorAll('.habitat-basket-btn');
+    habBtns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.solved) return;
+        const picked = btn.dataset.habitat;
+        if (picked === creature.habitat) {
+          this.solved = true;
+          btn.classList.add('quiz-correct');
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('celebration');
+            window.toddlerAudio.speak(creature.fact[lang] || creature.fact.en);
+          }
+          CelebrationPetalShower.shower();
+          setTimeout(() => {
+            this.itemIdx = (this.itemIdx + 1) % this.creatures.length;
+            this.solved = false;
+            this.render();
+            setTimeout(() => this.playCreatureSound(this.creatures[this.itemIdx]), 300);
+          }, 2600);
+        } else {
+          btn.classList.add('pattern-nudge');
+          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
+          if (window.toddlerAudio) {
+            window.toddlerAudio.speak({
+              hi: 'फिर से सोचें! ' + creature.name.hi + ' कहाँ रहता है?',
+              en: 'Try again! Where does ' + creature.name.en + ' live?'
+            });
+          }
+        }
+      });
+    });
+  }
+
+  handleAnyKey() {
+    const creature = this.creatures[this.itemIdx % this.creatures.length];
+    const correctBtn = this.container.querySelector(`.habitat-basket-btn[data-habitat="${creature.habitat}"]`);
+    if (correctBtn) {
+      correctBtn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+    }
+  }
+}
+
 // Global Exports
 if (typeof window !== 'undefined') {
   window.BubbleGame = BubbleGame;
@@ -5291,6 +5665,9 @@ if (typeof window !== 'undefined') {
   window.PanchaBhutaGame = PanchaBhutaGame;
   window.UtsavaGame = UtsavaGame;
   window.VadyaGame = VadyaGame;
+  window.PatternMalaGame = PatternMalaGame;
+  window.DinacharyaGame = DinacharyaGame;
+  window.HabitatGame = HabitatGame;
   window.CelebrationPetalShower = CelebrationPetalShower;
 }
 
@@ -5310,6 +5687,9 @@ if (typeof module !== 'undefined' && module.exports) {
     PanchaBhutaGame,
     UtsavaGame,
     VadyaGame,
+    PatternMalaGame,
+    DinacharyaGame,
+    HabitatGame,
     CelebrationPetalShower,
     ToddlerPersistence,
     ElementPool
