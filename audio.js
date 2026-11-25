@@ -2436,15 +2436,48 @@ class ToddlerAudio {
       'चन्द्र सी झलक, ललित छवि श्यामा प्यारी की, आरती कुंजबिहारी की'
     ];
 
-    // Continuous Kaharwa Taal rhythm + Harmonium melody clock (420ms per beat)
+    // Pure instrumental temple ensemble: Harmonium + Bansuri + Kaharwa Taal
+    // Lyrics advance in exact musical sync every 16 beats (no robotic TTS over the music)
     var beatStep = 0;
+    var totalBeats = couplets.length * 16;
+
+    // Warm opening temple bell + gentle flute greeting
+    this.playTempleBell(880);
+    if (typeof onLineCallback === 'function') {
+      onLineCallback(couplets[0], 1, couplets.length);
+    }
+
     this._aartiBeatInterval = setInterval(function() {
       if (!self._aartiActive || self.isMuted) return;
+
+      if (beatStep >= totalBeats) {
+        self.stopAarti();
+        self.playTempleBell(880);
+        self.playAartiChimes();
+        if (typeof onCompleteCallback === 'function') {
+          onCompleteCallback();
+        }
+        return;
+      }
+
       var barBeat = beatStep % 4;
+      var phraseBeat = beatStep % 16;
       var noteFreq = melody[beatStep % melody.length];
 
-      // Harmonium melody note
+      // Advance synced on-screen couplet every 16 beats (start of each musical phrase)
+      if (beatStep > 0 && phraseBeat === 0) {
+        var coupletIdx = Math.floor(beatStep / 16);
+        if (coupletIdx < couplets.length && typeof onLineCallback === 'function') {
+          onLineCallback(couplets[coupletIdx], coupletIdx + 1, couplets.length);
+        }
+        self.playTempleBell(880);
+      }
+
+      // Warm Harmonium reed + soft Bansuri lead on main beats
       self.playHarmoniumNote(noteFreq, 0.44);
+      if (barBeat === 0 || barBeat === 2) {
+        self.playBansuri(noteFreq * 2); // gentle octave-up Krishna flute highlight
+      }
 
       // Kaharwa Taal percussion pattern: Dha (bass) - Manjira - Ta (treble) - Manjira
       if (barBeat === 0 && typeof self.playMridangaDha === 'function') {
@@ -2459,35 +2492,6 @@ class ToddlerAudio {
 
       beatStep++;
     }, 420);
-
-    var lineIdx = 0;
-    var chantNext = function() {
-      if (!self._aartiActive || lineIdx >= couplets.length) {
-        var wasActive = self._aartiActive;
-        self.stopAarti();
-        if (wasActive && typeof onCompleteCallback === 'function') {
-          onCompleteCallback();
-        }
-        return;
-      }
-      var line = couplets[lineIdx];
-      lineIdx++;
-
-      if (typeof onLineCallback === 'function') {
-        onLineCallback(line, lineIdx, couplets.length);
-      }
-
-      self.speak(line, function() {
-        if (!self._aartiActive) return;
-        // Soft temple bell at the end of each couplet, aligned with rhythm
-        self.playTempleBell(880);
-        self._aartiTimer = setTimeout(chantNext, 750);
-      });
-    };
-
-    // Warm opening temple bell + 2-beat musical intro before first couplet
-    this.playTempleBell(880);
-    this._aartiTimer = setTimeout(chantNext, 900);
   }
 
   stopAarti() {
