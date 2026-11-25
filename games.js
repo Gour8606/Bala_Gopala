@@ -5649,6 +5649,461 @@ class HabitatGame {
   }
 }
 
+// ==========================================================================
+// 18. BALA YOGA (NEP 2020 Panchakosha: Annamaya & Pranamaya Physical/Breath)
+// ==========================================================================
+class BalaYogaGame {
+  constructor(container) {
+    this.container = container;
+    this.poseIdx = 0;
+    this.poses = [
+      { id: 'tree', icon: '🌳', name: { hi: 'वृक्षासन (Tree Pose)', en: 'Vrikshasana (Tree Pose)' }, cue: { hi: 'पेड़ की तरह सीधे खड़े होकर हाथ ऊपर उठाएं और श्वास लें!', en: 'Stand tall like a Kadamba tree, raise both arms high, and breathe!' }, sound: 'birds' },
+      { id: 'peacock', icon: '🦚', name: { hi: 'मयूरासन (Peacock Stretch)', en: 'Mayurasana (Peacock Stretch)' }, cue: { hi: 'मोर की तरह पंख फैलाकर धीरे से झुकें और मुस्कुराएं!', en: 'Spread your arms wide like peacock feathers and stretch gently!' }, sound: 'peacock' },
+      { id: 'cow', icon: '🐮', name: { hi: 'गौ-मार्जरासन (Cow Stretch)', en: 'Gau-Asana (Happy Cow Stretch)' }, cue: { hi: 'हाथ और घुटने जमीन पर रखकर प्यारी गऊ माता की तरह पीठ झुलाएं!', en: 'On hands and knees, arch your back gently like sweet Gau Mata!' }, sound: 'cow' },
+      { id: 'lotus', icon: '🪷', name: { hi: 'पद्मासन (Lotus Calm)', en: 'Padmasana (Lotus Calm)' }, cue: { hi: 'पालथी मारकर सीधे बैठें, आँखें बंद करें और शान्ति से श्वास लें!', en: 'Sit cross-legged like a blooming lotus, smile, and take one calm breath!' }, sound: 'om' }
+    ];
+  }
+
+  start() {
+    this.poseIdx = 0;
+    this.render();
+    setTimeout(() => this.speakPose(this.poses[0]), 350);
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  speakPose(pose) {
+    if (!pose || !window.toddlerAudio) return;
+    const lang = window.toddlerAudio.currentLanguage || 'hi';
+    if (pose.sound === 'birds') window.toddlerAudio.playForestBirdsChirp();
+    else if (pose.sound === 'peacock') window.toddlerAudio.playPeacockCall();
+    else if (pose.sound === 'cow') window.toddlerAudio.playCowMoo();
+    else window.toddlerAudio.playOmChant();
+    setTimeout(() => {
+      if (window.toddlerAudio) {
+        window.toddlerAudio.speak((pose.name[lang] || pose.name.en) + '! ' + (pose.cue[lang] || pose.cue.en));
+      }
+    }, 650);
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const pose = this.poses[this.poseIdx % this.poses.length];
+    const headerTitle = lang === 'hi'
+      ? '🧘 बाल योग (NEP पंचकोश): कान्हा के साथ प्यारे योगासन करें!'
+      : '🧘 Bala Yoga (NEP Panchakosha): Stretch & Breathe with Kanha!';
+
+    this.container.innerHTML = `
+      <div class="game-yoga vedic-theme">
+        <div class="yoga-header">
+          <h2>${headerTitle}</h2>
+        </div>
+        <div class="yoga-pose-stage" id="yoga-hero-card">
+          <div class="yoga-pose-icon">${pose.icon}</div>
+          <div class="yoga-pose-name">${pose.name[lang] || pose.name.en}</div>
+          <p class="yoga-pose-cue">${pose.cue[lang] || pose.cue.en}</p>
+          <button class="yoga-done-btn" id="yoga-complete-btn">✨ ${lang === 'hi' ? 'मैंने कर लिया! (Done!)' : 'I Did It! (Next Pose)'}</button>
+        </div>
+        <div class="yoga-pills-row">
+          ${this.poses.map((p, idx) => `
+            <button class="yoga-pill-btn ${idx === this.poseIdx ? 'active' : ''}" data-idx="${idx}">
+              <span>${p.icon}</span> <span>${p.name[lang] || p.name.en}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const pills = this.container.querySelectorAll('.yoga-pill-btn');
+    pills.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.poseIdx = parseInt(btn.dataset.idx, 10);
+        this.render();
+        this.speakPose(this.poses[this.poseIdx]);
+      });
+    });
+
+    const doneBtn = this.container.querySelector('#yoga-complete-btn');
+    if (doneBtn) {
+      doneBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (window.toddlerAudio) {
+          window.toddlerAudio.triggerHaptic('celebration');
+          window.toddlerAudio.playTempleBell(1046.5);
+          window.toddlerAudio.speak({ hi: 'शाबाश! बहुत सुन्दर योग!', en: 'Bravo! Wonderful yoga pose!' });
+        }
+        CelebrationPetalShower.shower();
+        setTimeout(() => {
+          this.poseIdx = (this.poseIdx + 1) % this.poses.length;
+          this.render();
+          setTimeout(() => this.speakPose(this.poses[this.poseIdx]), 300);
+        }, 1600);
+      });
+    }
+  }
+
+  handleAnyKey() {
+    const doneBtn = this.container.querySelector('#yoga-complete-btn');
+    if (doneBtn) doneBtn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+  }
+}
+
+// ==========================================================================
+// 19. RITU-CHAKRA (Waldorf / Steiner: 6 Vedic Seasons & Nature Rhythm)
+// ==========================================================================
+class RituChakraGame {
+  constructor(container) {
+    this.container = container;
+    this.activeIdx = 0;
+    this.seasons = [
+      { id: 'vasant', icon: '🌸', name: { hi: 'वसन्त ऋतु (Spring)', en: 'Vasant (Spring)' }, desc: { hi: 'फूल खिलते हैं, कोयल गाती है और होली आती है!', en: 'Flowers bloom, cuckoos sing, and joyful Holi arrives!' }, bg: 'linear-gradient(135deg, #FCE7F3, #FEF3C7)', sound: 'koel' },
+      { id: 'grishma', icon: '☀️', name: { hi: 'ग्रीष्म ऋतु (Summer)', en: 'Grishma (Summer)' }, desc: { hi: 'तेज धूप में यमुना का ठण्डा जल और मीठे आम!', en: 'Cool Yamuna water and sweet mangoes under the warm sun!' }, bg: 'linear-gradient(135deg, #FEF3C7, #FDE68A)', sound: 'yamuna' },
+      { id: 'varsha', icon: '🌧️', name: { hi: 'वर्षा ऋतु (Monsoon)', en: 'Varsha (Monsoon)' }, desc: { hi: 'रिमझिम बारिश में मोर पंख फैलाकर नाचते हैं!', en: 'Gentle monsoon rain falls and peacocks dance with joy!' }, bg: 'linear-gradient(135deg, #E0F2FE, #BAE6FD)', sound: 'rain' },
+      { id: 'sharad', icon: '🌕', name: { hi: 'शरद ऋतु (Autumn)', en: 'Sharad (Autumn)' }, desc: { hi: 'निर्मल चाँदनी रात, कमल और दीपावली के दीपक!', en: 'Bright full moon nights, blooming lotuses, and Diwali lamps!' }, bg: 'linear-gradient(135deg, #EDE9FE, #DDD6FE)', sound: 'crickets' },
+      { id: 'hemant', icon: '🌾', name: { hi: 'हेमन्त ऋतु (Pre-Winter)', en: 'Hemant (Cool Harvest)' }, desc: { hi: 'सुहावनी ठण्डक, ताजी फसल और गऊ-सेवा!', en: 'Crisp pleasant mornings, golden harvest, and Gau-Seva!' }, bg: 'linear-gradient(135deg, #ECFDF5, #D1FAE5)', sound: 'cow' },
+      { id: 'shishira', icon: '🧣', name: { hi: 'शिशिर ऋतु (Winter)', en: 'Shishira (Winter)' }, desc: { hi: 'गर्म दूध, मकर संक्रान्ति और प्यारी धूप!', en: 'Cozy blankets, warm milk, and gentle morning sunshine!' }, bg: 'linear-gradient(135deg, #F1F5F9, #E2E8F0)', sound: 'bell' }
+    ];
+  }
+
+  start() {
+    this.activeIdx = 0;
+    this.render();
+    setTimeout(() => this.playSeason(this.seasons[0]), 350);
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  playSeason(s) {
+    if (!s || !window.toddlerAudio) return;
+    const lang = window.toddlerAudio.currentLanguage || 'hi';
+    if (s.sound === 'koel') window.toddlerAudio.playKoelCall();
+    else if (s.sound === 'yamuna') window.toddlerAudio.playYamunaStream();
+    else if (s.sound === 'rain') {
+      window.toddlerAudio.playMonsoonRain();
+      setTimeout(() => window.toddlerAudio.playPeacockCall(), 400);
+    }
+    else if (s.sound === 'crickets') window.toddlerAudio.playNightCrickets();
+    else if (s.sound === 'cow') window.toddlerAudio.playCowMoo();
+    else window.toddlerAudio.playTempleBell(880);
+
+    setTimeout(() => {
+      if (window.toddlerAudio) {
+        window.toddlerAudio.speak((s.name[lang] || s.name.en) + '! ' + (s.desc[lang] || s.desc.en));
+      }
+    }, 650);
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const s = this.seasons[this.activeIdx % this.seasons.length];
+    const headerTitle = lang === 'hi'
+      ? '🌦️ ऋतु चक्र (Waldorf Seasons): भारत की ६ पावन ऋतुएं जानें!'
+      : '🌦️ Ritu-Chakra (Waldorf Rhythm): Explore the 6 Sacred Seasons!';
+
+    this.container.innerHTML = `
+      <div class="game-ritu vedic-theme">
+        <div class="ritu-header">
+          <h2>${headerTitle}</h2>
+        </div>
+        <div class="ritu-showcase-card" style="background: ${s.bg};">
+          <div class="ritu-icon">${s.icon}</div>
+          <div class="ritu-name">${s.name[lang] || s.name.en}</div>
+          <p class="ritu-desc">${s.desc[lang] || s.desc.en}</p>
+        </div>
+        <div class="ritu-wheel-grid">
+          ${this.seasons.map((item, idx) => `
+            <button class="ritu-btn ${idx === this.activeIdx ? 'active' : ''}" data-idx="${idx}">
+              <span class="ritu-btn-icon">${item.icon}</span>
+              <span class="ritu-btn-label">${item.name[lang] || item.name.en}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const btns = this.container.querySelectorAll('.ritu-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.activeIdx = parseInt(btn.dataset.idx, 10);
+        this.render();
+        this.playSeason(this.seasons[this.activeIdx]);
+      });
+    });
+  }
+
+  handleAnyKey() {
+    this.activeIdx = (this.activeIdx + 1) % this.seasons.length;
+    this.render();
+    this.playSeason(this.seasons[this.activeIdx]);
+  }
+}
+
+// ==========================================================================
+// 20. DIVYA KOLAM SYMMETRY (Reggio Emilia: 100 Languages & Loose-Parts Art)
+// ==========================================================================
+class KolamSymmetryGame {
+  constructor(container) {
+    this.container = container;
+    this.activeStamp = '🪷';
+    this.stamps = ['🪷', '🌼', '🪔', '🌿', '✨'];
+    this.grid = [];
+    this.resetGrid();
+  }
+
+  resetGrid() {
+    this.grid = [];
+    for (let r = 0; r < 5; r++) {
+      const row = [];
+      for (let c = 0; c < 5; c++) row.push('');
+      this.grid.push(row);
+    }
+    this.grid[2][2] = '🕉️';
+  }
+
+  start() {
+    this.resetGrid();
+    this.render();
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const headerTitle = lang === 'hi'
+      ? '💠 दिव्य कोलम (Reggio Symmetry): एक ओर छूएं और चारों ओर समान सजावट देखें!'
+      : '💠 Divya Kolam (Reggio Symmetry): Tap Any Dot to Mirror Sacred Symmetry!';
+
+    this.container.innerHTML = `
+      <div class="game-kolam vedic-theme">
+        <div class="kolam-header">
+          <h2>${headerTitle}</h2>
+        </div>
+        <div class="kolam-stamp-bar">
+          ${this.stamps.map(st => `
+            <button class="kolam-stamp-btn ${st === this.activeStamp ? 'active' : ''}" data-stamp="${st}">${st}</button>
+          `).join('')}
+          <button class="kolam-clear-btn" id="kolam-clear-btn">🔄 ${lang === 'hi' ? 'नया कोलम' : 'Clear'}</button>
+        </div>
+        <div class="kolam-grid-board">
+          ${this.grid.map((row, r) => row.map((val, c) => `
+            <button class="kolam-cell ${val ? 'has-petal' : ''} ${r === 2 && c === 2 ? 'is-center' : ''}" data-r="${r}" data-c="${c}">
+              ${val || '•'}
+            </button>
+          `).join('')).join('')}
+        </div>
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const stampBtns = this.container.querySelectorAll('.kolam-stamp-btn');
+    stampBtns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.activeStamp = btn.dataset.stamp;
+        this.render();
+      });
+    });
+
+    const clearBtn = this.container.querySelector('#kolam-clear-btn');
+    if (clearBtn) {
+      clearBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.resetGrid();
+        this.render();
+      });
+    }
+
+    const cells = this.container.querySelectorAll('.kolam-cell');
+    cells.forEach(cell => {
+      cell.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        const r = parseInt(cell.dataset.r, 10);
+        const c = parseInt(cell.dataset.c, 10);
+        // 4-way reflectional temple symmetry
+        const mirrorCoords = [
+          [r, c],
+          [r, 4 - c],
+          [4 - r, c],
+          [4 - r, 4 - c]
+        ];
+        mirrorCoords.forEach(pair => {
+          this.grid[pair[0]][pair[1]] = this.activeStamp;
+        });
+        if (window.toddlerAudio) {
+          window.toddlerAudio.triggerHaptic('light');
+          const freqs = [523.25, 587.33, 659.25, 783.99, 880];
+          window.toddlerAudio.playJalTarang(freqs[(r + c) % freqs.length]);
+        }
+        this.render();
+      });
+    });
+  }
+
+  handleAnyKey() {
+    const r = Math.floor(Math.random() * 5);
+    const c = Math.floor(Math.random() * 5);
+    const cell = this.container.querySelector(`.kolam-cell[data-r="${r}"][data-c="${c}"]`);
+    if (cell) cell.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+  }
+}
+
+// ==========================================================================
+// 21. DIVYA SANSKARA (Charlotte Mason: Living Moral Habits & Ahimsa)
+// ==========================================================================
+class SanskaraValuesGame {
+  constructor(container) {
+    this.container = container;
+    this.idx = 0;
+    this.solved = false;
+    this.scenarios = [
+      {
+        icon: '🐦',
+        prompt: { hi: 'धूप में एक नन्ही चिड़िया प्यासी है! हम क्या करें?', en: 'A little sparrow is thirsty in the sun! What should we do?' },
+        good: { icon: '💧', label: { hi: 'ठण्डा जल पिलाएं (दया)', en: 'Offer Cool Water (Kindness)' } },
+        other: { icon: '🪨', label: { hi: 'अनदेखा करें', en: 'Walk Away' } },
+        praise: { hi: 'शाबाश! सभी जीवों पर दया करना सबसे बड़ा धर्म है!', en: 'Wonderful! Kindness to every creature is the highest virtue!' }
+      },
+      {
+        icon: '🐮',
+        prompt: { hi: 'गऊ माता द्वार पर खड़ी हैं! हम क्या भेंट करें?', en: 'Gentle Gau-Mata is at the gate! What should we offer?' },
+        good: { icon: '🌾', label: { hi: 'ताजी हरी घास व रोटी (सेवा)', en: 'Fresh Green Grass (Seva)' } },
+        other: { icon: '🚫', label: { hi: 'दरवाजा बंद करें', en: 'Close the Door' } },
+        praise: { hi: 'बहुत अच्छे! गऊ माता की सेवा से मन पवित्र होता है!', en: 'Bravo! Serving Gau-Mata fills our heart with joy!' }
+      },
+      {
+        icon: '🌸',
+        prompt: { hi: 'दादी माँ की पूजा की टोकरी गिर गई! हम क्या करें?', en: 'Grandma dropped her flower basket! What should we do?' },
+        good: { icon: '🤝', label: { hi: 'फूल उठाने में मदद करें (नम्रता)', en: 'Help Pick Up Flowers (Respect)' } },
+        other: { icon: '🏃', label: { hi: 'भाग जाएं', en: 'Run Away' } },
+        praise: { hi: 'अति सुन्दर! बड़ों की मदद करना सच्चा संस्कार है!', en: 'Beautiful! Helping elders is a wonderful Sanskara!' }
+      },
+      {
+        icon: '🍯',
+        prompt: { hi: 'मित्र आज भोजन लाना भूल गया! हम क्या करें?', en: 'Your friend forgot their lunch today! What should we do?' },
+        good: { icon: '🥣', label: { hi: 'अपना प्रसाद बाँटकर खाएं (दान)', en: 'Share Our Meal Together (Sharing)' } },
+        other: { icon: '🙈', label: { hi: 'छिपा लें', en: 'Hide It' } },
+        praise: { hi: 'वाह! बाँटकर खाने से खुशी दोगुनी हो जाती है!', en: 'Awesome! Sharing with friends doubles the joy!' }
+      }
+    ];
+  }
+
+  start() {
+    this.idx = 0;
+    this.solved = false;
+    this.render();
+    setTimeout(() => this.speakScenario(), 350);
+  }
+
+  stop() {
+    this.container.innerHTML = '';
+  }
+
+  speakScenario() {
+    const sc = this.scenarios[this.idx % this.scenarios.length];
+    if (!sc || !window.toddlerAudio) return;
+    const lang = window.toddlerAudio.currentLanguage || 'hi';
+    window.toddlerAudio.speak(sc.prompt[lang] || sc.prompt.en);
+  }
+
+  render() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const sc = this.scenarios[this.idx % this.scenarios.length];
+    const headerTitle = lang === 'hi'
+      ? '💖 दिव्य संस्कार (Charlotte Mason Habits): सही और दयालु विकल्प चुनें!'
+      : '💖 Divya Sanskara (Kindness & Values): Choose the Loving Action!';
+
+    this.container.innerHTML = `
+      <div class="game-sanskara vedic-theme">
+        <div class="sanskara-header">
+          <h2>${headerTitle}</h2>
+        </div>
+        <div class="sanskara-story-card" id="sanskara-prompt-btn">
+          <div class="sanskara-story-icon">${sc.icon}</div>
+          <div class="sanskara-story-text">${sc.prompt[lang] || sc.prompt.en}</div>
+        </div>
+        <div class="sanskara-choices-row">
+          <button class="sanskara-choice-btn is-good-opt" data-kind="good">
+            <span class="sc-opt-icon">${sc.good.icon}</span>
+            <span class="sc-opt-label">${sc.good.label[lang] || sc.good.label.en}</span>
+          </button>
+          <button class="sanskara-choice-btn" data-kind="other">
+            <span class="sc-opt-icon">${sc.other.icon}</span>
+            <span class="sc-opt-label">${sc.other.label[lang] || sc.other.label.en}</span>
+          </button>
+        </div>
+      </div>
+    `;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const sc = this.scenarios[this.idx % this.scenarios.length];
+    const promptBtn = this.container.querySelector('#sanskara-prompt-btn');
+    if (promptBtn) {
+      promptBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.speakScenario();
+      });
+    }
+
+    const btns = this.container.querySelectorAll('.sanskara-choice-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (this.solved) return;
+        if (btn.dataset.kind === 'good') {
+          this.solved = true;
+          btn.classList.add('quiz-correct');
+          if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('celebration');
+            window.toddlerAudio.playTempleBell(1046.5);
+            window.toddlerAudio.speak(sc.praise[lang] || sc.praise.en);
+          }
+          CelebrationPetalShower.shower();
+          setTimeout(() => {
+            this.idx = (this.idx + 1) % this.scenarios.length;
+            this.solved = false;
+            this.render();
+            setTimeout(() => this.speakScenario(), 300);
+          }, 2600);
+        } else {
+          btn.classList.add('pattern-nudge');
+          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
+          if (window.toddlerAudio) {
+            window.toddlerAudio.speak({
+              hi: 'सोचिए, कान्हा को कौन सा प्यार भरा काम अच्छा लगेगा?',
+              en: 'Think gently! Which loving action would make Kanha happy?'
+            });
+          }
+        }
+      });
+    });
+  }
+
+  handleAnyKey() {
+    const goodBtn = this.container.querySelector('.sanskara-choice-btn[data-kind="good"]');
+    if (goodBtn) goodBtn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+  }
+}
+
 // Global Exports
 if (typeof window !== 'undefined') {
   window.BubbleGame = BubbleGame;
@@ -5668,6 +6123,10 @@ if (typeof window !== 'undefined') {
   window.PatternMalaGame = PatternMalaGame;
   window.DinacharyaGame = DinacharyaGame;
   window.HabitatGame = HabitatGame;
+  window.BalaYogaGame = BalaYogaGame;
+  window.RituChakraGame = RituChakraGame;
+  window.KolamSymmetryGame = KolamSymmetryGame;
+  window.SanskaraValuesGame = SanskaraValuesGame;
   window.CelebrationPetalShower = CelebrationPetalShower;
 }
 
@@ -5690,6 +6149,10 @@ if (typeof module !== 'undefined' && module.exports) {
     PatternMalaGame,
     DinacharyaGame,
     HabitatGame,
+    BalaYogaGame,
+    RituChakraGame,
+    KolamSymmetryGame,
+    SanskaraValuesGame,
     CelebrationPetalShower,
     ToddlerPersistence,
     ElementPool

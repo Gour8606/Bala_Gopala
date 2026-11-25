@@ -5489,6 +5489,113 @@ html, body {
 .hab-icon { font-size: 2.8rem; }
 .hab-name { font-size: 1rem; font-weight: 800; color: #1E293B; text-align: center; }
 
+/* 18-21: Bala Yoga, Ritu-Chakra, Divya Kolam, Divya Sanskara */
+.game-yoga, .game-ritu, .game-kolam, .game-sanskara {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px 16px 36px;
+  min-height: 100%;
+}
+.yoga-header h2, .ritu-header h2, .kolam-header h2, .sanskara-header h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #78350F;
+  background: rgba(255, 251, 235, 0.92);
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 3px solid #FDE68A;
+  text-align: center;
+}
+.yoga-pose-stage, .ritu-showcase-card, .sanskara-story-card {
+  background: #FFF;
+  border: 5px solid #F59E0B;
+  border-radius: 30px;
+  padding: 20px 28px;
+  max-width: 520px;
+  width: 92%;
+  text-align: center;
+  box-shadow: 0 12px 28px rgba(245, 158, 11, 0.18);
+}
+.yoga-pose-icon, .ritu-icon, .sanskara-story-icon { font-size: 3.6rem; margin-bottom: 6px; }
+.yoga-pose-name, .ritu-name { font-size: 1.35rem; font-weight: 900; color: #78350F; }
+.yoga-pose-cue, .ritu-desc, .sanskara-story-text { font-size: 1rem; font-weight: 700; color: #451A03; margin: 8px 0 14px; }
+.yoga-done-btn {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #FFF;
+  border: 3px solid #A7F3D0;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.yoga-pills-row, .ritu-wheel-grid, .kolam-stamp-bar, .sanskara-choices-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.yoga-pill-btn, .ritu-btn, .kolam-stamp-btn, .kolam-clear-btn {
+  background: #FFF;
+  border: 3px solid #FDE68A;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #78350F;
+  cursor: pointer;
+}
+.yoga-pill-btn.active, .ritu-btn.active, .kolam-stamp-btn.active {
+  background: #FEF3C7;
+  border-color: #F59E0B;
+  transform: scale(1.06);
+}
+.kolam-grid-board {
+  display: grid;
+  grid-template-columns: repeat(5, 58px);
+  gap: 8px;
+  background: #FFFBEB;
+  padding: 16px;
+  border-radius: 26px;
+  border: 4px solid #F59E0B;
+}
+.kolam-cell {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: #FFF;
+  border: 2px solid #FDE68A;
+  font-size: 1.8rem;
+  color: #D97706;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kolam-cell.is-center {
+  background: #FEF3C7;
+  border-color: #F59E0B;
+}
+.sanskara-choice-btn {
+  width: 210px;
+  padding: 16px 14px;
+  border-radius: 24px;
+  background: #FFF;
+  border: 4px solid #F59E0B;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #451A03;
+}
+.sc-opt-icon { font-size: 2.5rem; }
+.sc-opt-label { font-size: 0.95rem; text-align: center; }
+
 
 
 

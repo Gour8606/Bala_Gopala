@@ -65,7 +65,11 @@ class ToddlerApp {
       vadya: VadyaGame,
       pattern: PatternMalaGame,
       dinacharya: DinacharyaGame,
-      habitat: HabitatGame
+      habitat: HabitatGame,
+      yoga: BalaYogaGame,
+      ritu: RituChakraGame,
+      kolam: KolamSymmetryGame,
+      sanskara: SanskaraValuesGame
     };
 
     // Commercial Memory Object Pools (Zero runtime GC stutter)
@@ -1233,6 +1237,22 @@ class ToddlerApp {
       habitat: {
         hi: "प्रकृति आवास! पता लगाओ कि गऊ माता, हंस, मयूर और कमल कहाँ रहते हैं—यमुना जल, कदम्ब वन या गऊ-शाला!",
         en: "Habitat Inquiry! Discover where each Vrindavan friend lives—Yamuna water, forest trees, or the green meadow!"
+      },
+      yoga: {
+        hi: "बाल योग! कान्हा के साथ वृक्षासन, मयूरासन और पद्मासन जैसे आसान योग करके शरीर को स्वस्थ और मन को शान्त बनाओ!",
+        en: "Bala Yoga! Follow Kanha through gentle tree, peacock, cow, and lotus poses for a strong body and calm mind!"
+      },
+      ritu: {
+        hi: "ऋतु चक्र! वसन्त, ग्रीष्म, वर्षा, शरद, हेमन्त और शिशिर—भारत की ६ पावन ऋतुओं और उनके संगीत को सुनो!",
+        en: "Ritu-Chakra! Explore all 6 Vedic seasons—Spring, Summer, Monsoon, Autumn, Harvest, and Winter—with nature sounds!"
+      },
+      kolam: {
+        hi: "दिव्य कोलम! किसी भी बिन्दु को छूकर चारों दिशाओं में समान और सुन्दर मन्दिर रंगोली बनाओ!",
+        en: "Divya Kolam! Tap any dot to create magical 4-way symmetrical temple rangoli with glowing petals!"
+      },
+      sanskara: {
+        hi: "दिव्य संस्कार! प्यासी चिड़िया को जल पिलाना, गऊ माता की सेवा और मित्रों के साथ भोजन बाँटना सीखो!",
+        en: "Divya Sanskara! Choose loving, kind actions like giving water to a bird, serving Gau-Mata, and sharing with friends!"
       }
     };
   }
