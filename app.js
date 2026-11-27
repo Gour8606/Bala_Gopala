@@ -901,6 +901,13 @@ class ToddlerApp {
         if (e.key === ']' || e.key.toLowerCase() === 'v') { this.switchGame('vadya'); return; }
       }
 
+      // Skip rapid continuous key-mash presses (<260ms apart) so audio/speech never gets cancelled into silence
+      const nowMs = Date.now();
+      if (this._lastMashTime && (nowMs - this._lastMashTime) < 260) {
+        return;
+      }
+      this._lastMashTime = nowMs;
+
       this.mashCount++;
 
       // Trigger the active game's action
