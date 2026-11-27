@@ -20,4 +20,10 @@ These rules apply whenever Antigravity works on this repository:
 - Toddler lock mode must always require a 2-second hold to unlock.
 
 ## 5. Verification Protocol
-- After making changes to any file, always run `node test.js` to ensure all 44+ automated regression checks pass.
+- After making changes to any file, always run `node test.js` to ensure all automated regression checks pass.
+
+## 6. One Source of Truth
+- Adding a game means: the class in `games.js`, one entry in `this.games` and one in `GAME_CATALOG` (`app.js`), one sidebar tab in `index.html`, and its guidance text. Never hard-code the number of games.
+- Games must only touch the container element they are given (each game gets its own `.game-root`), and must not assume the stage cannot scroll.
+- A release bumps `CACHE_VERSION` (`sw.js`), the `?v=` strings (`index.html`) and `package.json` together.
+- No third-party requests: fonts live in `fonts/`, icons in `icons/`. No inline scripts or inline event handlers (strict CSP).

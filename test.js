@@ -245,7 +245,7 @@ assert(appCode.includes("this.switchGame('utsava')"), 'app.js implements keyboar
 assert(appCode.includes("this.switchGame('vadya')"), 'app.js implements keyboard shortcut for VadyaGame');
 assert(!gamesCode.includes('clearInterval(this.breathCycleTimer)'), 'games.js uses clearTimeout for breathCycleTimer to prevent WebView timer leaks');
 const swCode = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-assert(swCode.includes('bala-gopala-v4.3'), 'sw.js caches with updated v4.3 identifier');
+assert(/CACHE_VERSION = '\d+\.\d+'/.test(swCode) && swCode.includes("'bala-gopala-v' + CACHE_VERSION"), 'sw.js names its cache from a single CACHE_VERSION');
 assert(swCode.includes('ignoreSearch: true'), 'sw.js uses ignoreSearch: true for reliable offline cache-busted asset hits');
 assert(gamesCode.includes('ToddlerRewards ='), 'games.js defines ToddlerRewards sticker album system');
 assert(gamesCode.includes('pranayama-pill-btn'), 'games.js implements Bhramari Bumblebee Pranayama in DhyanaGame');
@@ -261,7 +261,7 @@ assert(indexHtml.includes('id="journey-hero-card"'), 'index.html defines guided 
 assert(indexHtml.includes('id="voice-help-btn"'), 'index.html defines on-demand voice-help-btn for toddler verbal guidance');
 assert(indexHtml.includes('id="rewards-btn"'), 'index.html defines rewards-btn in top navigation for Lila Stickers');
 assert(indexHtml.includes('id="rewards-modal"'), 'index.html defines rewards-modal for Lila Sticker Album');
-assert(indexHtml.includes('games.js?v=4.3'), 'index.html specifies cache-busting script versioning ?v=4.3');
+assert(/games\.js\?v=\d+\.\d+/.test(indexHtml), 'index.html specifies cache-busting script versioning ?v=');
 assert(indexHtml.includes('id="story-modal"'), 'index.html defines interactive Bala Lila Storyteller modal');
 assert(indexHtml.includes('id="ambience-btn"'), 'index.html defines Vrindavan Nature Ambience toggle button');
 assert(audioCode.includes('toggleNatureAmbience('), 'audio.js implements toggleNatureAmbience() for Vrindavan ambience');
@@ -297,92 +297,138 @@ assert(appCode.includes('class ToddlerInputFilter'), 'app.js defines ToddlerInpu
 assert(!/\?\./.test(appCode), 'app.js is free of optional chaining (?.)');
 assert(!/\?\?/.test(appCode), 'app.js is free of nullish coalescing (??)');
 
-// 6. Test Live HTTP Server Endpoints
-console.log('\n🌐 6. Verifying HTTP Server Endpoints...');
-const testEndpoints = [
-  '/',
-  '/manifest.json',
-  '/favicon.svg',
-  '/sw.js',
-  '/styles.css',
-  '/audio.js',
-  '/vedic-assets.js',
-  '/games.js',
-  '/app.js'
-];
-
-// Helper to serve files locally if background server is not already active
-const MIME_TYPES = {
-  '.html': 'text/html; charset=UTF-8',
-  '.css': 'text/css; charset=UTF-8',
-  '.js': 'application/javascript; charset=UTF-8',
-  '.json': 'application/json; charset=UTF-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png'
-};
-
-function runEndpointChecks(port, internalServer) {
-  let checkedEndpoints = 0;
-  testEndpoints.forEach((ep) => {
-    const req = http.get(`http://localhost:${port}${ep}`, (res) => {
-      assert(res.statusCode === 200, `Endpoint http://localhost:${port}${ep} returns HTTP 200`);
-      checkedEndpoints++;
-      if (checkedEndpoints === testEndpoints.length) {
-        if (internalServer) internalServer.close();
-        printSummary();
-      }
+// 7. Cross-file consistency (catches the drift that static string checks miss)
+console.log('\n🔗 7. Verifying Cross-File Consistency...');
+(function () {
+  // 7a. Every audio method the games call must exist on ToddlerAudio
+  const audioMethods = {};
+  (audioCode.match(/^  (?:async )?[A-Za-z_]\w*\s*\(/gm) || []).forEach((m) => {
+    audioMethods[m.trim().replace(/^async /, '').replace(/\s*\($/, '')] = true;
+  });
+  const audioProps = {};
+  (audioCode.match(/this\.\w+\s*=/g) || []).forEach((m) => { audioProps[m.slice(5).replace(/\s*=$/, '')] = true; });
+  const missingAudio = {};
+  [gamesCode, appCode].forEach((code) => {
+    (code.match(/toddlerAudio\.(\w+)/g) || []).forEach((m) => {
+      const name = m.split('.')[1];
+      if (!audioMethods[name] && !audioProps[name]) missingAudio[name] = true;
     });
+  });
+  assert(Object.keys(missingAudio).length === 0, `Every toddlerAudio member used by games.js/app.js exists (${Object.keys(missingAudio).join(', ') || 'none missing'})`);
 
-    req.on('error', (err) => {
-      assert(false, `Endpoint http://localhost:${port}${ep} error: ${err.message}`);
-      checkedEndpoints++;
-      if (checkedEndpoints === testEndpoints.length) {
-        if (internalServer) internalServer.close();
-        printSummary();
-      }
+  // 7b. Every SVG asset referenced must exist
+  const VedicAssets = require('./vedic-assets.js');
+  const missingAssets = {};
+  [gamesCode, appCode].forEach((code) => {
+    (code.match(/VedicAssets\.(\w+)/g) || []).forEach((m) => {
+      const name = m.split('.')[1];
+      if (typeof VedicAssets[name] !== 'string') missingAssets[name] = true;
     });
+    (code.match(/svgKey: '(\w+)'/g) || []).forEach((m) => {
+      const name = m.split("'")[1];
+      if (typeof VedicAssets[name] !== 'string') missingAssets[name] = true;
+    });
+  });
+  assert(Object.keys(missingAssets).length === 0, `Every VedicAssets key referenced exists (${Object.keys(missingAssets).join(', ') || 'none missing'})`);
+
+  // 7c. Registered games, catalog entries and sidebar tabs must be the same set
+  const registered = (appCode.match(/^\s{6}(\w+): \w+Game,?$/gm) || []).map((l) => l.trim().split(':')[0]).sort();
+  const catalog = (appCode.match(/\{ key: '(\w+)'/g) || []).map((m) => m.split("'")[1]).sort();
+  const tabs = (indexHtml.match(/data-game="(\w+)"/g) || []).map((m) => m.split('"')[1]).sort();
+  assert(registered.length === all22Games.length, `app.js registers ${all22Games.length} games (found ${registered.length})`);
+  assert(JSON.stringify(registered) === JSON.stringify(catalog), 'GAME_CATALOG has exactly one entry per registered game');
+  assert(JSON.stringify(registered) === JSON.stringify(tabs), 'index.html sidebar has exactly one tab per registered game');
+  assert(!/\b14 Games\b|\(14\)|सभी 14/.test(indexHtml + appCode), 'No stale "14 games" counts remain in the UI');
+
+  // 7d. One version everywhere
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+  const swVersion = (swCode.match(/CACHE_VERSION = '([\d.]+)'/) || [])[1];
+  const htmlVersions = (indexHtml.match(/\?v=([\d.]+)/g) || []).map((v) => v.slice(3));
+  assert(htmlVersions.length >= 5 && htmlVersions.every((v) => v === swVersion), `index.html asset versions all match sw.js CACHE_VERSION (${swVersion})`);
+  assert(pkg.version.indexOf(swVersion + '.') === 0, `package.json version (${pkg.version}) matches release ${swVersion}`);
+
+  // 7e. Offline completeness: everything precached or linked exists on disk, nothing is fetched from another origin
+  const precached = (swCode.match(/'\.\/[^']*'/g) || []).map((m) => m.slice(3, -1).replace(/\?v=$/, '')).filter((p) => p);
+  const missingFiles = precached.filter((p) => !fs.existsSync(path.join(__dirname, p)));
+  assert(precached.length >= 12 && missingFiles.length === 0, `Every file the service worker precaches exists (${missingFiles.join(', ') || 'all present'})`);
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8'));
+  assert(manifest.icons.every((i) => fs.existsSync(path.join(__dirname, i.src))), 'Every manifest icon file exists');
+  assert(manifest.icons.some((i) => i.type === 'image/png' && i.sizes === '192x192') && manifest.icons.some((i) => i.type === 'image/png' && i.sizes === '512x512'), 'Manifest has 192px and 512px PNG icons (required for install prompts)');
+  assert(manifest.icons.some((i) => i.purpose === 'maskable'), 'Manifest has a maskable icon');
+  assert(!/(?:src|href)="https?:\/\//.test(indexHtml) && !/url\(["']?https?:\/\//.test(stylesCode), 'index.html and styles.css load nothing from other origins');
+  assert(!/<script(?![^>]*\bsrc=)[^>]*>/.test(indexHtml) && !/\son[a-z]+="/.test(indexHtml), 'index.html has no inline scripts or inline event handlers (strict CSP)');
+  assert(indexHtml.includes('Content-Security-Policy'), 'index.html declares a Content-Security-Policy');
+})();
+
+// 8. Live HTTP server: the real server.js on an ephemeral port
+console.log('\n🌐 8. Verifying HTTP Server (real server.js)...');
+const { createServer } = require('./server.js');
+
+function request(port, options) {
+  return new Promise((resolve) => {
+    const req = http.request(Object.assign({ host: '127.0.0.1', port: port, method: 'GET' }, options), (res) => {
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
+    });
+    req.on('error', (err) => resolve({ status: 0, error: err.message, headers: {}, body: Buffer.alloc(0) }));
+    req.end();
   });
 }
 
-// Check if port 3000 is open, else spin up a temporary verification server
-let serverChecked = false;
-const probeReq = http.get('http://127.0.0.1:3000/', (res) => {
-  serverChecked = true;
-  res.resume();
-  runEndpointChecks(3000, null);
-});
+const liveServer = createServer();
+liveServer.listen(0, '127.0.0.1', async () => {
+  const port = liveServer.address().port;
+  try {
+    const publicPaths = ['/', '/manifest.json', '/favicon.svg', '/sw.js', '/styles.css', '/audio.js', '/vedic-assets.js', '/games.js', '/app.js', '/fonts/fredoka-latin.woff2', '/icons/icon-192.png', '/app.js?v=5.0'];
+    for (const p of publicPaths) {
+      const r = await request(port, { path: p });
+      assert(r.status === 200 && r.body.length > 50, `GET ${p} returns 200 with content`);
+    }
 
-probeReq.setTimeout(1000, () => {
-  if (!serverChecked) {
-    probeReq.destroy();
+    const privatePaths = ['/.git/config', '/.git/HEAD', '/server.js', '/test.js', '/package.json', '/README.md', '/GEMINI.md', '/node_modules/x.js', '/does-not-exist.js'];
+    for (const p of privatePaths) {
+      const r = await request(port, { path: p });
+      assert(r.status === 404, `GET ${p} is not served (404)`);
+    }
+
+    // Requests that used to crash the process
+    for (const p of ['/%E0%A4%A', '/%00', '/%']) {
+      const r = await request(port, { path: p });
+      assert(r.status === 400, `Malformed URL ${p} returns 400`);
+    }
+    for (const p of ['/../../etc/passwd', '/..%2f..%2fetc%2fpasswd', '/%2e%2e/%2e%2e/etc/passwd']) {
+      const r = await request(port, { path: p });
+      assert(r.status === 403 || r.status === 404, `Path traversal ${p} is refused (${r.status})`);
+    }
+    const alive = await request(port, { path: '/' });
+    assert(alive.status === 200, 'Server is still alive after malformed and hostile requests');
+
+    const post = await request(port, { path: '/', method: 'POST' });
+    assert(post.status === 405, 'POST is rejected with 405');
+    const head = await request(port, { path: '/games.js', method: 'HEAD' });
+    assert(head.status === 200 && head.body.length === 0 && parseInt(head.headers['content-length'], 10) > 1000, 'HEAD returns headers only');
+
+    const home = await request(port, { path: '/' });
+    assert(/default-src 'self'/.test(home.headers['content-security-policy'] || ''), 'Responses carry a Content-Security-Policy');
+    assert(home.headers['x-content-type-options'] === 'nosniff', 'Responses carry X-Content-Type-Options: nosniff');
+    assert(!home.headers['access-control-allow-origin'], 'No wildcard CORS header');
+    const sw = await request(port, { path: '/sw.js' });
+    assert(/no-store/.test(sw.headers['cache-control'] || ''), 'sw.js is never stored by the HTTP cache');
+
+    const gz = await request(port, { path: '/games.js', headers: { 'Accept-Encoding': 'gzip' } });
+    const rawSize = fs.statSync(path.join(__dirname, 'games.js')).size;
+    assert(gz.headers['content-encoding'] === 'gzip' && gz.body.length < rawSize / 3, `games.js is gzip-compressed (${gz.body.length} of ${rawSize} bytes)`);
+    assert(require('zlib').gunzipSync(gz.body).equals(fs.readFileSync(path.join(__dirname, 'games.js'))), 'Compressed body decompresses to the exact file');
+    const png = await request(port, { path: '/icons/icon-192.png', headers: { 'Accept-Encoding': 'gzip' } });
+    assert(!png.headers['content-encoding'], 'Already-compressed images are not re-compressed');
+    const cond = await request(port, { path: '/games.js', headers: { 'If-None-Match': gz.headers.etag } });
+    assert(cond.status === 304 && cond.body.length === 0, 'Conditional request with matching ETag returns 304');
+  } catch (e) {
+    assert(false, `Server test crashed: ${e.message}`);
   }
-});
-
-probeReq.on('error', () => {
-  if (serverChecked) return;
-  serverChecked = true;
-  // Start internal test server on ephemeral port
-  const testServer = http.createServer((req, res) => {
-    let reqPath = decodeURI(req.url.split('?')[0]);
-    if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
-    const filePath = path.join(__dirname, reqPath);
-
-    fs.stat(filePath, (err, stats) => {
-      if (err || !stats.isFile()) {
-        res.writeHead(404);
-        res.end('Not Found');
-        return;
-      }
-      const ext = path.extname(filePath).toLowerCase();
-      res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
-      fs.createReadStream(filePath).pipe(res);
-    });
-  });
-
-  testServer.listen(0, '127.0.0.1', () => {
-    const assignedPort = testServer.address().port;
-    runEndpointChecks(assignedPort, testServer);
-  });
+  liveServer.close();
+  printSummary();
 });
 
 function printSummary() {
@@ -392,7 +438,7 @@ function printSummary() {
   if (failedTests > 0) {
     process.exit(1);
   } else {
-    console.log('✨ ALL COMMERCIAL INTEGRITY AUDITS PASSED FLAWLESSLY! ✨\n');
+    console.log('✨ ALL CHECKS PASSED ✨\n');
     process.exit(0);
   }
 }

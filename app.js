@@ -17,6 +17,43 @@ class ToddlerInputFilter {
   }
 }
 
+// ==========================================================================
+// GAME CATALOG — the single source of truth for every game's icon, bilingual
+// name, sidebar subtitle and inactivity hint. Add a game here once and the
+// navbar pill, sidebar, counters and guidance nudge all pick it up.
+// ==========================================================================
+const GAME_CATALOG = [
+  { key: 'bubbles', icon: '🍯', name: { hi: 'माखन मटकी', en: 'Makhan Pop' }, sub: { hi: 'मटकी फोड़ें व माखन निकालें', en: 'Butter Pots & Churning' }, hint: { hi: 'मटकी छुओ और माखन निकालो! 🍯', en: 'Tap the pot to pop sweet butter! 🍯' } },
+  { key: 'peekaboo', icon: '🐮', name: { hi: 'गऊ सेवा', en: 'Gau-Seva' }, sub: { hi: 'पवित्र गऊ व नन्हा बछड़ा', en: 'Holy Cow & Calf Peekaboo' }, hint: { hi: 'गऊ मैया को पुकारो! 🐮', en: 'Call holy Gau Mata! 🐮' } },
+  { key: 'xylophone', icon: '🪈', name: { hi: 'बांसुरी व जल', en: 'Bansuri & Jal' }, sub: { hi: 'शास्त्रीय राग व जल तरंग', en: 'Classical Ragas & Water Bowls' }, hint: { hi: 'बांसुरी बजाओ! 🪈', en: 'Play sweet bansuri notes! 🪈' } },
+  { key: 'aarti', icon: '🪔', name: { hi: 'संध्या आरती', en: 'Sandhya Aarti' }, sub: { hi: 'दीपक ज्योति व घंटी नाद', en: 'Diya Circular Offering' }, hint: { hi: 'दीपक को घुमाएं! 🪔', en: 'Wave the golden aarti diya! 🪔' } },
+  { key: 'shapes', icon: '🪷', name: { hi: 'पुष्पार्चना', en: 'Pushparchana' }, sub: { hi: 'पुष्प आकार व रंग मिलान', en: 'Flower Shape & Color Match' }, hint: { hi: 'पुष्प को कान्हा पर सजाएं! 🪷', en: 'Offer flowers to Kanha! 🪷' } },
+  { key: 'sparkles', icon: '✨', name: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli' }, sub: { hi: 'दीपक ज्योति व प्रकाश रेखा', en: 'Glowing Light Painting' }, hint: { hi: 'उंगली से रंगोली बनाएं! ✨', en: 'Draw glowing patterns! ✨' } },
+  { key: 'shringar', icon: '👑', name: { hi: 'कान्हा श्रृंगार', en: 'Shringar' }, sub: { hi: 'स्नान, चन्दन व मोर पंख', en: 'Sacred Snana & Royal Adornment' }, hint: { hi: 'कान्हा को मोर पंख पहनाएं! 👑', en: 'Adorn Kanha with love! 👑' } },
+  { key: 'akshara', icon: '🔤', name: { hi: 'दिव्य अक्षर', en: 'Akshara' }, sub: { hi: 'अ आ इ ई, A-Z व १-१० गिनती', en: 'Devanagari/English & 1-10 Counting' }, hint: { hi: 'अक्षर छुओ और सुनो! 🔤', en: 'Touch any letter to hear it! 🔤' } },
+  { key: 'prakriti', icon: '🌿', name: { hi: 'प्रकृति सेवा', en: 'Prakriti Care' }, sub: { hi: 'तुलसी सिंचन व ४-रंग टोकरी', en: 'Tulsi Nurture & 4-Color Sort' }, hint: { hi: 'तुलसी मैया को जल दें! 🌿', en: 'Nurture holy Tulsi! 🌿' } },
+  { key: 'dhyana', icon: '🧘', name: { hi: 'ध्यान व भाव', en: 'Mindfulness' }, sub: { hi: 'कमल प्राणायाम व ५ पावन भाव', en: 'Mindful Breathing & 5 Sacred Emotions' }, hint: { hi: 'कमल के साथ गहरी सांस लें! 🧘', en: 'Breathe gently with the lotus! 🧘' } },
+  { key: 'matki', icon: '🏺', name: { hi: 'मटकी शिखर', en: 'Matki Tower' }, sub: { hi: 'मोंटेसरी आकार व संतुलन', en: 'Montessori Pink Tower Seriation' }, hint: { hi: 'मटकी जोड़कर शिखर बनाएं! 🏺', en: 'Stack pots to build tower! 🏺' } },
+  { key: 'bhuta', icon: '🌍', name: { hi: 'पंच महाभूत', en: 'Pancha Bhuta' }, sub: { hi: 'पृथ्वी, जल, अग्नि, वायु, आकाश', en: 'Earth, Water, Fire, Air & Space' }, hint: { hi: 'पंच तत्वों को छुएं! 🌍', en: 'Explore sacred elements! 🌍' } },
+  { key: 'utsava', icon: '🪢', name: { hi: 'उत्सव व झूला', en: 'Festivals' }, sub: { hi: 'जन्माष्टमी झूला व फूलों की होली', en: 'Janmashtami Swing & Holi Flowers' }, hint: { hi: 'कान्हा का झूला झुलाएं! 🪢', en: "Gently swing Kanha's jhula! 🪢" } },
+  { key: 'vadya', icon: '🪕', name: { hi: 'दिव्य वाद्य', en: 'Instruments' }, sub: { hi: 'वीणा, मृदंग, बांसुरी व मंजीरा', en: 'Veena, Mridangam & Manjira Taal' }, hint: { hi: 'वीणा या मृदंग बजाओ! 🪕', en: 'Play holy Veena or Mridangam! 🪕' } },
+  { key: 'pattern', icon: '📿', name: { hi: 'माला क्रम', en: 'Pattern Mala' }, sub: { hi: 'मोंटेसरी क्रम व तर्क', en: 'Montessori Sequencing & Logic' }, hint: { hi: 'अगला मोती चुनो! 📿', en: 'Pick the next bead! 📿' } },
+  { key: 'dinacharya', icon: '🌞', name: { hi: 'दिनचर्या', en: 'Dinacharya' }, sub: { hi: 'सुबह से रात की अच्छी आदतें', en: 'Practical Life Daily Routine' }, hint: { hi: 'अगली अच्छी आदत चुनो! 🌞', en: 'Choose the next good habit! 🌞' } },
+  { key: 'habitat', icon: '🏞️', name: { hi: 'प्रकृति आवास', en: 'Habitats' }, sub: { hi: 'कौन कहाँ रहता है?', en: 'IB Inquiry: Who Lives Where?' }, hint: { hi: 'बताओ, यह कहाँ रहता है? 🏞️', en: 'Where does this friend live? 🏞️' } },
+  { key: 'yoga', icon: '🤸', name: { hi: 'बाल योग', en: 'Bala Yoga' }, sub: { hi: 'पशु-पक्षी योगासन', en: 'NEP Panchakosha Animal Poses' }, hint: { hi: 'कान्हा के साथ योग करो! 🤸', en: 'Stretch with Kanha! 🤸' } },
+  { key: 'ritu', icon: '🌦️', name: { hi: 'ऋतु चक्र', en: 'Ritu-Chakra' }, sub: { hi: 'भारत की ६ पावन ऋतुएँ', en: 'Waldorf 6 Vedic Seasons' }, hint: { hi: 'कोई ऋतु छुओ और सुनो! 🌦️', en: 'Tap a season to hear it! 🌦️' } },
+  { key: 'kolam', icon: '💠', name: { hi: 'दिव्य कोलम', en: 'Divya Kolam' }, sub: { hi: 'चार दिशा दर्पण रंगोली', en: 'Reggio 4-Way Mirror Symmetry' }, hint: { hi: 'बिन्दु छूकर कोलम बनाओ! 💠', en: 'Tap the dots to draw a kolam! 💠' } },
+  { key: 'sanskara', icon: '💖', name: { hi: 'दिव्य संस्कार', en: 'Sanskara' }, sub: { hi: 'दया, अहिंसा व बाँटना', en: 'Kindness, Ahimsa & Sharing' }, hint: { hi: 'प्यार भरा काम चुनो! 💖', en: 'Choose the kind action! 💖' } },
+  { key: 'mandir', icon: '🛕', name: { hi: 'मन्दिर शिल्प', en: 'Mandir Builder' }, sub: { hi: 'आकार जोड़कर मन्दिर बनाओ', en: 'Froebel Shapes & Architecture' }, hint: { hi: 'आकार जोड़कर मन्दिर बनाओ! 🛕', en: 'Stack shapes to build the temple! 🛕' } }
+];
+
+const GAME_CATALOG_BY_KEY = {};
+GAME_CATALOG.forEach(function (entry) { GAME_CATALOG_BY_KEY[entry.key] = entry; });
+
+// Modals that close on Escape or a tap on the dimmed backdrop (the start and
+// screen-time-finished overlays are deliberately not dismissible this way).
+const DISMISSIBLE_MODAL_IDS = ['parent-gate-modal', 'timer-modal', 'parent-modal', 'rewards-modal', 'story-modal'];
+
 class ToddlerApp {
   constructor() {
     this.stage = document.getElementById('game-stage');
@@ -47,6 +84,11 @@ class ToddlerApp {
     // Parent Gate state
     this.gatePendingAction = null;
     this.gateCorrectAnswer = 0;
+    this.gateLockedUntil = 0;
+    this.gateCooldownTimer = null;
+
+    // Screen-time deadline (wall clock, so a backgrounded tab cannot stretch the session)
+    this.timerDeadline = 0;
 
     this.games = {
       bubbles: BubbleGame,
@@ -86,7 +128,18 @@ class ToddlerApp {
     this.bindBabyMashKeyboard();
     this.bindKanhaGhungrooFootsteps();
     this.bindSafetyGestures();
+    this.bindModalDismissal();
+    this.bindFullscreenState();
+    this.registerServiceWorker();
     this.resetInactivityGuidanceTimer();
+  }
+
+  getLang() {
+    return (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+  }
+
+  getGameCount() {
+    return Object.keys(this.games).length;
   }
 
   restoreSavedPreferences() {
@@ -374,7 +427,7 @@ class ToddlerApp {
       holdTimeout = setTimeout(() => {
         this.toggleChildLock(false);
         this.floatingUnlockHandle.classList.remove('holding');
-      }, 1800);
+      }, 2000);
     });
 
     const cancelHold = () => {
@@ -439,6 +492,8 @@ class ToddlerApp {
       this.requestParentAccess(() => {
         this.screenTimeDoneModal.classList.add('hidden');
         if (this.isShantiMode) this.toggleShantiMode(false);
+        // "Play More" grants another session of the same length rather than unlimited play
+        if (this.timerMinutes > 0) this.setScreenTimeLimit(this.timerMinutes, { silent: true });
       });
     });
 
@@ -515,7 +570,8 @@ class ToddlerApp {
   }
 
   // GENTLE SCREEN TIME MANAGER
-  setScreenTimeLimit(minutes) {
+  setScreenTimeLimit(minutes, options) {
+    const silent = !!(options && options.silent);
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
@@ -526,29 +582,37 @@ class ToddlerApp {
       window.ToddlerPersistence.set('screen_time_limit', minutes);
     }
     if (minutes <= 0) {
+      this.timerDeadline = 0;
       this.timerStatusPill.classList.add('hidden');
       return;
     }
 
+    this.timerDeadline = Date.now() + minutes * 60000;
     this.timerSecondsRemaining = minutes * 60;
     this.timerStatusPill.classList.remove('hidden');
     this.updateTimerDisplay();
 
-    this.timerInterval = setInterval(() => {
-      this.timerSecondsRemaining--;
-      this.updateTimerDisplay();
+    this.timerInterval = setInterval(() => this.tickScreenTime(), 1000);
 
-      if (this.timerSecondsRemaining <= 0) {
-        clearInterval(this.timerInterval);
-        this.timerInterval = null;
-        this.triggerScreenTimeFinished();
-      }
-    }, 1000);
+    if (!silent) {
+      window.toddlerAudio.speak({
+        hi: `${minutes} मिनट का बाल समय निर्धारित।`,
+        en: `${minutes} minutes screen time set.`
+      });
+    }
+  }
 
-    window.toddlerAudio.speak({
-      hi: `${minutes} मिनट का बाल समय निर्धारित।`,
-      en: `${minutes} minutes screen time set.`
-    });
+  tickScreenTime() {
+    if (!this.timerDeadline) return;
+    this.timerSecondsRemaining = Math.max(0, Math.ceil((this.timerDeadline - Date.now()) / 1000));
+    this.updateTimerDisplay();
+
+    if (this.timerSecondsRemaining <= 0) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+      this.timerDeadline = 0;
+      this.triggerScreenTimeFinished();
+    }
   }
 
   updateTimerDisplay() {
@@ -582,28 +646,40 @@ class ToddlerApp {
   }
 
   // PARENT GATE CHILD LOCK VERIFICATION
+  // A multiplication question with six answers. A wrong answer locks the keypad
+  // for a few seconds and asks a new question, so random toddler tapping cannot
+  // work its way through.
   requestParentAccess(onSuccessCallback) {
     this.gatePendingAction = onSuccessCallback;
+    this.renderParentGateQuestion();
+    this.parentGateModal.classList.remove('hidden');
+  }
 
-    // Generate simple arithmetic: e.g. 3 + 4 = 7
-    const n1 = Math.floor(Math.random() * 5) + 2;
-    const n2 = Math.floor(Math.random() * 5) + 1;
-    this.gateCorrectAnswer = n1 + n2;
+  renderParentGateQuestion() {
+    const lang = this.getLang();
+    const n1 = Math.floor(Math.random() * 6) + 4; // 4..9
+    const n2 = Math.floor(Math.random() * 6) + 4; // 4..9
+    this.gateCorrectAnswer = n1 * n2;
 
-    this.gateMathQuestion.textContent = `${n1} + ${n2} = ?`;
+    if (this.gateQuestionText) {
+      this.gateQuestionText.textContent = lang === 'hi' ? 'आगे बढ़ने के लिए हल करें:' : 'To continue, please solve:';
+    }
+    this.gateMathQuestion.textContent = `${n1} × ${n2} = ?`;
 
-    // 4 options including correct answer
-    const options = new Set([this.gateCorrectAnswer]);
-    while (options.size < 4) {
-      const wrong = this.gateCorrectAnswer + (Math.floor(Math.random() * 7) - 3);
-      if (wrong > 0 && wrong !== this.gateCorrectAnswer) {
-        options.add(wrong);
-      }
+    // Six options including the correct answer; decoys are near misses
+    const options = [this.gateCorrectAnswer];
+    const decoyPool = [n1 * (n2 + 1), n1 * (n2 - 1), (n1 + 1) * n2, (n1 - 1) * n2, n1 * n2 + 2, n1 * n2 - 2, n1 + n2, n1 * n2 + 10, n1 * n2 - 10];
+    while (options.length < 6 && decoyPool.length > 0) {
+      const pick = decoyPool.splice(Math.floor(Math.random() * decoyPool.length), 1)[0];
+      if (pick > 0 && options.indexOf(pick) === -1) options.push(pick);
+    }
+    // Fisher-Yates shuffle
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = options[i]; options[i] = options[j]; options[j] = tmp;
     }
 
-    const shuffled = Array.from(options).sort(() => Math.random() - 0.5);
-
-    this.gateKeypad.innerHTML = shuffled.map(num => `
+    this.gateKeypad.innerHTML = options.map(num => `
       <button class="gate-num-btn" data-val="${num}">${num}</button>
     `).join('');
 
@@ -611,23 +687,41 @@ class ToddlerApp {
     btns.forEach(btn => {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        if (Date.now() < this.gateLockedUntil) return;
         const selected = parseInt(btn.dataset.val, 10);
         if (selected === this.gateCorrectAnswer) {
           window.toddlerAudio.playTempleBell(1046.5);
           this.parentGateModal.classList.add('hidden');
-          if (typeof this.gatePendingAction === 'function') {
-            this.gatePendingAction();
-          }
+          const action = this.gatePendingAction;
           this.gatePendingAction = null;
+          if (typeof action === 'function') action();
         } else {
-          btn.classList.add('wrong');
-          window.toddlerAudio.playDamru();
-          setTimeout(() => btn.classList.remove('wrong'), 500);
+          this.lockParentGateAfterWrongAnswer(btn);
         }
       });
     });
+  }
 
-    this.parentGateModal.classList.remove('hidden');
+  lockParentGateAfterWrongAnswer(btn) {
+    const lang = this.getLang();
+    const cooldownMs = 4000;
+    this.gateLockedUntil = Date.now() + cooldownMs;
+    btn.classList.add('wrong');
+    this.gateKeypad.classList.add('gate-cooldown');
+    if (this.gateQuestionText) {
+      this.gateQuestionText.textContent = lang === 'hi' ? 'गलत उत्तर। कृपया कुछ क्षण रुकें…' : 'Not quite. Please wait a moment…';
+    }
+    window.toddlerAudio.playDamru();
+
+    if (this.gateCooldownTimer) clearTimeout(this.gateCooldownTimer);
+    this.gateCooldownTimer = setTimeout(() => {
+      this.gateCooldownTimer = null;
+      this.gateKeypad.classList.remove('gate-cooldown');
+      // Only re-ask if the gate is still open and waiting for an answer
+      if (this.gatePendingAction && !this.parentGateModal.classList.contains('hidden')) {
+        this.renderParentGateQuestion();
+      }
+    }, cooldownMs);
   }
 
   // CHILD LOCK (Toddler UI Lock)
@@ -669,37 +763,21 @@ class ToddlerApp {
   }
 
   updateLanguageUI() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-    const tabTranslations = {
-      bubbles: { hi: 'माखन मटकी', en: 'Makhan Pop', sub: { hi: 'मटकी फोड़ें व माखन निकालें', en: 'Butter Pots & Churning' } },
-      peekaboo: { hi: 'गऊ सेवा', en: 'Gau-Seva', sub: { hi: 'पवित्र गऊ व नन्हा बछड़ा', en: 'Holy Cow & Calf Peekaboo' } },
-      xylophone: { hi: 'बांसुरी व जल', en: 'Bansuri & Jal', sub: { hi: 'शास्त्रीय राग व जल तरंग', en: 'Classical Ragas & Water Bowls' } },
-      aarti: { hi: 'संध्या आरती', en: 'Sandhya Aarti', sub: { hi: 'दीपक ज्योति व घंटी नाद', en: 'Diya Circular Offering' } },
-      shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana', sub: { hi: 'पुष्प आकार व रंग मिलान', en: 'Flower Shape & Color Match' } },
-      sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli', sub: { hi: 'दीपक ज्योति व प्रकाश रेखा', en: 'Glowing Light Painting' } },
-      shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar', sub: { hi: 'स्नान, चन्दन व मोर पंख', en: 'Sacred Snana & Royal Adornment' } },
-      akshara: { hi: 'दिव्य अक्षर', en: 'Akshara', sub: { hi: 'अ आ इ ई, A-Z व १-१० गिनती', en: 'Devanagari/English & 1-10 Counting' } },
-      prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care', sub: { hi: 'तुलसी सिंचन व ४-रंग टोकरी', en: 'Tulsi Nurture & 4-Color Sort' } },
-      dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness', sub: { hi: 'कमल प्राणायाम व ५ पावन भाव', en: 'Mindful Breathing & 5 Sacred Emotions' } },
-      matki: { hi: 'मटकी शिखर', en: 'Matki Tower', sub: { hi: 'मोंटेसरी आकार व संतुलन', en: 'Montessori Pink Tower Seriation' } },
-      bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta', sub: { hi: 'पृथ्वी, जल, अग्नि, वायु, आकाश', en: 'Earth, Water, Fire, Air & Space' } },
-      utsava: { hi: 'उत्सव व झूला', en: 'Festivals', sub: { hi: 'जन्माष्टमी झूला व फूलों की होली', en: 'Janmashtami Swing & Holi Flowers' } },
-      vadya: { hi: 'दिव्य वाद्य', en: 'Instruments', sub: { hi: 'वीणा, मृदंग, बांसुरी व मंजीरा', en: 'Veena, Mridangam & Manjira Taal' } }
-    };
+    const lang = this.getLang();
+    const count = this.getGameCount();
+    document.documentElement.lang = lang === 'hi' ? 'hi' : 'en';
 
     if (this.tabs) {
       this.tabs.forEach(tab => {
-        const gameKey = tab.dataset.game;
-        if (tabTranslations[gameKey]) {
-          const span = tab.querySelector('.tab-text');
-          if (span) {
-            span.textContent = tabTranslations[gameKey][lang] || tabTranslations[gameKey].en;
-          }
-          const subSpan = tab.querySelector('.tab-sub');
-          if (subSpan && tabTranslations[gameKey].sub) {
-            subSpan.textContent = tabTranslations[gameKey].sub[lang] || tabTranslations[gameKey].sub.en;
-          }
-        }
+        const entry = GAME_CATALOG_BY_KEY[tab.dataset.game];
+        if (!entry) return;
+        const span = tab.querySelector('.tab-text');
+        if (span) span.textContent = entry.name[lang] || entry.name.en;
+        const subSpan = tab.querySelector('.tab-sub');
+        if (subSpan) subSpan.textContent = entry.sub[lang] || entry.sub.en;
+        const iconSpan = tab.querySelector('.tab-icon');
+        if (iconSpan) iconSpan.textContent = entry.icon;
+        tab.title = entry.name.en;
       });
     }
 
@@ -707,11 +785,21 @@ class ToddlerApp {
       this.langIndicator.textContent = lang === 'hi' ? '🇮🇳 हिन्दी' : '🌐 English';
     }
 
-    const toggleLabel = document.getElementById('toggle-library-label');
-    if (toggleLabel) {
-      toggleLabel.textContent = lang === 'hi' ? 'खेल (14 Games)' : 'Games (14)';
-    }
+    const setText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
 
+    setText('toggle-library-label', lang === 'hi' ? `खेल (${count})` : `Games (${count})`);
+    setText('sidebar-title-text', lang === 'hi' ? `लीला संगम (${count} खेल)` : `Play Library (${count} Games)`);
+    setText('age-filter-all-label', lang === 'hi' ? '🌟 सभी' : '🌟 All');
+    setText('free-play-label', lang === 'hi' ? `🎨 सभी ${count} खेल खोलें (Free Play)` : `🎨 Open Free Play (All ${count} Games)`);
+    setText('journey-nav-label', lang === 'hi' ? 'दैनिक यात्रा' : 'Daily Journey');
+    setText('journey-card-desc', lang === 'hi' ? 'दैनिक लीला: १. आरती ➔ २. मोंटेसरी ➔ ३. संगीत ➔ ४. ध्यान' : 'Curated 4-Step Routine: Pranam ➔ Montessori ➔ Music ➔ Shanti');
+
+    if (this.sidebarToggleBtn) {
+      this.sidebarToggleBtn.title = lang === 'hi' ? `सभी ${count} खेल खोलें` : `Open the library of all ${count} games`;
+    }
     if (this.voiceHelpLabel) {
       this.voiceHelpLabel.textContent = lang === 'hi' ? 'निर्देश / Help' : 'How to Play';
     }
@@ -719,24 +807,16 @@ class ToddlerApp {
       this.voiceHelpBtn.title = lang === 'hi' ? 'खेलने के निर्देश सुनें (Listen to Voice Guidance)' : 'Listen to Voice Guidance (How to Play)';
     }
 
-    const sidebarTitle = document.getElementById('sidebar-title-text');
-    if (sidebarTitle) {
-      sidebarTitle.textContent = lang === 'hi' ? 'लीला संगम (14 Games)' : 'Play Library (14 Games)';
-    }
+    this.updateActiveGamePill();
+    if (this.isJourneyMode) this.updateJourneyUI();
+  }
 
-    const journeyNavLabel = document.getElementById('journey-nav-label');
-    if (journeyNavLabel) {
-      journeyNavLabel.textContent = lang === 'hi' ? 'दैनिक यात्रा' : 'Daily Journey';
-    }
-
-    const journeyDesc = document.getElementById('journey-card-desc');
-    if (journeyDesc) {
-      journeyDesc.textContent = lang === 'hi' ? 'दैनिक लीला: १. आरती ➔ २. मोंटेसरी ➔ ३. संगीत ➔ ४. ध्यान' : 'Curated 4-Step Routine: Pranam ➔ Montessori ➔ Music ➔ Shanti';
-    }
-
-    if (this.activeGameName && tabTranslations[this.currentGameKey]) {
-      this.activeGameName.textContent = tabTranslations[this.currentGameKey][lang] || tabTranslations[this.currentGameKey].en;
-    }
+  updateActiveGamePill() {
+    const entry = GAME_CATALOG_BY_KEY[this.currentGameKey];
+    if (!entry) return;
+    const lang = this.getLang();
+    if (this.activeGameIcon) this.activeGameIcon.textContent = entry.icon;
+    if (this.activeGameName) this.activeGameName.textContent = entry.name[lang] || entry.name.en;
   }
 
   getGameFromHash() {
@@ -770,6 +850,11 @@ class ToddlerApp {
 
     const targetGame = this.getGameFromHash();
     this.switchGame(targetGame);
+
+    // A limit chosen in an earlier session keeps applying until a parent changes it
+    if (this.timerMinutes > 0 && !this.timerInterval) {
+      this.setScreenTimeLimit(this.timerMinutes, { silent: true });
+    }
   }
 
   // BABY MASH ANY-KEY LISTENER
@@ -780,15 +865,24 @@ class ToddlerApp {
         e.preventDefault();
       }
 
+      // A held-down key auto-repeats ~30 times a second; one press is one action
+      if (e.repeat) return;
+
       if (!this.startOverlay.classList.contains('hidden')) {
         this.startGame();
         return;
       }
 
-      if (!this.parentModal.classList.contains('hidden') && e.key === 'Escape') {
-        this.parentModal.classList.add('hidden');
+      if (e.key === 'Escape') {
+        this.closeTopDismissibleModal();
         return;
       }
+
+      // While a grown-up dialog is open, keys must not play the game behind it
+      if (this.isAnyModalOpen()) return;
+
+      // Game-switching shortcuts are a grown-up feature: off while the play lock is on
+      if ((e.ctrlKey || e.altKey) && this.isChildLocked) return;
 
       if (e.ctrlKey || e.altKey) {
         if (e.key === '1') { this.switchGame('bubbles'); return; }
@@ -939,42 +1033,20 @@ class ToddlerApp {
 
     window.toddlerAudio.playTempleBell(880);
 
+    // Every game gets its own fresh root element. A timer left over from the
+    // previous game can then only touch its own detached root, never the stage
+    // of the game that is now on screen.
+    this.stage.innerHTML = '';
+    const gameRoot = document.createElement('div');
+    gameRoot.className = 'game-root';
+    gameRoot.dataset.game = key;
+    this.stage.appendChild(gameRoot);
+
     const GameClass = this.games[key];
-    this.currentGame = new GameClass(this.stage);
+    this.currentGame = new GameClass(gameRoot);
     this.currentGame.start();
 
-    // Update active game pill in top navbar
-    const gameIcons = {
-      bubbles: '🍯', peekaboo: '🐮', xylophone: '🪈', aarti: '🪔',
-      shapes: '🪷', sparkles: '✨', shringar: '👑', akshara: '🔤',
-      prakriti: '🌿', dhyana: '🧘', matki: '🏺', bhuta: '🌍',
-      utsava: '🪢', vadya: '🪕'
-    };
-    if (this.activeGameIcon && gameIcons[key]) {
-      this.activeGameIcon.textContent = gameIcons[key];
-    }
-    if (this.activeGameName) {
-      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-      const names = {
-        bubbles: { hi: 'माखन मटकी', en: 'Makhan Pop' },
-        peekaboo: { hi: 'गऊ सेवा', en: 'Gau-Seva' },
-        xylophone: { hi: 'बांसुरी व जल', en: 'Bansuri & Jal' },
-        aarti: { hi: 'संध्या आरती', en: 'Sandhya Aarti' },
-        shapes: { hi: 'पुष्पार्चना', en: 'Pushparchana' },
-        sparkles: { hi: 'दिव्य रंगोली', en: 'Divya Rangoli' },
-        shringar: { hi: 'कान्हा श्रृंगार', en: 'Shringar' },
-        akshara: { hi: 'दिव्य अक्षर', en: 'Akshara' },
-        prakriti: { hi: 'प्रकृति सेवा', en: 'Prakriti Care' },
-        dhyana: { hi: 'ध्यान व भाव', en: 'Mindfulness' },
-        matki: { hi: 'मटकी शिखर', en: 'Matki Tower' },
-        bhuta: { hi: 'पंच महाभूत', en: 'Pancha Bhuta' },
-        utsava: { hi: 'उत्सव व झूला', en: 'Festivals' },
-        vadya: { hi: 'दिव्य वाद्य', en: 'Instruments' }
-      };
-      if (names[key]) {
-        this.activeGameName.textContent = names[key][lang] || names[key].en;
-      }
-    }
+    this.updateActiveGamePill();
 
     // Auto-close sidebar drawer on screens < 1024px for full immersion
     if (window.innerWidth < 1024) {
@@ -1025,14 +1097,24 @@ class ToddlerApp {
       });
     }
 
-    // Filter category headers in sidebar
-    const catHeaders = document.querySelectorAll('.sidebar-category-header');
-    if (catHeaders) {
-      catHeaders.forEach(header => {
-        const cat = header.dataset.cat;
-        const matches = (this.currentAgeFilter === 'all' || cat === this.currentAgeFilter);
-        header.classList.toggle('filtered-out', !matches);
+    // A category header stays visible while at least one of its games is listed
+    const list = document.getElementById('sidebar-game-list');
+    if (list) {
+      let header = null;
+      let visibleInCategory = 0;
+      const flush = () => {
+        if (header) header.classList.toggle('filtered-out', visibleInCategory === 0);
+      };
+      Array.prototype.forEach.call(list.children, (child) => {
+        if (child.classList.contains('sidebar-category-header')) {
+          flush();
+          header = child;
+          visibleInCategory = 0;
+        } else if (child.classList.contains('tab-btn') && !child.classList.contains('filtered-out')) {
+          visibleInCategory++;
+        }
       });
+      flush();
     }
 
     if (window.toddlerAudio) {
@@ -1100,7 +1182,7 @@ class ToddlerApp {
       this.journeyNextFloatingBtn.classList.add('hidden');
     }
     if (this.journeyStepBadge) {
-      this.journeyStepBadge.textContent = `4 / 4 ✨`;
+      this.journeyStepBadge.textContent = `${this.journeySteps.length} / ${this.journeySteps.length} ✨`;
     }
 
     // Shower of flower petals
@@ -1141,24 +1223,9 @@ class ToddlerApp {
     if (this.isChildLocked || (this.startOverlay && !this.startOverlay.classList.contains('hidden'))) return;
     if (this.guidanceNudge) {
       this.guidanceNudge.classList.remove('hidden');
-      const hints = {
-        bubbles: { hi: "मटकी छुओ और माखन निकालो! 🍯", en: "Tap the pot to pop sweet butter! 🍯" },
-        peekaboo: { hi: "गऊ मैया को पुकारो! 🐮", en: "Call holy Gau Mata! 🐮" },
-        xylophone: { hi: "बांसुरी बजाओ! 🪈", en: "Play sweet bansuri notes! 🪈" },
-        aarti: { hi: "दीपक को घुमाएं! 🪔", en: "Wave the golden aarti diya! 🪔" },
-        shapes: { hi: "पुष्प को कान्हा पर सजाएं! 🪷", en: "Offer flowers to Kanha! 🪷" },
-        sparkles: { hi: "उंगली से रंगोली बनाएं! ✨", en: "Draw glowing patterns! ✨" },
-        shringar: { hi: "कान्हा को मोर पंख पहनाएं! 👑", en: "Adorn Kanha with love! 👑" },
-        akshara: { hi: "अक्षर छुओ और सुनो! 🔤", en: "Touch any letter to hear it! 🔤" },
-        prakriti: { hi: "तुलसी मैया को जल दें! 🌿", en: "Nurture holy Tulsi! 🌿" },
-        dhyana: { hi: "कमल के साथ गहरी सांस लें! 🧘", en: "Breathe gently with the lotus! 🧘" },
-        matki: { hi: "मटकी जोड़कर शिखर बनाएं! 🏺", en: "Stack pots to build tower! 🏺" },
-        bhuta: { hi: "पंच तत्वों को छुएं! 🌍", en: "Explore sacred elements! 🌍" },
-        utsava: { hi: "कान्हा का झूला झुलाएं! 🪢", en: "Gently swing Kanha's jhula! 🪢" },
-        vadya: { hi: "वीणा या मृदंग बजाओ! 🪕", en: "Play holy Veena or Mridangam! 🪕" }
-      };
-      const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-      const prompt = hints[this.currentGameKey] || { hi: "यहाँ छुओ! खेलो कान्हा के संग!", en: "Tap here to play with Kanha!" };
+      const lang = this.getLang();
+      const entry = GAME_CATALOG_BY_KEY[this.currentGameKey];
+      const prompt = (entry && entry.hint) ? entry.hint : { hi: "यहाँ छुओ! खेलो कान्हा के संग!", en: "Tap here to play with Kanha!" };
       if (this.nudgeText) {
         this.nudgeText.textContent = prompt[lang] || prompt.en;
       }
@@ -1458,17 +1525,98 @@ class ToddlerApp {
   }
 
   toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.warn("Fullscreen request error:", err);
-      });
-      this.fullscreenBtn.textContent = '✖';
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
+    const doc = document;
+    const root = doc.documentElement;
+    const isFull = !!(doc.fullscreenElement || doc.webkitFullscreenElement);
+    try {
+      if (!isFull) {
+        const request = root.requestFullscreen || root.webkitRequestFullscreen;
+        if (!request) return;
+        const result = request.call(root);
+        if (result && typeof result.catch === 'function') {
+          result.catch((err) => console.warn('Fullscreen request error:', err));
+        }
+      } else {
+        const exit = doc.exitFullscreen || doc.webkitExitFullscreen;
+        if (exit) exit.call(doc);
       }
-      this.fullscreenBtn.textContent = '⛶';
+    } catch (err) {
+      console.warn('Fullscreen toggle error:', err);
     }
+  }
+
+  // Fullscreen can also end via Esc or a system gesture, so the button follows
+  // the browser's real state. iPhone Safari has no page fullscreen: hide the button.
+  bindFullscreenState() {
+    if (!this.fullscreenBtn) return;
+    const root = document.documentElement;
+    if (!root.requestFullscreen && !root.webkitRequestFullscreen) {
+      this.fullscreenBtn.classList.add('hidden');
+      return;
+    }
+    const sync = () => {
+      const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      this.fullscreenBtn.textContent = isFull ? '✖' : '⛶';
+      this.fullscreenBtn.title = isFull ? 'Exit Fullscreen' : 'Toggle Fullscreen';
+    };
+    document.addEventListener('fullscreenchange', sync);
+    document.addEventListener('webkitfullscreenchange', sync);
+  }
+
+  // Grown-up dialogs close with Escape or a tap on the dimmed backdrop
+  isAnyModalOpen() {
+    return DISMISSIBLE_MODAL_IDS.concat(['screen-time-done-modal']).some((id) => {
+      const el = document.getElementById(id);
+      return el && !el.classList.contains('hidden');
+    });
+  }
+
+  closeModal(modal) {
+    if (!modal || modal.classList.contains('hidden')) return;
+    modal.classList.add('hidden');
+    if (modal === this.parentGateModal) this.gatePendingAction = null;
+    if (modal === this.storyModal && window.toddlerAudio && window.toddlerAudio.stopSpeech) {
+      window.toddlerAudio.stopSpeech();
+    }
+  }
+
+  closeTopDismissibleModal() {
+    for (let i = 0; i < DISMISSIBLE_MODAL_IDS.length; i++) {
+      const el = document.getElementById(DISMISSIBLE_MODAL_IDS[i]);
+      if (el && !el.classList.contains('hidden')) {
+        this.closeModal(el);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bindModalDismissal() {
+    DISMISSIBLE_MODAL_IDS.forEach((id) => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.addEventListener('pointerdown', (e) => {
+        if (e.target === modal) {
+          e.preventDefault();
+          this.closeModal(modal);
+        }
+      });
+    });
+  }
+
+  // Offline support. Registered here (not inline in index.html) so the page can
+  // run under a strict Content-Security-Policy with no inline scripts.
+  registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    const register = () => {
+      navigator.serviceWorker.register('./sw.js').catch((err) => {
+        console.warn('Service Worker registration failed:', err);
+      });
+    };
+    if (document.readyState === 'complete') register();
+    else window.addEventListener('load', register);
   }
 }
 
@@ -1482,5 +1630,5 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ToddlerApp, ToddlerInputFilter };
+  module.exports = { ToddlerApp, ToddlerInputFilter, GAME_CATALOG };
 }

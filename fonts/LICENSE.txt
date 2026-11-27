@@ -1,0 +1,6 @@
+The Fredoka and Quicksand typefaces are distributed by their respective project
+authors under the SIL Open Font License, Version 1.1 (https://openfontlicense.org).
+
+The .woff2 files in this folder are the latin and latin-ext subsets served by
+Google Fonts, self-hosted here so the app makes no third-party requests and
+works fully offline.

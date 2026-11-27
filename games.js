@@ -3143,16 +3143,16 @@ class AksharaGame {
         window.toddlerAudio.playKadambaBreeze();
         break;
       case 'jaltarang':
-        window.toddlerAudio.playJalTarangNote();
+        window.toddlerAudio.playJalTarang();
         break;
       case 'ghungroo':
         window.toddlerAudio.playGhungroo();
         break;
       case 'damru':
-        window.toddlerAudio.playDamruRattle();
+        window.toddlerAudio.playDamru();
         break;
       case 'manjira':
-        window.toddlerAudio.playManjiraClink();
+        window.toddlerAudio.playManjira();
         break;
       case 'aarti':
         window.toddlerAudio.playAartiChimes();

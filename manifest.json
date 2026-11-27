@@ -1,41 +1,102 @@
 {
   "name": "Bala Gopala: Sandipani Gurukul - 16 Kalas & 64 Vidhyas",
   "short_name": "Bala Gopala",
-  "description": "A sacred, commercial-grade Vedic sensory game for toddlers, rooted in Guru Sandipani's 64 Vidhyas and Sri Krishna's 16 Kalas.",
+  "description": "22 gentle Vedic sensory and learning games for children aged 1 to 5, rooted in Guru Sandipani's 64 Vidhyas and Sri Krishna's 16 Kalas. Works offline, no ads, no tracking.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#FFFDF5",
   "theme_color": "#F59E0B",
-  "categories": ["education", "kids", "games", "lifestyle"],
+  "categories": [
+    "education",
+    "kids",
+    "games",
+    "lifestyle"
+  ],
   "icons": [
     {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "favicon.svg",
-      "sizes": "192x192 512x512 any",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "shortcuts": [
     {
       "name": "Makhan Pop",
-      "url": "./index.html#bubbles"
+      "url": "./index.html#bubbles",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Gau-Seva",
-      "url": "./index.html#peekaboo"
+      "url": "./index.html#peekaboo",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Bansuri & Jal",
-      "url": "./index.html#xylophone"
+      "url": "./index.html#xylophone",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Sandhya Aarti",
-      "url": "./index.html#aarti"
+      "url": "./index.html#aarti",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Divya Akshara",
-      "url": "./index.html#akshara"
+      "url": "./index.html#akshara",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
-  ]
+  ],
+  "id": "./index.html",
+  "scope": "./",
+  "lang": "hi"
 }

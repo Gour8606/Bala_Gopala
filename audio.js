@@ -2491,6 +2491,14 @@ class ToddlerAudio {
     }, 420);
   }
 
+  // Silence any speech in progress (and drop its pending completion callback)
+  stopSpeech() {
+    this._speechSeq = (this._speechSeq || 0) + 1;
+    try {
+      if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
+    } catch (e) {}
+  }
+
   stopAarti() {
     this._aartiActive = false;
     if (this._aartiBeatInterval) {

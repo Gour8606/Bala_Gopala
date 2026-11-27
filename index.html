@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
   <title>Bala Gopala: Sandipani Gurukul - 16 Kalas & 64 Vidhyas</title>
-  <meta name="description" content="A sacred, commercial-grade Vedic sensory game for toddlers, rooted in Guru Sandipani's 64 Vidhyas and Sri Krishna's 16 Kalas.">
+  <meta name="description" content="22 gentle Vedic sensory and learning games for children aged 1 to 5, rooted in Guru Sandipani's 64 Vidhyas and Sri Krishna's 16 Kalas. Works offline, no ads, no tracking.">
 
   <!-- PWA & Mobile Web App Meta -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="apple-touch-icon" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <meta name="theme-color" content="#F59E0B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,23 +20,21 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="mobile-web-app-capable" content="yes">
 
-  <!-- Friendly Bubbly Typography with Offline Fallback -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Typography is self-hosted (fonts/): no third-party requests, works fully offline -->
+  <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
 
-  <link rel="stylesheet" href="styles.css?v=4.3">
+  <link rel="stylesheet" href="styles.css?v=5.0">
 </head>
-<body oncontextmenu="return false;">
+<body>
 
   <div id="app-container">
     <!-- Top Navigation Bar -->
     <header class="top-navbar" id="top-navbar">
       <!-- Left: Library Drawer Toggle & Brand -->
       <div class="nav-left-group">
-        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Open All 14 Games Library (सभी खेल)">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Open the library of all 22 games (सभी खेल)" aria-label="Open the library of all 22 games (सभी खेल)">
           <span class="toggle-icon">☰</span>
-          <span class="toggle-label" id="toggle-library-label">खेल (14 Games)</span>
+          <span class="toggle-label" id="toggle-library-label">खेल (22)</span>
         </button>
         <div class="app-brand" id="brand-logo" title="Bala Gopala Gurukul">
           <span class="brand-icon">🦚</span>
@@ -47,11 +48,11 @@
           <span class="active-game-icon" id="active-game-icon">🍯</span>
           <span class="active-game-name" id="active-game-name">Makhan Pop</span>
         </div>
-        <button class="voice-help-btn" id="voice-help-btn" title="Listen to Voice Guidance (खेलने के निर्देश सुनें)">
+        <button class="voice-help-btn" id="voice-help-btn" title="Listen to Voice Guidance (खेलने के निर्देश सुनें)" aria-label="Listen to Voice Guidance (खेलने के निर्देश सुनें)">
           <span class="voice-icon" id="voice-help-icon">🗣️</span>
           <span class="voice-label" id="voice-help-label">निर्देश / Help</span>
         </button>
-        <button class="journey-quick-btn" id="journey-quick-btn" title="Daily Guided Journey (दैनिक लीला यात्रा)">
+        <button class="journey-quick-btn" id="journey-quick-btn" title="Daily Guided Journey (दैनिक लीला यात्रा)" aria-label="Daily Guided Journey (दैनिक लीला यात्रा)">
           <span class="journey-star">🌟</span>
           <span class="journey-label" id="journey-nav-label">Daily Journey</span>
           <span class="journey-step-badge" id="journey-step-badge">1 / 4</span>
@@ -60,25 +61,25 @@
 
       <div class="nav-controls">
         <!-- Active Screen Time Badge -->
-        <button class="ctrl-btn timer-pill hidden" id="timer-status-pill" title="Screen Time Active">
+        <button class="ctrl-btn timer-pill hidden" id="timer-status-pill" title="Screen Time Active" aria-label="Screen Time Active">
           ⏳ <span id="timer-countdown">15m</span>
         </button>
 
-        <button class="lang-pill-btn" id="lang-toggle-btn" title="Toggle Language (हिन्दी / English)">
+        <button class="lang-pill-btn" id="lang-toggle-btn" title="Toggle Language (हिन्दी / English)" aria-label="Toggle Language (हिन्दी / English)">
           <span id="lang-indicator">🇮🇳 हिन्दी</span>
         </button>
 
-        <button class="ctrl-btn rewards-btn" id="rewards-btn" title="Vrindavan Lila Rewards & Stickers (लीला उपहार)">
+        <button class="ctrl-btn rewards-btn" id="rewards-btn" title="Vrindavan Lila Rewards & Stickers (लीला उपहार)" aria-label="Vrindavan Lila Rewards & Stickers (लीला उपहार)">
           🎁 <span class="rewards-count-badge" id="rewards-count-badge">0</span>
         </button>
-        <button class="ctrl-btn" id="story-btn" title="Bala Lila Animated Stories (बाल लीला कथा)">📖</button>
-        <button class="ctrl-btn" id="ambience-btn" title="Vrindavan Nature Ambience (वन स्वर)">🌿</button>
-        <button class="ctrl-btn" id="shanti-mode-btn" title="Bedtime Shanti Mode (Tanpura & Twilight)">🌙</button>
-        <button class="ctrl-btn" id="mute-btn" title="Toggle Sound">🔊</button>
-        <button class="ctrl-btn" id="timer-btn" title="Gentle Screen Time Timer">⏳</button>
-        <button class="ctrl-btn" id="fullscreen-btn" title="Toggle Fullscreen">⛶</button>
-        <button class="ctrl-btn" id="parent-guide-btn" title="16 Kalas & 64 Vidhyas Compendium (Parents)">🕉️</button>
-        <button class="ctrl-btn lock-btn" id="child-lock-btn" title="Toddler Play Lock (Locks Top Bar)">🔓</button>
+        <button class="ctrl-btn" id="story-btn" title="Bala Lila Animated Stories (बाल लीला कथा)" aria-label="Bala Lila Animated Stories (बाल लीला कथा)">📖</button>
+        <button class="ctrl-btn" id="ambience-btn" title="Vrindavan Nature Ambience (वन स्वर)" aria-label="Vrindavan Nature Ambience (वन स्वर)">🌿</button>
+        <button class="ctrl-btn" id="shanti-mode-btn" title="Bedtime Shanti Mode (Tanpura & Twilight)" aria-label="Bedtime Shanti Mode (Tanpura & Twilight)">🌙</button>
+        <button class="ctrl-btn" id="mute-btn" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+        <button class="ctrl-btn" id="timer-btn" title="Gentle Screen Time Timer" aria-label="Gentle Screen Time Timer">⏳</button>
+        <button class="ctrl-btn" id="fullscreen-btn" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">⛶</button>
+        <button class="ctrl-btn" id="parent-guide-btn" title="16 Kalas & 64 Vidhyas Compendium (Parents)" aria-label="16 Kalas & 64 Vidhyas Compendium (Parents)">🕉️</button>
+        <button class="ctrl-btn lock-btn" id="child-lock-btn" title="Toddler Play Lock (Locks Top Bar)" aria-label="Toddler Play Lock (Locks Top Bar)">🔓</button>
       </div>
     </header>
 
@@ -98,9 +99,9 @@
         <div class="sidebar-header">
           <div class="sidebar-title">
             <span class="sidebar-title-icon">🦚</span>
-            <span class="sidebar-title-text" id="sidebar-title-text">लीला संगम (14 Games)</span>
+            <span class="sidebar-title-text" id="sidebar-title-text">लीला संगम (22 खेल)</span>
           </div>
-          <button class="sidebar-close-btn" id="sidebar-close-btn" title="Close Library">✖</button>
+          <button class="sidebar-close-btn" id="sidebar-close-btn" title="Close Library" aria-label="Close Library">✖</button>
         </div>
 
         <!-- Guided Daily Journey Hero Card (Clear Guidance for Parents & Toddlers) -->
@@ -114,7 +115,7 @@
 
         <!-- Age & Stage Filter Tabs -->
         <div class="age-filter-bar">
-          <button class="age-filter-pill active" data-filter="all">🌟 All (14)</button>
+          <button class="age-filter-pill active" data-filter="all" id="age-filter-all-label">🌟 All</button>
           <button class="age-filter-pill" data-filter="1">🌸 1–2 Yrs</button>
           <button class="age-filter-pill" data-filter="2">🦚 2–3 Yrs</button>
           <button class="age-filter-pill" data-filter="3">🕉️ 3–5 Yrs</button>
@@ -384,7 +385,7 @@
           </button>
 
           <button id="tap-to-play-btn" class="secondary-start-btn">
-            🎨 Open Free Play (सभी 14 खेल)
+            <span id="free-play-label">🎨 Open Free Play (सभी 22 खेल)</span>
           </button>
         </div>
 
@@ -398,7 +399,7 @@
       <div class="parent-gate-card">
         <div class="gate-header">
           <h3>👨‍👩‍👧 Grown-Ups Verification</h3>
-          <button id="close-gate-modal" class="modal-close-btn">&times;</button>
+          <button id="close-gate-modal" class="modal-close-btn" aria-label="Close">&times;</button>
         </div>
         <p class="gate-prompt" id="gate-question-text">To continue, please solve:</p>
         <div class="gate-math-display" id="gate-math-question">3 + 4 = ?</div>
@@ -416,7 +417,7 @@
       <div class="timer-card">
         <div class="parent-header">
           <h2>⏳ Gentle Screen Time Timer</h2>
-          <button id="close-timer-modal" class="modal-close-btn">&times;</button>
+          <button id="close-timer-modal" class="modal-close-btn" aria-label="Close">&times;</button>
         </div>
         <p class="timer-desc">
           When the timer finishes, the app smoothly transitions into peaceful Shanti Mode with a soothing Tanpura drone and Vedic lullaby.
@@ -451,10 +452,10 @@
       <div class="parent-card">
         <div class="parent-header">
           <h2>🕉️ Guru Sandipani's 16 Kalas & 64 Vidhyas</h2>
-          <button id="close-parent-modal" class="modal-close-btn">&times;</button>
+          <button id="close-parent-modal" class="modal-close-btn" aria-label="Close">&times;</button>
         </div>
         <div class="parent-content">
-          <p class="age-badge">👶 Toddlers Born April 2024 (~2.5 - 3 Years Old)</p>
+          <p class="age-badge">👶 For children aged 1 to 5 years</p>
           
           <p>
             In <strong>Srimad Bhagavatam (10.45.27–36)</strong>, Lord Sri Krishna and Balarama studied at Maharishi Sandipani's Gurukul in Avantika (Ujjain). Krishna is celebrated as the supreme <strong>Purna Avatara</strong> who expressed all <strong>16 Kalas (Shodasha Kalas)</strong> and mastered the <strong>64 Vidhyas (Chatushashti Kalas)</strong> in 64 days!
@@ -506,13 +507,13 @@
             <span class="modal-title-icon">🎁</span>
             <span class="modal-title-text" id="rewards-modal-title">लीला उपहार व स्टिकर (Lila Stickers)</span>
           </div>
-          <button class="modal-close-btn" id="close-rewards-modal">✖</button>
+          <button class="modal-close-btn" id="close-rewards-modal" aria-label="Close">✖</button>
         </div>
         <p class="rewards-modal-desc" id="rewards-modal-desc">
           खेल खेलो और कान्हा के प्यारे स्टिकर इकट्ठा करो! Tap any unlocked sticker to hear Kanha's blessing!
         </p>
         <div class="stickers-album-grid" id="stickers-album-grid">
-          <!-- Dynamically populated 14 collectible stickers -->
+          <!-- Dynamically populated collectible stickers -->
         </div>
       </div>
     </div>
@@ -524,7 +525,7 @@
             <span class="modal-title-icon">📖</span>
             <span class="modal-title-text" id="story-modal-title">बाल लीला कथा (Bala Lila Story)</span>
           </div>
-          <button class="modal-close-btn" id="close-story-modal">✖</button>
+          <button class="modal-close-btn" id="close-story-modal" aria-label="Close">✖</button>
         </div>
         <div class="story-stage-scene" id="story-stage-scene">
           <!-- Dynamically populated animated SVG story scene with tappable characters -->
@@ -540,22 +541,10 @@
   </div>
 
   <!-- Scripts -->
-  <script src="audio.js?v=4.3"></script>
-  <script src="vedic-assets.js?v=4.3"></script>
-  <script src="games.js?v=4.3"></script>
-  <script src="app.js?v=4.3"></script>
+  <script src="audio.js?v=5.0"></script>
+  <script src="vedic-assets.js?v=5.0"></script>
+  <script src="games.js?v=5.0"></script>
+  <script src="app.js?v=5.0"></script>
 
-  <!-- PWA Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then((reg) => {
-          console.log('Bala Gopala Gurukul PWA Service Worker registered:', reg.scope);
-        }).catch((err) => {
-          console.warn('Service Worker registration failed:', err);
-        });
-      });
-    }
-  </script>
 </body>
 </html>
