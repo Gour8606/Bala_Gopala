@@ -1960,47 +1960,77 @@ class ShapeMatchGame {
     ];
     this.currentRoundIdx = 0;
     this.matchedCount = 0;
+    this.hints = new HintTracker();
+    this.matchedIds = {};
+    this.slotOrder = [];
+    this.pieceOrder = [];
+  }
+
+  currentShapes() {
+    return this.rounds[this.currentRoundIdx % this.rounds.length];
+  }
+
+  // A new round: altar slots and offering cards are each laid out in a fresh order
+  prepareRound() {
+    const shapes = this.currentShapes();
+    this.matchedIds = {};
+    this.matchedCount = 0;
+    this.hints.reset();
+    this.slotOrder = GamePlayKit.shuffle(shapes);
+    this.pieceOrder = GamePlayKit.shuffle(shapes);
   }
 
   start() {
     this.currentRoundIdx = 0;
+    this.prepareRound();
     this.render();
   }
 
   stop() {
     this.timers.clear();
+    this.detachDragListeners();
     this.container.innerHTML = '';
   }
 
+  detachDragListeners() {
+    (this.dragListeners || []).forEach(pair => window.removeEventListener(pair[0], pair[1]));
+    this.dragListeners = [];
+  }
+
+  // Draws the round from its state, so a language switch keeps the offerings already made
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lang = GamePlayKit.lang();
     const headerTitle = lang === 'hi' ? 'पुष्पार्चना: कान्हा को पवित्र पुष्प व प्रतीक अर्पित करें! 🪷' : 'Pushparchana: Offer Sacred Flowers & Symbols to Kanha! 🪷';
-    const roundShapes = this.rounds[this.currentRoundIdx % this.rounds.length];
-    this.matchedCount = 0;
-    const shuffled = [...roundShapes].sort(() => Math.random() - 0.5);
+    this.detachDragListeners();
+
+    const cardInner = (s) => `
+              <div class="shape-visual-icon">${s.emoji}</div>
+              <div class="shape-card-title">${s.name[lang] || s.name.en}</div>`;
 
     this.container.innerHTML = `
       <div class="game-shape-match vedic-theme">
         <div class="match-banner">
           <h2>${headerTitle}</h2>
+          ${GamePlayKit.progressDots(this.matchedCount, this.currentShapes().length)}
         </div>
 
         <div class="shape-targets-row" id="targets-row">
-          ${roundShapes.map(s => `
+          ${this.slotOrder.map(s => this.matchedIds[s.id] ? `
+            <div class="target-slot matched" data-shape-id="${s.id}" style="--slot-color: ${s.color}; background: ${s.color};">${cardInner(s)}
+            </div>
+          ` : `
             <div class="target-slot" data-shape-id="${s.id}" style="--slot-color: ${s.color};">
               <div class="slot-dashed-outline">
                 <span class="slot-ghost-emoji">${s.emoji}</span>
               </div>
-              <div class="slot-text-label">${s.name[window.toddlerAudio.currentLanguage] || s.name.en}</div>
+              <div class="slot-text-label">${s.name[lang] || s.name.en}</div>
             </div>
           `).join('')}
         </div>
 
         <div class="shape-pieces-row" id="pieces-row">
-          ${shuffled.map(s => `
-            <div class="shape-card" draggable="true" data-shape-id="${s.id}" style="--shape-color: ${s.color};">
-              <div class="shape-visual-icon">${s.emoji}</div>
-              <div class="shape-card-title">${s.name[window.toddlerAudio.currentLanguage] || s.name.en}</div>
+          ${this.pieceOrder.map(s => `
+            <div class="shape-card ${this.matchedIds[s.id] ? 'fly-matched' : ''}" data-shape-id="${s.id}" style="--shape-color: ${s.color};${this.matchedIds[s.id] ? ' visibility: hidden;' : ''}">${cardInner(s)}
             </div>
           `).join('')}
         </div>
@@ -2023,8 +2053,18 @@ class ShapeMatchGame {
     }
   }
 
+  // Which altar slot (if any) is under the pointer
+  slotAt(x, y) {
+    const slots = this.container.querySelectorAll('.target-slot');
+    for (let i = 0; i < slots.length; i++) {
+      const r = slots[i].getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return slots[i];
+    }
+    return null;
+  }
+
   bindEvents() {
-    const cards = this.container.querySelectorAll('.shape-card');
+    const cards = this.container.querySelectorAll('.shape-card:not(.fly-matched)');
     cards.forEach(card => {
       let isDragging = false;
       let startX = 0;
@@ -2032,9 +2072,19 @@ class ShapeMatchGame {
 
       const onPointerDown = (e) => {
         e.preventDefault();
+        if (card.classList.contains('fly-matched')) return;
         isDragging = false;
         startX = e.clientX;
         startY = e.clientY;
+        const id = card.dataset.shapeId;
+        const ownTarget = this.container.querySelector(`.target-slot[data-shape-id="${id}"]`);
+
+        const nearOwnTarget = (ev, factor) => {
+          if (!ownTarget) return false;
+          const tr = ownTarget.getBoundingClientRect();
+          const dist = Math.hypot(ev.clientX - (tr.left + tr.width / 2), ev.clientY - (tr.top + tr.height / 2));
+          return dist <= Math.max(tr.width, tr.height) * factor;
+        };
 
         const onPointerMove = (ev) => {
           const dist = Math.hypot(ev.clientX - startX, ev.clientY - startY);
@@ -2042,74 +2092,86 @@ class ShapeMatchGame {
             isDragging = true;
             card.classList.add('is-dragging');
             card.style.transform = `translate(${ev.clientX - startX}px, ${ev.clientY - startY}px) scale(1.12)`;
-
-            // Proximity magnetic hover detection
-            const id = card.dataset.shapeId;
-            const target = this.container.querySelector(`.target-slot[data-shape-id="${id}"]`);
-            if (target && !target.classList.contains('matched')) {
-              const tr = target.getBoundingClientRect();
-              const tcX = tr.left + tr.width / 2;
-              const tcY = tr.top + tr.height / 2;
-              const snapRadius = Math.max(tr.width, tr.height) * 1.15;
-              const targetDist = Math.hypot(ev.clientX - tcX, ev.clientY - tcY);
-              if (targetDist <= snapRadius) {
-                target.classList.add('magnetic-active');
-              } else {
-                target.classList.remove('magnetic-active');
-              }
+            // Magnetic glow when the card is close to where it belongs
+            if (ownTarget && !ownTarget.classList.contains('matched')) {
+              ownTarget.classList.toggle('magnetic-active', nearOwnTarget(ev, 1.15));
             }
           }
         };
 
         const onPointerUp = (ev) => {
-          window.removeEventListener('pointermove', onPointerMove);
-          window.removeEventListener('pointerup', onPointerUp);
-          window.removeEventListener('pointercancel', onPointerUp);
-
+          this.detachDragListeners();
           card.classList.remove('is-dragging');
           card.style.transform = '';
+          this.container.querySelectorAll('.target-slot').forEach(t => t.classList.remove('magnetic-active'));
+          if (!ownTarget || ownTarget.classList.contains('matched')) return;
 
-          const allTargets = this.container.querySelectorAll('.target-slot');
-          allTargets.forEach(t => t.classList.remove('magnetic-active'));
-
-          const id = card.dataset.shapeId;
-          const target = this.container.querySelector(`.target-slot[data-shape-id="${id}"]`);
-
-          if (isDragging && target && !target.classList.contains('matched')) {
-            const tr = target.getBoundingClientRect();
-            const tcX = tr.left + tr.width / 2;
-            const tcY = tr.top + tr.height / 2;
-            const snapRadius = Math.max(tr.width, tr.height) * 0.95; // Generous toddler magnetic snap aura
-            const targetDist = Math.hypot(ev.clientX - tcX, ev.clientY - tcY);
-
-            if (targetDist <= snapRadius || (ev.clientX >= tr.left && ev.clientX <= tr.right && ev.clientY >= tr.top && ev.clientY <= tr.bottom)) {
-              this.matchShape(card, target);
-              return;
-            }
+          // A simple tap is the errorless mode for the youngest: the offering flies home
+          if (!isDragging || ev.type === 'pointercancel') {
+            if (!isDragging) this.matchShape(card, ownTarget);
+            return;
           }
 
-          if (target && !target.classList.contains('matched')) {
-            this.matchShape(card, target);
+          const dropped = this.slotAt(ev.clientX, ev.clientY);
+          // Generous snap zone around the right slot, unless the card was plainly put on another one
+          if (dropped === ownTarget || (nearOwnTarget(ev, 0.95) && !dropped)) {
+            this.matchShape(card, ownTarget);
+          } else if (dropped && !dropped.classList.contains('matched')) {
+            this.onWrongDrop(card, dropped, ownTarget);
+          } else {
+            this.onMissedDrop(card, ownTarget);
           }
         };
 
-        window.addEventListener('pointermove', onPointerMove);
-        window.addEventListener('pointerup', onPointerUp);
-        window.addEventListener('pointercancel', onPointerUp);
+        this.detachDragListeners();
+        this.dragListeners = [['pointermove', onPointerMove], ['pointerup', onPointerUp], ['pointercancel', onPointerUp]];
+        this.dragListeners.forEach(pair => window.addEventListener(pair[0], pair[1]));
       };
 
       card.addEventListener('pointerdown', onPointerDown);
     });
   }
 
+  shapeById(id) {
+    return this.currentShapes().find(s => s.id === id);
+  }
+
+  // Dropped on a slot that belongs to something else: the card goes back and the child looks again
+  onWrongDrop(card, wrongSlot, ownTarget) {
+    const shape = this.shapeById(card.dataset.shapeId);
+    wrongSlot.classList.add('pattern-nudge');
+    card.classList.add('pattern-nudge');
+    this.timers.later(() => { wrongSlot.classList.remove('pattern-nudge'); card.classList.remove('pattern-nudge'); }, 500);
+    this.hints.miss();
+    if (this.hints.shouldHint()) ownTarget.classList.add('hint-glow');
+    if (window.toddlerAudio && shape) {
+      window.toddlerAudio.triggerHaptic('light');
+      window.toddlerAudio.speak(this.hints.shouldHint()
+        ? { hi: 'चमकती जगह देखो! ' + shape.name.hi + ' वहाँ जाएगा!', en: 'Look at the glowing place! ' + shape.name.en + ' goes there!' }
+        : { hi: 'यह ' + shape.name.hi + ' है! इसकी जगह ढूँढो!', en: 'This is ' + shape.name.en + '! Find where it belongs!' });
+    }
+  }
+
+  // Let go in open space: no fuss, the card simply returns; after a few tries its slot glows
+  onMissedDrop(card, ownTarget) {
+    this.hints.miss();
+    if (this.hints.shouldHint()) ownTarget.classList.add('hint-glow');
+  }
+
   matchShape(card, target) {
     if (target.classList.contains('matched')) return;
+    const id = card.dataset.shapeId;
+    const shape = this.shapeById(id);
+    target.classList.remove('hint-glow');
     target.classList.add('matched');
+    this.matchedIds[id] = true;
+    this.hints.reset();
 
-    window.toddlerAudio.speak({
-      hi: "सुन्दर समर्पण! शुभम्!",
-      en: "Beautiful sacred offering! Haribol!"
-    }, () => {
+    // Name the offering so each match also teaches its word
+    window.toddlerAudio.triggerHaptic('medium');
+    window.toddlerAudio.speak(shape
+      ? { hi: shape.name.hi + '! सुन्दर समर्पण!', en: shape.name.en + '! Beautiful offering!' }
+      : { hi: "सुन्दर समर्पण! शुभम्!", en: "Beautiful sacred offering! Haribol!" }, () => {
       if (window.toddlerAudio) window.toddlerAudio.playTempleBell();
     });
     if (window.ToddlerRewards) {
@@ -2122,7 +2184,12 @@ class ShapeMatchGame {
     card.style.visibility = 'hidden';
 
     this.matchedCount++;
-    const total = this.rounds[this.currentRoundIdx % this.rounds.length].length;
+    const total = this.currentShapes().length;
+    const dots = this.container.querySelectorAll('.round-dot');
+    dots.forEach((dot, idx) => {
+      dot.classList.toggle('is-done', idx < this.matchedCount);
+      dot.classList.toggle('is-current', idx === this.matchedCount);
+    });
 
     if (this.matchedCount >= total) {
       this.timers.later(() => this.triggerRoundCelebration(), 500);
@@ -2151,6 +2218,7 @@ class ShapeMatchGame {
 
     this.timers.later(() => {
       this.currentRoundIdx++;
+      this.prepareRound();
       this.render();
     }, 2800);
   }
@@ -4370,6 +4438,10 @@ class MatkiTowerGame {
     this.container = container;
     this.timers = new GameTimers();
     this.mashStep = 0;
+    this.hints = new HintTracker();
+    // Montessori gradation: start with three clearly different pots, then four, then all five
+    this.level = 0;
+    this.levelSizes = [[5, 3, 1], [5, 4, 2, 1], [5, 4, 3, 2, 1]];
     this.petalShower = (typeof CelebrationPetalShower !== 'undefined') ? new CelebrationPetalShower() : null;
     this.initTowerState();
   }
@@ -4422,19 +4494,22 @@ class MatkiTowerGame {
       }
     ];
 
-    // Shuffle the unstacked pots for the toddler selection tray
-    this.unstacked = this.allMatkis.slice();
-    for (let i = this.unstacked.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = this.unstacked[i];
-      this.unstacked[i] = this.unstacked[j];
-      this.unstacked[j] = temp;
-    }
+    const tagHi = { 5: 'महा', 4: 'बड़ा', 3: 'मध्यम', 2: 'छोटा', 1: 'लघु' };
+    this.allMatkis.forEach(p => { p.tagHi = tagHi[p.size]; });
+
+    // The pots in play for this level, largest first (the order they must be stacked)
+    const sizes = this.levelSizes[this.level % this.levelSizes.length];
+    this.levelPots = this.allMatkis.filter(p => sizes.indexOf(p.size) !== -1);
+    this.unstacked = GamePlayKit.shuffle(this.levelPots);
+    this.hints.reset();
+  }
+
+  neededPot() {
+    return this.levelPots[this.stacked.length] || null;
   }
 
   start() {
     this.render();
-    this.bindMatkiEvents();
     if (window.toddlerAudio) {
       window.toddlerAudio.playTempleBell(880);
       window.toddlerAudio.speak({
@@ -4480,7 +4555,7 @@ class MatkiTowerGame {
                 return `
                   <div class="stacked-pot-item pot-snap-in" style="width: ${pot.widthPx}px;" title="${title}">
                     ${VedicAssets.decoratedMatka || '🏺'}
-                    <span class="pot-size-label">${pot.tag}</span>
+                    <span class="pot-size-label">${lang === 'hi' ? pot.tagHi : pot.tag}</span>
                   </div>
                 `;
               }).join('')}
@@ -4497,19 +4572,29 @@ class MatkiTowerGame {
         <!-- Bottom Stage: Montessori Size Selection Tray -->
         <section class="matki-selection-tray-zone">
           <div class="selection-tray-header">
-            <span class="tray-title">🏺 ${lang === 'hi' ? 'मटकी आकार चयन (Montessori Size Gradation)' : 'Select Matching Pot Size'}</span>
+            <span class="tray-title">🏺 ${this.isCompleted
+              ? (lang === 'hi' ? 'शिखर पूरा हुआ!' : 'Tower complete!')
+              : (this.stacked.length === 0
+                ? (lang === 'hi' ? 'सबसे बड़ा मटका कौन सा है?' : 'Which pot is the biggest?')
+                : (lang === 'hi' ? 'अब बचे हुए में सबसे बड़ा कौन सा?' : 'Now which is the biggest one left?'))}</span>
+            ${GamePlayKit.progressDots(this.stacked.length, this.levelPots.length)}
             <button class="reset-tower-btn" id="reset-tower-btn" title="Build Again">
               🔄 ${lang === 'hi' ? 'पुनः बनाएं' : 'Reset'}
             </button>
           </div>
 
+          ${this.isCompleted ? `
+            <button class="matki-next-btn" id="next-tower-btn">▶ ${lang === 'hi'
+              ? (this.level % this.levelSizes.length === this.levelSizes.length - 1 ? 'फिर से शुरू करें' : 'अगला, और ऊँचा शिखर!')
+              : (this.level % this.levelSizes.length === this.levelSizes.length - 1 ? 'Start Over' : 'Next: A Taller Tower!')}</button>
+          ` : ''}
           <div class="matki-loose-tray" id="matki-loose-tray">
             ${this.unstacked.map(pot => {
               const title = pot.title[lang] || pot.title.en;
               return `
-                <button class="matki-choice-btn" data-id="${pot.id}" style="width: ${pot.widthPx}px;" title="${title}">
+                <button class="matki-choice-btn ${this.hints.shouldHint() && this.neededPot() && pot.id === this.neededPot().id ? 'hint-glow' : ''}" data-id="${pot.id}" style="width: ${pot.widthPx}px;" title="${title}">
                   <div class="matki-btn-svg">${VedicAssets.decoratedMatka || '🏺'}</div>
-                  <span class="matki-btn-label">${pot.tag}</span>
+                  <span class="matki-btn-label">${lang === 'hi' ? pot.tagHi : pot.tag}</span>
                 </button>
               `;
             }).join('')}
@@ -4517,6 +4602,7 @@ class MatkiTowerGame {
         </section>
       </div>
     `;
+    this.bindMatkiEvents();
   }
 
   bindMatkiEvents() {
@@ -4532,6 +4618,14 @@ class MatkiTowerGame {
       });
     }
 
+    const nextBtn = this.container.querySelector('#next-tower-btn');
+    if (nextBtn) {
+      nextBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.nextLevel();
+      });
+    }
+
     // 2. Reset Button
     const resetBtn = this.container.querySelector('#reset-tower-btn');
     if (resetBtn) {
@@ -4540,7 +4634,19 @@ class MatkiTowerGame {
         if (window.toddlerAudio) window.toddlerAudio.playDamru();
         this.initTowerState();
         this.render();
-        this.bindMatkiEvents();
+      });
+    }
+  }
+
+  nextLevel() {
+    this.level++;
+    this.initTowerState();
+    this.render();
+    if (window.toddlerAudio) {
+      window.toddlerAudio.playTempleBell(880);
+      window.toddlerAudio.speak({
+        hi: this.levelPots.length + ' मटकों का शिखर बनाएं! सबसे बड़े से शुरू करें!',
+        en: 'Build a tower of ' + this.levelPots.length + ' pots! Start with the biggest!'
       });
     }
   }
@@ -4554,13 +4660,15 @@ class MatkiTowerGame {
 
     const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
 
-    // The next required size is 5 minus currently stacked length (5, 4, 3, 2, 1)
-    const neededSize = 5 - this.stacked.length;
+    // The next pot needed is the largest one still in the tray
+    const needed = this.neededPot();
+    const neededSize = needed ? needed.size : -1;
 
     if (chosenPot.size === neededSize) {
       // Correct Montessori Size Match!
       this.stacked.push(chosenPot);
       this.unstacked.splice(potIndex, 1);
+      this.hints.reset();
 
       // Play musical note
       if (window.toddlerAudio) {
@@ -4574,13 +4682,12 @@ class MatkiTowerGame {
       }
 
       // Check if complete
-      if (this.stacked.length === 5) {
+      if (this.stacked.length === this.levelPots.length) {
         this.isCompleted = true;
         if (window.ToddlerRewards) {
           window.ToddlerRewards.award('matki_shikhar');
         }
         this.render();
-        this.bindMatkiEvents();
 
         this.timers.later(() => {
           if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
@@ -4599,23 +4706,25 @@ class MatkiTowerGame {
         }, 300);
       } else {
         this.render();
-        this.bindMatkiEvents();
       }
     } else {
-      // Self-correcting feedback: Friendly coaching
+      // Self-correcting feedback: first a question, then (from the second miss) a glowing hint
+      this.hints.miss();
       if (btnEl) {
         btnEl.classList.add('pot-shake-wobble');
         this.timers.later(() => btnEl.classList.remove('pot-shake-wobble'), 500);
       }
+      if (this.hints.shouldHint() && needed) {
+        const right = this.container.querySelector(`.matki-choice-btn[data-id="${needed.id}"]`);
+        if (right) right.classList.add('hint-glow');
+      }
 
       if (window.toddlerAudio) {
         window.toddlerAudio.playDamru();
-        const neededPot = this.allMatkis.find(p => p.size === neededSize);
-        const neededTitle = neededPot ? (neededPot.title[lang] || neededPot.title.en) : '';
-        window.toddlerAudio.speak({
-          hi: `पहले ${neededTitle} रखें! आधार मजबूत होना चाहिए!`,
-          en: `Place the ${neededTitle} next for perfect balance!`
-        });
+        const neededTitle = needed ? (needed.title[lang] || needed.title.en) : '';
+        window.toddlerAudio.speak(this.hints.shouldHint()
+          ? { hi: `चमकता मटका देखो! पहले ${neededTitle} रखें!`, en: `Look at the glowing pot! Place the ${neededTitle} next!` }
+          : { hi: 'यह तो छोटा है! सबसे बड़ा मटका ढूँढो!', en: 'That one is smaller! Find the biggest pot!' });
       }
     }
   }
@@ -4623,14 +4732,11 @@ class MatkiTowerGame {
   handleAnyKey(key) {
     this.mashStep++;
     if (this.isCompleted) {
-      this.initTowerState();
-      this.render();
-      this.bindMatkiEvents();
+      this.nextLevel();
       return;
     }
 
-    const neededSize = 5 - this.stacked.length;
-    const nextPot = this.unstacked.find(p => p.size === neededSize);
+    const nextPot = this.neededPot();
     if (nextPot) {
       this.tryStackMatki(nextPot.id, null);
     }
