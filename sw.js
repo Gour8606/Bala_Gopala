@@ -8,7 +8,7 @@
  * Bump CACHE_VERSION together with the ?v= query strings in index.html.
  */
 
-const CACHE_VERSION = '5.1';
+const CACHE_VERSION = '5.2';
 const CACHE_NAME = 'bala-gopala-v' + CACHE_VERSION;
 const ASSETS_TO_CACHE = [
   './',

@@ -470,7 +470,7 @@ const liveServer = createServer();
 liveServer.listen(0, '127.0.0.1', async () => {
   const port = liveServer.address().port;
   try {
-    const publicPaths = ['/', '/manifest.json', '/favicon.svg', '/sw.js', '/styles.css', '/audio.js', '/vedic-assets.js', '/games.js', '/app.js', '/fonts/fredoka-latin.woff2', '/icons/icon-192.png', '/app.js?v=5.1'];
+    const publicPaths = ['/', '/manifest.json', '/favicon.svg', '/sw.js', '/styles.css', '/audio.js', '/vedic-assets.js', '/games.js', '/app.js', '/fonts/fredoka-latin.woff2', '/icons/icon-192.png', '/app.js?v=5.2'];
     for (const p of publicPaths) {
       const r = await request(port, { path: p });
       assert(r.status === 200 && r.body.length > 50, `GET ${p} returns 200 with content`);

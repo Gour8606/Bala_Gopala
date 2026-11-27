@@ -389,6 +389,7 @@ if (typeof window !== 'undefined') {
 class BubbleGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.popCount = 0;
     this.timer = null;
     this.active = false;
@@ -420,6 +421,7 @@ class BubbleGame {
   }
 
   stop() {
+    this.timers.clear();
     this.active = false;
     if (this.timer) clearTimeout(this.timer);
     this.container.innerHTML = '';
@@ -493,7 +495,7 @@ class BubbleGame {
         en: "Om Suryaya Namaha! Auspicious Morning!"
       });
       this.createBurst(e.clientX, e.clientY, '#F59E0B', '🪔');
-      setTimeout(() => surya.classList.remove('sun-wiggle'), 1000);
+      this.timers.later(() => surya.classList.remove('sun-wiggle'), 1000);
     });
 
     // Tap Butter Churner
@@ -509,7 +511,7 @@ class BubbleGame {
       e.preventDefault();
       window.toddlerAudio.playTempleBell();
       for (let i = 0; i < 10; i++) {
-        setTimeout(() => this.spawnVedicBubble(), i * 160);
+        this.timers.later(() => this.spawnVedicBubble(), i * 160);
       }
     });
 
@@ -525,7 +527,7 @@ class BubbleGame {
     const churnerVisual = this.container.querySelector('#churner-visual');
     if (churnerVisual) {
       churnerVisual.classList.add('churning-active');
-      setTimeout(() => churnerVisual.classList.remove('churning-active'), 500);
+      this.timers.later(() => churnerVisual.classList.remove('churning-active'), 500);
     }
 
     window.toddlerAudio.playChurningSound();
@@ -533,7 +535,7 @@ class BubbleGame {
 
     // Spurt fresh butter bubbles from churner
     for (let i = 0; i < 3; i++) {
-      setTimeout(() => this.spawnVedicBubble(), i * 100);
+      this.timers.later(() => this.spawnVedicBubble(), i * 100);
     }
 
     if (Math.random() > 0.4) {
@@ -585,7 +587,7 @@ class BubbleGame {
     if (!this.active) return;
     this.spawnVedicBubble();
     const delay = 800 + Math.random() * 800;
-    this.timer = setTimeout(() => this.spawnLoop(), delay);
+    this.timer = this.timers.later(() => this.spawnLoop(), delay);
   }
 
   spawnVedicBubble() {
@@ -747,6 +749,7 @@ class BubbleGame {
 class PeekabooGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
   }
 
   start() {
@@ -754,6 +757,7 @@ class PeekabooGame {
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
@@ -925,9 +929,9 @@ class PeekabooGame {
       e.preventDefault();
       cowCard.classList.add('cow-nodding');
       window.toddlerAudio.playCowMoo();
-      setTimeout(() => window.toddlerAudio.speak({ hi: "हम्बा! प्यारी गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" }), 650);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: "हम्बा! प्यारी गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" }), 650);
       this.triggerBlessing(cowCard, '🐮', '💖');
-      setTimeout(() => cowCard.classList.remove('cow-nodding'), 900);
+      this.timers.later(() => cowCard.classList.remove('cow-nodding'), 900);
     });
 
     // 2. Cow Bell Group Tap
@@ -947,9 +951,9 @@ class PeekabooGame {
       e.preventDefault();
       calfCard.classList.add('calf-delighted');
       window.toddlerAudio.playCalfMoo();
-      setTimeout(() => window.toddlerAudio.speak({ hi: "प्यारा नन्हा बछड़ा! मां-मां!", en: "Sweet baby calf! Maaa-aaa!" }), 550);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: "प्यारा नन्हा बछड़ा! मां-मां!", en: "Sweet baby calf! Maaa-aaa!" }), 550);
       this.triggerBlessing(calfCard, '🐄', '🌸');
-      setTimeout(() => calfCard.classList.remove('calf-delighted'), 800);
+      this.timers.later(() => calfCard.classList.remove('calf-delighted'), 800);
     });
 
     // 4. Care Buttons: Feed, Bathe, Mala
@@ -959,13 +963,13 @@ class PeekabooGame {
       cowCard.classList.add('cow-nodding');
       calfCard.classList.add('calf-delighted');
       window.toddlerAudio.playGrassChew();
-      setTimeout(() => window.toddlerAudio.playCalfMoo(), 400);
+      this.timers.later(() => window.toddlerAudio.playCalfMoo(), 400);
       window.toddlerAudio.speak({ hi: "मीठी हरी घास! गऊ माता प्रसन्न!", en: "Sweet green grass for holy cow!" });
       if (window.ToddlerRewards) {
         window.ToddlerRewards.award('gau_sevak');
       }
       this.triggerBlessing(cowCard, '🌾', '💖');
-      setTimeout(() => {
+      this.timers.later(() => {
         cowCard.classList.remove('cow-nodding');
         calfCard.classList.remove('calf-delighted');
       }, 900);
@@ -975,7 +979,7 @@ class PeekabooGame {
     btnBathe.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       window.toddlerAudio.playWaterSplash();
-      setTimeout(() => window.toddlerAudio.playCowBell(), 300);
+      this.timers.later(() => window.toddlerAudio.playCowBell(), 300);
       window.toddlerAudio.speak({ hi: "पवित्र यमुना स्नान! गऊ सेवा!", en: "Pure Yamuna bath for cow and calf!" });
       this.triggerBlessing(calfCard, '💧', '✨');
     });
@@ -995,8 +999,8 @@ class PeekabooGame {
       e.preventDefault();
       sndCow.classList.add('snd-hit');
       window.toddlerAudio.playCowMoo();
-      setTimeout(() => window.toddlerAudio.speak({ hi: 'गाय! मूऊऊ!', en: 'Cow! Mooo!' }), 600);
-      setTimeout(() => sndCow.classList.remove('snd-hit'), 300);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: 'गाय! मूऊऊ!', en: 'Cow! Mooo!' }), 600);
+      this.timers.later(() => sndCow.classList.remove('snd-hit'), 300);
     });
 
     const sndCalf = this.container.querySelector('#snd-calf');
@@ -1004,8 +1008,8 @@ class PeekabooGame {
       e.preventDefault();
       sndCalf.classList.add('snd-hit');
       window.toddlerAudio.playCalfMoo();
-      setTimeout(() => window.toddlerAudio.speak({ hi: 'बछड़ा! मां-मां!', en: 'Baby Calf! Maaa!' }), 500);
-      setTimeout(() => sndCalf.classList.remove('snd-hit'), 300);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: 'बछड़ा! मां-मां!', en: 'Baby Calf! Maaa!' }), 500);
+      this.timers.later(() => sndCalf.classList.remove('snd-hit'), 300);
     });
 
     const sndPeacock = this.container.querySelector('#snd-peacock');
@@ -1013,8 +1017,8 @@ class PeekabooGame {
       e.preventDefault();
       sndPeacock.classList.add('snd-hit');
       window.toddlerAudio.playPeacockCall();
-      setTimeout(() => window.toddlerAudio.speak({ hi: 'मोर! पीहू पीहू!', en: 'Peacock! Pee-hu!' }), 700);
-      setTimeout(() => sndPeacock.classList.remove('snd-hit'), 300);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: 'मोर! पीहू पीहू!', en: 'Peacock! Pee-hu!' }), 700);
+      this.timers.later(() => sndPeacock.classList.remove('snd-hit'), 300);
     });
 
     const sndElephant = this.container.querySelector('#snd-elephant');
@@ -1022,8 +1026,8 @@ class PeekabooGame {
       e.preventDefault();
       sndElephant.classList.add('snd-hit');
       window.toddlerAudio.playElephantTrumpet();
-      setTimeout(() => window.toddlerAudio.speak({ hi: 'हाथी! तुर्र-तुर्र!', en: 'Elephant! Trumpet!' }), 700);
-      setTimeout(() => sndElephant.classList.remove('snd-hit'), 300);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: 'हाथी! तुर्र-तुर्र!', en: 'Elephant! Trumpet!' }), 700);
+      this.timers.later(() => sndElephant.classList.remove('snd-hit'), 300);
     });
 
     const sndKoel = this.container.querySelector('#snd-koel');
@@ -1031,8 +1035,8 @@ class PeekabooGame {
       e.preventDefault();
       sndKoel.classList.add('snd-hit');
       window.toddlerAudio.playKoelCall();
-      setTimeout(() => window.toddlerAudio.speak({ hi: 'कोयल! कूहू कूहू!', en: 'Cuckoo! Koo-hoo!' }), 600);
-      setTimeout(() => sndKoel.classList.remove('snd-hit'), 300);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: 'कोयल! कूहू कूहू!', en: 'Cuckoo! Koo-hoo!' }), 600);
+      this.timers.later(() => sndKoel.classList.remove('snd-hit'), 300);
     });
 
     const sndGhungroo = this.container.querySelector('#snd-ghungroo');
@@ -1040,8 +1044,8 @@ class PeekabooGame {
       e.preventDefault();
       sndGhungroo.classList.add('snd-hit');
       window.toddlerAudio.playGhungroo();
-      setTimeout(() => window.toddlerAudio.speak({ hi: 'घुँघरू! छम-छम!', en: 'Anklet bells! Chham-chham!' }), 400);
-      setTimeout(() => sndGhungroo.classList.remove('snd-hit'), 300);
+      this.timers.later(() => window.toddlerAudio.speak({ hi: 'घुँघरू! छम-छम!', en: 'Anklet bells! Chham-chham!' }), 400);
+      this.timers.later(() => sndGhungroo.classList.remove('snd-hit'), 300);
     });
 
     const sndParrot = this.container.querySelector('#snd-parrot');
@@ -1050,8 +1054,8 @@ class PeekabooGame {
         e.preventDefault();
         sndParrot.classList.add('snd-hit');
         window.toddlerAudio.playShukaCall();
-        setTimeout(() => window.toddlerAudio.speak({ hi: 'तोता! मिठू-मिठू!', en: 'Parrot! Mithu-mithu!' }), 500);
-        setTimeout(() => sndParrot.classList.remove('snd-hit'), 300);
+        this.timers.later(() => window.toddlerAudio.speak({ hi: 'तोता! मिठू-मिठू!', en: 'Parrot! Mithu-mithu!' }), 500);
+        this.timers.later(() => sndParrot.classList.remove('snd-hit'), 300);
       });
     }
 
@@ -1061,8 +1065,8 @@ class PeekabooGame {
         e.preventDefault();
         sndDeer.classList.add('snd-hit');
         window.toddlerAudio.playDeerCall();
-        setTimeout(() => window.toddlerAudio.speak({ hi: 'हिरण! मृग!', en: 'Deer!' }), 500);
-        setTimeout(() => sndDeer.classList.remove('snd-hit'), 300);
+        this.timers.later(() => window.toddlerAudio.speak({ hi: 'हिरण! मृग!', en: 'Deer!' }), 500);
+        this.timers.later(() => sndDeer.classList.remove('snd-hit'), 300);
       });
     }
 
@@ -1072,8 +1076,8 @@ class PeekabooGame {
         e.preventDefault();
         sndMonkey.classList.add('snd-hit');
         window.toddlerAudio.playMonkeySound();
-        setTimeout(() => window.toddlerAudio.speak({ hi: 'बन्दर! खी-खी!', en: 'Monkey! Khee-khee!' }), 500);
-        setTimeout(() => sndMonkey.classList.remove('snd-hit'), 300);
+        this.timers.later(() => window.toddlerAudio.speak({ hi: 'बन्दर! खी-खी!', en: 'Monkey! Khee-khee!' }), 500);
+        this.timers.later(() => sndMonkey.classList.remove('snd-hit'), 300);
       });
     }
 
@@ -1083,8 +1087,8 @@ class PeekabooGame {
         e.preventDefault();
         sndGoat.classList.add('snd-hit');
         window.toddlerAudio.playGoatBleat();
-        setTimeout(() => window.toddlerAudio.speak({ hi: 'बकरी! में-में!', en: 'Goat! Meh-eh-h!' }), 500);
-        setTimeout(() => sndGoat.classList.remove('snd-hit'), 300);
+        this.timers.later(() => window.toddlerAudio.speak({ hi: 'बकरी! में-में!', en: 'Goat! Meh-eh-h!' }), 500);
+        this.timers.later(() => sndGoat.classList.remove('snd-hit'), 300);
       });
     }
 
@@ -1094,8 +1098,8 @@ class PeekabooGame {
         e.preventDefault();
         sndHorse.classList.add('snd-hit');
         window.toddlerAudio.playHorseNeigh();
-        setTimeout(() => window.toddlerAudio.speak({ hi: 'घोड़ा! हिन-हिन!', en: 'Horse! Neigh!' }), 600);
-        setTimeout(() => sndHorse.classList.remove('snd-hit'), 300);
+        this.timers.later(() => window.toddlerAudio.speak({ hi: 'घोड़ा! हिन-हिन!', en: 'Horse! Neigh!' }), 600);
+        this.timers.later(() => sndHorse.classList.remove('snd-hit'), 300);
       });
     }
 
@@ -1105,8 +1109,8 @@ class PeekabooGame {
         e.preventDefault();
         sndSwan.classList.add('snd-hit');
         window.toddlerAudio.playSwanCall();
-        setTimeout(() => window.toddlerAudio.speak({ hi: 'हंस! सुन्दर राजहंस!', en: 'Swan! Beautiful swan!' }), 500);
-        setTimeout(() => sndSwan.classList.remove('snd-hit'), 300);
+        this.timers.later(() => window.toddlerAudio.speak({ hi: 'हंस! सुन्दर राजहंस!', en: 'Swan! Beautiful swan!' }), 500);
+        this.timers.later(() => sndSwan.classList.remove('snd-hit'), 300);
       });
     }
 
@@ -1193,19 +1197,19 @@ class PeekabooGame {
         krishna: () => {
           window.toddlerAudio.playBansuri(523.25);
           window.toddlerAudio.playGhungroo();
-          setTimeout(() => window.toddlerAudio.speak({ hi: "जय श्री कृष्णा! नन्हे कान्हा!", en: "Jai Shri Krishna! Little Kanha!" }), 500);
+          this.timers.later(() => window.toddlerAudio.speak({ hi: "जय श्री कृष्णा! नन्हे कान्हा!", en: "Jai Shri Krishna! Little Kanha!" }), 500);
         },
         cow: () => {
           window.toddlerAudio.playCowMoo();
-          setTimeout(() => window.toddlerAudio.speak({ hi: "हम्बा! गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" }), 650);
+          this.timers.later(() => window.toddlerAudio.speak({ hi: "हम्बा! गऊ माता!", en: "Hambaaa! Gentle holy Gau Mata!" }), 650);
         },
         peacock: () => {
           window.toddlerAudio.playPeacockCall();
-          setTimeout(() => window.toddlerAudio.speak({ hi: "पीहू पीहू! सुन्दर मयूर!", en: "Pee-hu! Dancing Mayur!" }), 700);
+          this.timers.later(() => window.toddlerAudio.speak({ hi: "पीहू पीहू! सुन्दर मयूर!", en: "Pee-hu! Dancing Mayur!" }), 700);
         },
         lotus: () => {
           window.toddlerAudio.playAartiChimes();
-          setTimeout(() => window.toddlerAudio.speak({ hi: "सुन्दर दिव्य कमल!", en: "Sacred Pink Lotus!" }), 400);
+          this.timers.later(() => window.toddlerAudio.speak({ hi: "सुन्दर दिव्य कमल!", en: "Sacred Pink Lotus!" }), 400);
         }
       };
 
@@ -1213,7 +1217,7 @@ class PeekabooGame {
     } else {
       spot.classList.add('tickled');
       window.toddlerAudio.playTempleBell(1046.5);
-      setTimeout(() => spot.classList.remove('tickled'), 800);
+      this.timers.later(() => spot.classList.remove('tickled'), 800);
     }
   }
 }
@@ -1224,6 +1228,7 @@ class PeekabooGame {
 class XylophoneGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.mode = 'bansuri'; // 'bansuri', 'animals', or 'jaltarang'
     
     // Ancient Vedic 7 Swaras rooted in nature's animal voices (Sangita Ratnakara)
@@ -1265,6 +1270,7 @@ class XylophoneGame {
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
@@ -1465,7 +1471,7 @@ class XylophoneGame {
         } else if (type === 'manjira') {
           window.toddlerAudio.playManjira();
         }
-        setTimeout(() => drum.classList.remove('hit'), 250);
+        this.timers.later(() => drum.classList.remove('hit'), 250);
       });
     });
 
@@ -1523,7 +1529,7 @@ class XylophoneGame {
         window.toddlerAudio.playJalTarang(freq);
         const rect = bowl.getBoundingClientRect();
         this.spawnNoteParticle(rect.left + rect.width / 2, rect.top + 20, '💧');
-        setTimeout(() => bowl.classList.remove('hit-bowl'), 300);
+        this.timers.later(() => bowl.classList.remove('hit-bowl'), 300);
       }
     }
   }
@@ -1535,7 +1541,7 @@ class XylophoneGame {
       this.bhajanIndex = this.bhajanIndex + 1;
       if (this.bhajanIndex >= this.bhajan.length) {
         this.bhajanIndex = 0;
-        setTimeout(() => {
+        this.timers.later(() => {
           if (window.toddlerAudio) {
             window.toddlerAudio.triggerHaptic('celebration');
             window.toddlerAudio.playCelebration();
@@ -1550,7 +1556,7 @@ class XylophoneGame {
     const keyData = this.swaras[playIdx];
     if (this.mode === 'animals') {
       window.toddlerAudio.playAnimalSound(keyData.animalKey, keyData.freq);
-      setTimeout(() => {
+      this.timers.later(() => {
         if (window.toddlerAudio) window.toddlerAudio.playBansuri(keyData.freq);
       }, 90);
       const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
@@ -1567,7 +1573,7 @@ class XylophoneGame {
     const targetBar = this.container.querySelector(`.xylo-bar[data-idx="${playIdx}"]`) || barEl;
     if (targetBar) {
       targetBar.classList.add('played');
-      setTimeout(() => targetBar.classList.remove('played'), 300);
+      this.timers.later(() => targetBar.classList.remove('played'), 300);
     }
 
     const rect = targetBar ? targetBar.getBoundingClientRect() : { left: window.innerWidth / 2, top: 200, width: 60 };
@@ -1594,6 +1600,7 @@ class XylophoneGame {
 class AartiGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.angle = 0;
     this.isRotating = false;
   }
@@ -1602,7 +1609,14 @@ class AartiGame {
     this.render();
   }
 
+  detachWindowListeners() {
+    (this.windowListeners || []).forEach(pair => window.removeEventListener(pair[0], pair[1]));
+    this.windowListeners = [];
+  }
+
   stop() {
+    this.timers.clear();
+    this.detachWindowListeners();
     if (window.toddlerAudio && typeof window.toddlerAudio.stopAarti === 'function') {
       window.toddlerAudio.stopAarti();
     }
@@ -1687,7 +1701,7 @@ class AartiGame {
     this.angle = (this.angle + 40) % 360;
     if (plate) {
       plate.style.transform = `rotate(${this.angle}deg) scale(1.08)`;
-      setTimeout(() => { if (plate) plate.style.transform = `rotate(${this.angle}deg) scale(1.0)`; }, 200);
+      this.timers.later(() => { if (plate) plate.style.transform = `rotate(${this.angle}deg) scale(1.0)`; }, 200);
     }
     window.toddlerAudio.playTempleBell(1046.5);
     this.showerAltarPetals(Math.random() > 0.5 ? '🌹' : '🌼');
@@ -1756,11 +1770,11 @@ class AartiGame {
                 if (barBeat === 0 || barBeat === 2) {
                   if (plate) {
                     plate.classList.add('aarti-beat-pulse');
-                    setTimeout(() => plate.classList.remove('aarti-beat-pulse'), 200);
+                    this.timers.later(() => plate.classList.remove('aarti-beat-pulse'), 200);
                   }
                   if (lyricDisplay) {
                     lyricDisplay.classList.add('lyric-beat-pulse');
-                    setTimeout(() => lyricDisplay.classList.remove('lyric-beat-pulse'), 200);
+                    this.timers.later(() => lyricDisplay.classList.remove('lyric-beat-pulse'), 200);
                   }
                 }
               }
@@ -1775,7 +1789,7 @@ class AartiGame {
       this.isRotating = true;
       window.toddlerAudio.playAartiChimes();
       if (!this.isChantingAarti) {
-        setTimeout(() => window.toddlerAudio.speak({ hi: "आरती कुंजबिहारी की! जय श्री कृष्णा!", en: "Aarti for Little Krishna!" }), 450);
+        this.timers.later(() => window.toddlerAudio.speak({ hi: "आरती कुंजबिहारी की! जय श्री कृष्णा!", en: "Aarti for Little Krishna!" }), 450);
       }
       if (window.ToddlerRewards) {
         window.ToddlerRewards.award('aarti_bhakt');
@@ -1790,7 +1804,7 @@ class AartiGame {
         window.toddlerAudio.playTempleBell(880);
         window.toddlerAudio.triggerHaptic('medium');
         this.showerAltarPetals('✨');
-        setTimeout(() => bellRope.classList.remove('bell-swinging'), 1200);
+        this.timers.later(() => bellRope.classList.remove('bell-swinging'), 1200);
       });
     }
 
@@ -1802,21 +1816,23 @@ class AartiGame {
         window.toddlerAudio.playShankha();
         window.toddlerAudio.triggerHaptic('heavy');
         if (!this.isChantingAarti) {
-          setTimeout(() => window.toddlerAudio.speak({
+          this.timers.later(() => window.toddlerAudio.speak({
             hi: "पावन शंख नाद! जय श्री कृष्णा!",
             en: "Divine Shankha Naad! Jai Shri Krishna!"
           }), 750);
         }
         this.showerAltarPetals('🪷');
-        setTimeout(() => shankhaWrap.classList.remove('shankha-blowing'), 1400);
+        this.timers.later(() => shankhaWrap.classList.remove('shankha-blowing'), 1400);
       });
     }
 
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', () => {
+    const onUp = () => {
       this.isRotating = false;
       if (plate) plate.style.transform = `rotate(${this.angle}deg) scale(1.0)`;
-    });
+    };
+    this.detachWindowListeners();
+    this.windowListeners = [['pointermove', onMove], ['pointerup', onUp]];
+    this.windowListeners.forEach(pair => window.addEventListener(pair[0], pair[1]));
 
     const btnRose = this.container.querySelector('#btn-sprinkle-rose');
     const btnGenda = this.container.querySelector('#btn-sprinkle-marigold');
@@ -1828,7 +1844,7 @@ class AartiGame {
       e.preventDefault();
       window.toddlerAudio.playAartiChimes();
       if (!this.isChantingAarti) {
-        setTimeout(() => window.toddlerAudio.speak({
+        this.timers.later(() => window.toddlerAudio.speak({
           hi: "गुलाब की पंखुड़ियां! पावन समर्पण!",
           en: "Fragrant rose petals for Little Krishna!"
         }), 350);
@@ -1840,7 +1856,7 @@ class AartiGame {
       e.preventDefault();
       window.toddlerAudio.playTempleBell(880);
       if (!this.isChantingAarti) {
-        setTimeout(() => window.toddlerAudio.speak({
+        this.timers.later(() => window.toddlerAudio.speak({
           hi: "गेंदे के दिव्य फूल! कान्हा प्रसन्न!",
           en: "Golden marigolds offered to Kanha!"
         }), 350);
@@ -1853,7 +1869,7 @@ class AartiGame {
         e.preventDefault();
         window.toddlerAudio.playTempleBell(1046.5);
         if (!this.isChantingAarti) {
-          setTimeout(() => window.toddlerAudio.speak({
+          this.timers.later(() => window.toddlerAudio.speak({
             hi: "पावन तुलसी दल! श्री कृष्णा को अति प्रिय!",
             en: "Sacred Tulsi leaves! Most beloved to Krishna!"
           }), 350);
@@ -1867,7 +1883,7 @@ class AartiGame {
         e.preventDefault();
         window.toddlerAudio.playAartiChimes();
         if (!this.isChantingAarti) {
-          setTimeout(() => window.toddlerAudio.speak({
+          this.timers.later(() => window.toddlerAudio.speak({
             hi: "सुगन्धित मोगरा पुष्प! जय श्री कृष्णा!",
             en: "Sweet jasmine blossoms for Kanha!"
           }), 350);
@@ -1881,7 +1897,7 @@ class AartiGame {
         e.preventDefault();
         window.toddlerAudio.playAartiChimes();
         if (!this.isChantingAarti) {
-          setTimeout(() => window.toddlerAudio.speak({
+          this.timers.later(() => window.toddlerAudio.speak({
             hi: "सुगन्धित दिव्य धूप और अगरबत्ती!",
             en: "Sweet fragrant incense for Kanha!"
           }), 350);
@@ -1921,6 +1937,7 @@ class AartiGame {
 class ShapeMatchGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.rounds = [
       [
         { id: 'kamal', name: { hi: 'दिव्य कमल', en: 'Divya Kamal' }, emoji: '🪷', color: '#EC4899' },
@@ -1938,7 +1955,7 @@ class ShapeMatchGame {
         { id: 'tulsi', name: { hi: 'तुलसी दल', en: 'Tulsi Leaves' }, emoji: '🌿', color: '#10B981' },
         { id: 'chakra', name: { hi: 'सुदर्शन चक्र', en: 'Sudarshan Chakra' }, emoji: '☸️', color: '#F59E0B' },
         { id: 'kalash', name: { hi: 'मंगल कलश', en: 'Mangal Kalash' }, emoji: '🏺', color: '#D97706' },
-        { id: 'tilak', name: { hi: 'चन्दन तिलक', en: 'Chandan Tilak' }, emoji: '🪔', color: '#EA580C' }
+        { id: 'tilak', name: { hi: 'चन्दन तिलक', en: 'Chandan Tilak' }, emoji: '🟡', color: '#EA580C' }
       ]
     ];
     this.currentRoundIdx = 0;
@@ -1951,6 +1968,7 @@ class ShapeMatchGame {
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
@@ -2107,7 +2125,7 @@ class ShapeMatchGame {
     const total = this.rounds[this.currentRoundIdx % this.rounds.length].length;
 
     if (this.matchedCount >= total) {
-      setTimeout(() => this.triggerRoundCelebration(), 500);
+      this.timers.later(() => this.triggerRoundCelebration(), 500);
     }
   }
 
@@ -2115,7 +2133,7 @@ class ShapeMatchGame {
     window.toddlerAudio.playCelebration();
     window.toddlerAudio.triggerHaptic('celebration');
     CelebrationPetalShower.shower();
-    setTimeout(() => {
+    this.timers.later(() => {
       window.toddlerAudio.playRandomEncouragement();
     }, 600);
 
@@ -2131,7 +2149,7 @@ class ShapeMatchGame {
       }, i * 50);
     }
 
-    setTimeout(() => {
+    this.timers.later(() => {
       this.currentRoundIdx++;
       this.render();
     }, 2800);
@@ -2144,6 +2162,7 @@ class ShapeMatchGame {
 class SparkleCanvasGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.canvas = null;
     this.ctx = null;
     this.currentStamp = 'om';
@@ -2169,6 +2188,7 @@ class SparkleCanvasGame {
   }
 
   stop() {
+    this.timers.clear();
     window.removeEventListener('resize', this.resizeHandler);
     this.container.innerHTML = '';
   }
@@ -2246,8 +2266,8 @@ class SparkleCanvasGame {
   // Any-Key Keyboard Smash Handler
   handleAnyKey() {
     if (!this.canvas) return;
-    const x = 60 + Math.random() * (window.innerWidth - 120);
-    const y = 80 + Math.random() * (window.innerHeight - 220);
+    const x = 60 + Math.random() * Math.max(1, this.canvas.width - 120);
+    const y = 60 + Math.random() * Math.max(1, this.canvas.height - 200);
     const stampObj = this.stamps[Math.floor(Math.random() * this.stamps.length)];
     this.drawStamp(x, y, stampObj.emoji);
     window.toddlerAudio.playTempleBell(987.77);
@@ -2285,8 +2305,9 @@ class SparkleCanvasGame {
       }
     }
 
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    // The canvas is as big as the stage it sits in (not the window), so a stroke lands under the finger
+    this.canvas.width = Math.max(1, Math.round(this.canvas.clientWidth));
+    this.canvas.height = Math.max(1, Math.round(this.canvas.clientHeight));
     this.fillBackground();
 
     if (backupCanvas && this.ctx) {
@@ -2308,13 +2329,39 @@ class SparkleCanvasGame {
     }
   }
 
+  // Pointer position in canvas coordinates (the canvas starts below the top bar and beside the sidebar)
+  toCanvasPoint(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * (this.canvas.width / (rect.width || 1)),
+      y: (e.clientY - rect.top) * (this.canvas.height / (rect.height || 1))
+    };
+  }
+
+  // The language toggle relabels the controls in place, so the drawing is kept
+  onLanguageChange(lang) {
+    const toggle = this.container.querySelector('#mandala-toggle');
+    if (toggle) {
+      const state = this.mandalaMode ? (lang === 'hi' ? 'चालू' : 'ON') : (lang === 'hi' ? 'बंद' : 'OFF');
+      toggle.textContent = lang === 'hi' ? `🌸 मंडला: ${state}` : `🌸 Mandala: ${state}`;
+    }
+    const clearBtn = this.container.querySelector('#clear-btn');
+    if (clearBtn) clearBtn.textContent = lang === 'hi' ? '🌊 गंगा जल (स्वच्छ)' : '🌊 Ganga Jal (Clean)';
+    this.container.querySelectorAll('.stamp-btn').forEach(btn => {
+      const st = this.stamps.find(x => x.id === btn.dataset.stamp);
+      const label = btn.querySelector('.stamp-label');
+      if (st && label) label.textContent = st.name[lang] || st.name.en;
+    });
+  }
+
   handlePointerDown(e) {
     e.preventDefault();
-    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const pt = this.toCanvasPoint(e);
+    this.pointers.set(e.pointerId, pt);
 
     const stampObj = this.stamps.find(s => s.id === this.currentStamp);
     if (stampObj) {
-      this.drawStamp(e.clientX, e.clientY, stampObj.emoji);
+      this.drawStamp(pt.x, pt.y, stampObj.emoji);
       window.toddlerAudio.playTempleBell(987.77);
       if (window.ToddlerRewards) {
         window.ToddlerRewards.award('rangoli_shilpi');
@@ -2327,7 +2374,7 @@ class SparkleCanvasGame {
     e.preventDefault();
 
     const prev = this.pointers.get(e.pointerId);
-    const curr = { x: e.clientX, y: e.clientY };
+    const curr = this.toCanvasPoint(e);
 
     this.drawGoldenKumkumRibbon(prev.x, prev.y, curr.x, curr.y);
     this.pointers.set(e.pointerId, curr);
@@ -2401,8 +2448,9 @@ class SparkleCanvasGame {
 
       const ripple = document.createElement('div');
       ripple.className = 'stamp-ripple';
-      ripple.style.left = sx + 'px';
-      ripple.style.top = sy + 'px';
+      const rect = this.canvas.getBoundingClientRect();
+      ripple.style.left = (rect.left + sx * (rect.width / this.canvas.width)) + 'px';
+      ripple.style.top = (rect.top + sy * (rect.height / this.canvas.height)) + 'px';
       document.body.appendChild(ripple);
       setTimeout(function() { ripple.remove(); }, 600);
     };
@@ -2446,6 +2494,7 @@ class SparkleCanvasGame {
 class ShringarGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.items = [
       { id: 'mor_pankh', selector: '#layer-mor-pankh', name: { hi: 'मोर पंख', en: 'Mor Pankh (Feather)' }, icon: '🦚', sound: 'peacock' },
       { id: 'tilak', selector: '#layer-tilak', name: { hi: 'चन्दन तिलक', en: 'Chandan Tilak' }, icon: '🪔', sound: 'bell' },
@@ -2468,6 +2517,7 @@ class ShringarGame {
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
@@ -2526,7 +2576,7 @@ class ShringarGame {
         window.toddlerAudio.playBabyGiggle();
         window.toddlerAudio.playGhungroo();
         this.spawnJoyParticles(e.clientX, e.clientY, '💖');
-        setTimeout(() => avatar.classList.remove('avatar-happy'), 600);
+        this.timers.later(() => avatar.classList.remove('avatar-happy'), 600);
       });
     }
 
@@ -2604,7 +2654,7 @@ class ShringarGame {
       }
 
       if (this.adorned.size === this.items.length) {
-        setTimeout(() => this.celebrateFullShringar(), 700);
+        this.timers.later(() => this.celebrateFullShringar(), 700);
       }
     }
 
@@ -2656,7 +2706,7 @@ class ShringarGame {
       }, i * 50);
     }
 
-    setTimeout(() => {
+    this.timers.later(() => {
       if (avatar) avatar.classList.remove('avatar-celebrate');
     }, 3000);
   }
@@ -2683,7 +2733,7 @@ class ShringarGame {
       const avatar = this.container.querySelector('#shringar-krishna');
       if (avatar) {
         avatar.classList.add('avatar-happy');
-        setTimeout(() => avatar.classList.remove('avatar-happy'), 500);
+        this.timers.later(() => avatar.classList.remove('avatar-happy'), 500);
       }
     }
   }
@@ -2733,6 +2783,7 @@ class CelebrationPetalShower {
 class AksharaGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.mode = 'en'; // 'en', 'hi', or 'num'
     this.currentIndex = 0;
 
@@ -2961,12 +3012,13 @@ class AksharaGame {
     this.currentIndex = 0;
     this.render();
 
-    setTimeout(() => {
+    this.timers.later(() => {
       this.triggerLetterByIndex(0, false);
     }, 400);
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
@@ -3084,7 +3136,7 @@ class AksharaGame {
           if (newMode === 'quiz') {
             this.prepareQuizRound();
             this.render();
-            setTimeout(() => this.speakQuizPrompt(), 200);
+            this.timers.later(() => this.speakQuizPrompt(), 200);
           } else {
             this.render();
             this.triggerLetterByIndex(0, true);
@@ -3128,16 +3180,16 @@ class AksharaGame {
             window.ToddlerRewards.award('akshara_vidya');
           }
           CelebrationPetalShower.shower();
-          setTimeout(() => {
+          this.timers.later(() => {
             if (this.mode === 'quiz') {
               this.prepareQuizRound();
               this.render();
-              setTimeout(() => this.speakQuizPrompt(), 250);
+              this.timers.later(() => this.speakQuizPrompt(), 250);
             }
           }, 2600);
         } else {
           qCard.classList.add('quiz-nudge');
-          setTimeout(() => qCard.classList.remove('quiz-nudge'), 600);
+          this.timers.later(() => qCard.classList.remove('quiz-nudge'), 600);
           if (window.toddlerAudio) {
             window.toddlerAudio.triggerHaptic('light');
             const coach = lang === 'hi'
@@ -3161,7 +3213,7 @@ class AksharaGame {
         if (soundObj && typeof soundObj.fn === 'function') {
           soundObj.fn();
         }
-        setTimeout(() => btn.classList.remove('orb-hit'), 500);
+        this.timers.later(() => btn.classList.remove('orb-hit'), 500);
       });
     });
 
@@ -3196,7 +3248,7 @@ class AksharaGame {
           window.toddlerAudio.speak(spokenNum);
         }
         if (initTappedCount >= initTotalCount) {
-          setTimeout(() => {
+          this.timers.later(() => {
             if (window.toddlerAudio) {
               window.toddlerAudio.triggerHaptic('celebration');
               window.toddlerAudio.playCelebration();
@@ -3204,7 +3256,7 @@ class AksharaGame {
             CelebrationPetalShower.shower();
           }, 400);
         }
-        setTimeout(() => orb.classList.remove('orb-tapped'), 600);
+        this.timers.later(() => orb.classList.remove('orb-tapped'), 600);
       });
     });
 
@@ -3383,7 +3435,7 @@ class AksharaGame {
               window.toddlerAudio.speak(spokenNum);
             }
             if (tappedCount >= totalCount) {
-              setTimeout(() => {
+              this.timers.later(() => {
                 if (window.toddlerAudio) {
                   window.toddlerAudio.triggerHaptic('celebration');
                   window.toddlerAudio.playCelebration();
@@ -3391,7 +3443,7 @@ class AksharaGame {
                 CelebrationPetalShower.shower();
               }, 400);
             }
-            setTimeout(() => orb.classList.remove('orb-tapped'), 600);
+            this.timers.later(() => orb.classList.remove('orb-tapped'), 600);
           });
         });
       } else {
@@ -3505,6 +3557,7 @@ class AksharaGame {
 class PrakritiGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.selectedFlowerIndex = null;
     this.sortedCount = 0;
     this.totalToCollect = 8;
@@ -3565,6 +3618,7 @@ class PrakritiGame {
   }
 
   stop() {
+    this.timers.clear();
     if (this.petalShower && typeof this.petalShower.cleanup === 'function') {
       this.petalShower.cleanup();
     }
@@ -3737,7 +3791,7 @@ class PrakritiGame {
         } else {
           window.toddlerAudio.playWaterSplash();
         }
-        setTimeout(() => {
+        this.timers.later(() => {
           if (window.toddlerAudio) window.toddlerAudio.playGhungroo();
         }, 300);
         window.toddlerAudio.speak({
@@ -3755,7 +3809,7 @@ class PrakritiGame {
           en: "Surya blessing! Golden warm sunshine!"
         });
       }
-      setTimeout(() => {
+      this.timers.later(() => {
         if (tulsiAura) tulsiAura.classList.remove('aura-radiant-sun');
       }, 1200);
     } else if (action === 'diya') {
@@ -3829,7 +3883,7 @@ class PrakritiGame {
 
       if (basketSlot) {
         basketSlot.classList.add('basket-correct-pop');
-        setTimeout(() => basketSlot.classList.remove('basket-correct-pop'), 600);
+        this.timers.later(() => basketSlot.classList.remove('basket-correct-pop'), 600);
       }
 
       if (window.toddlerAudio) {
@@ -3847,7 +3901,7 @@ class PrakritiGame {
 
       // Check for completion
       if (this.sortedCount >= this.totalToCollect) {
-        setTimeout(() => {
+        this.timers.later(() => {
           if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
             this.petalShower.celebrate(this.container);
           }
@@ -3859,7 +3913,7 @@ class PrakritiGame {
             });
           }
           // Refresh flowers after celebration
-          setTimeout(() => {
+          this.timers.later(() => {
             this.initMeadowFlowers();
             this.render();
             this.bindPrakritiEvents();
@@ -3874,7 +3928,7 @@ class PrakritiGame {
       // Self-correcting Montessori feedback (No negative buzzer, gentle instructive chime)
       if (basketSlot) {
         basketSlot.classList.add('basket-shake');
-        setTimeout(() => basketSlot.classList.remove('basket-shake'), 600);
+        this.timers.later(() => basketSlot.classList.remove('basket-shake'), 600);
       }
       if (window.toddlerAudio) {
         window.toddlerAudio.playBansuri(329.63); // Gentle Ga
@@ -3904,7 +3958,7 @@ class PrakritiGame {
         const nextIdx = unsortedIndices[0];
         const flw = this.activeFlowers[nextIdx];
         this.selectFlower(nextIdx);
-        setTimeout(() => {
+        this.timers.later(() => {
           const basketSlot = this.container.querySelector('#basket-' + flw.categoryId);
           this.sortIntoBasket(flw.categoryId, basketSlot);
         }, 300);
@@ -3922,6 +3976,7 @@ class PrakritiGame {
 class DhyanaGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.currentEmotionId = 'shanti';
     this.pranayamaMode = 'lotus'; // 'lotus' or 'bhramari'
     this.breathCycleTimer = null;
@@ -3955,7 +4010,7 @@ class DhyanaGame {
         sound: () => {
           if (window.toddlerAudio) {
             window.toddlerAudio.playBabyGiggle();
-            setTimeout(() => {
+            this.timers.later(() => {
               if (window.toddlerAudio) window.toddlerAudio.playDivineFlutePhrase();
             }, 300);
           }
@@ -3971,7 +4026,7 @@ class DhyanaGame {
         sound: () => {
           if (window.toddlerAudio) {
             window.toddlerAudio.playCalfMoo();
-            setTimeout(() => {
+            this.timers.later(() => {
               if (window.toddlerAudio) window.toddlerAudio.playTempleBell(1046.5);
             }, 300);
           }
@@ -3998,7 +4053,7 @@ class DhyanaGame {
         sound: () => {
           if (window.toddlerAudio) {
             window.toddlerAudio.playShankha();
-            setTimeout(() => {
+            this.timers.later(() => {
               if (window.toddlerAudio) window.toddlerAudio.playDamru();
             }, 400);
           }
@@ -4028,6 +4083,7 @@ class DhyanaGame {
   }
 
   stop() {
+    this.timers.clear();
     if (this.breathCycleTimer) {
       clearTimeout(this.breathCycleTimer);
       this.breathCycleTimer = null;
@@ -4127,7 +4183,7 @@ class DhyanaGame {
       lotusWrap.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         lotusWrap.classList.add('lotus-tapped');
-        setTimeout(() => lotusWrap.classList.remove('lotus-tapped'), 800);
+        this.timers.later(() => lotusWrap.classList.remove('lotus-tapped'), 800);
         if (window.toddlerAudio) {
           if (typeof window.toddlerAudio.playOmChant === 'function') {
             window.toddlerAudio.playOmChant();
@@ -4144,10 +4200,10 @@ class DhyanaGame {
       avatarCard.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         avatarCard.classList.add('avatar-pulse');
-        setTimeout(() => avatarCard.classList.remove('avatar-pulse'), 800);
+        this.timers.later(() => avatarCard.classList.remove('avatar-pulse'), 800);
         if (window.toddlerAudio) {
           window.toddlerAudio.playBansuri(523.25);
-          setTimeout(() => {
+          this.timers.later(() => {
             if (window.toddlerAudio) window.toddlerAudio.playGhungroo();
           }, 300);
         }
@@ -4290,7 +4346,7 @@ class DhyanaGame {
       const cur = phases[phaseIndex];
       applyPhase(cur);
       phaseIndex = (phaseIndex + 1) % phases.length;
-      this.breathCycleTimer = setTimeout(runNext, cur.dur);
+      this.breathCycleTimer = this.timers.later(runNext, cur.dur);
     };
 
     runNext();
@@ -4312,6 +4368,7 @@ class DhyanaGame {
 class MatkiTowerGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.mashStep = 0;
     this.petalShower = (typeof CelebrationPetalShower !== 'undefined') ? new CelebrationPetalShower() : null;
     this.initTowerState();
@@ -4388,6 +4445,7 @@ class MatkiTowerGame {
   }
 
   stop() {
+    this.timers.clear();
     if (this.petalShower && typeof this.petalShower.cleanup === 'function') {
       this.petalShower.cleanup();
     }
@@ -4524,13 +4582,13 @@ class MatkiTowerGame {
         this.render();
         this.bindMatkiEvents();
 
-        setTimeout(() => {
+        this.timers.later(() => {
           if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
             this.petalShower.celebrate(this.container);
           }
           if (window.toddlerAudio) {
             window.toddlerAudio.playBabyGiggle();
-            setTimeout(() => {
+            this.timers.later(() => {
               if (window.toddlerAudio) window.toddlerAudio.playCelebration();
             }, 400);
             window.toddlerAudio.speak({
@@ -4547,7 +4605,7 @@ class MatkiTowerGame {
       // Self-correcting feedback: Friendly coaching
       if (btnEl) {
         btnEl.classList.add('pot-shake-wobble');
-        setTimeout(() => btnEl.classList.remove('pot-shake-wobble'), 500);
+        this.timers.later(() => btnEl.classList.remove('pot-shake-wobble'), 500);
       }
 
       if (window.toddlerAudio) {
@@ -4586,6 +4644,7 @@ class MatkiTowerGame {
 class PanchaBhutaGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.currentElementId = 'prithvi';
     this.mashIndex = 0;
 
@@ -4600,7 +4659,7 @@ class PanchaBhutaGame {
         sound: () => {
           if (window.toddlerAudio) {
             window.toddlerAudio.playCowBell();
-            setTimeout(() => {
+            this.timers.later(() => {
               if (window.toddlerAudio) window.toddlerAudio.playGrassChew();
             }, 300);
           }
@@ -4661,7 +4720,7 @@ class PanchaBhutaGame {
             if (typeof window.toddlerAudio.playKadambaBreeze === 'function') {
               window.toddlerAudio.playKadambaBreeze();
             }
-            setTimeout(() => {
+            this.timers.later(() => {
               if (window.toddlerAudio) window.toddlerAudio.playDivineFlutePhrase();
             }, 300);
           }
@@ -4707,6 +4766,7 @@ class PanchaBhutaGame {
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
@@ -4782,7 +4842,7 @@ class PanchaBhutaGame {
       heroCard.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         heroCard.classList.add('bhuta-tapped-pulse');
-        setTimeout(() => heroCard.classList.remove('bhuta-tapped-pulse'), 700);
+        this.timers.later(() => heroCard.classList.remove('bhuta-tapped-pulse'), 700);
         const elem = this.elements.find(el => el.id === this.currentElementId);
         if (elem && typeof elem.sound === 'function') elem.sound();
       });
@@ -4825,6 +4885,7 @@ class PanchaBhutaGame {
 class UtsavaGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.currentFestivalId = 'janmashtami';
     this.diwaliLitCount = 0;
     this.mashStep = 0;
@@ -4888,6 +4949,7 @@ class UtsavaGame {
   }
 
   stop() {
+    this.timers.clear();
     if (this.petalShower && typeof this.petalShower.cleanup === 'function') {
       this.petalShower.cleanup();
     }
@@ -5059,7 +5121,7 @@ class UtsavaGame {
         } else {
           window.toddlerAudio.playTempleBell(1046.5);
         }
-        setTimeout(() => {
+        this.timers.later(() => {
           if (window.toddlerAudio) window.toddlerAudio.playBabyGiggle();
         }, 400);
         window.toddlerAudio.speak({
@@ -5073,7 +5135,7 @@ class UtsavaGame {
       }
       if (window.toddlerAudio) {
         window.toddlerAudio.playBabyGiggle();
-        setTimeout(() => {
+        this.timers.later(() => {
           if (window.toddlerAudio) window.toddlerAudio.playCelebration();
         }, 300);
         window.toddlerAudio.speak({
@@ -5093,7 +5155,7 @@ class UtsavaGame {
           window.toddlerAudio.playAartiChimes();
         }
         if (this.diwaliLitCount === 5) {
-          setTimeout(() => {
+          this.timers.later(() => {
             if (this.petalShower && typeof this.petalShower.celebrate === 'function') {
               this.petalShower.celebrate(this.container);
             }
@@ -5126,7 +5188,7 @@ class UtsavaGame {
         } else {
           window.toddlerAudio.playBansuri(523.25);
         }
-        setTimeout(() => {
+        this.timers.later(() => {
           if (window.toddlerAudio) window.toddlerAudio.playGhungroo();
         }, 300);
         window.toddlerAudio.speak({
@@ -5156,6 +5218,7 @@ class UtsavaGame {
 class VadyaGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.currentVadyaId = 'veena';
     this.mashCount = 0;
 
@@ -5191,7 +5254,7 @@ class VadyaGame {
           if (window.toddlerAudio) {
             if (typeof window.toddlerAudio.playMridangaDha === 'function') {
               window.toddlerAudio.playMridangaDha();
-              setTimeout(() => {
+              this.timers.later(() => {
                 if (window.toddlerAudio) window.toddlerAudio.playMridangaTa();
               }, 250);
             } else {
@@ -5282,6 +5345,7 @@ class VadyaGame {
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
