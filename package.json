@@ -1,6 +1,6 @@
 {
   "name": "bala-gopala-gurukul",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Vedic sensory & educational games for children aged 1-5, rooted in Maharishi Sandipani's 16 Kalas & 64 Vidhyas. Zero-dependency offline PWA.",
   "main": "server.js",
   "scripts": {

@@ -1187,8 +1187,7 @@ class ToddlerApp {
 
     // Shower of flower petals
     if (typeof CelebrationPetalShower !== 'undefined') {
-      const shower = new CelebrationPetalShower(this.stage);
-      shower.burst(60);
+      CelebrationPetalShower.shower();
     }
 
     if (window.toddlerAudio) {

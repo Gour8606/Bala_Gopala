@@ -83,6 +83,8 @@ The first seven are described in detail; the full library follows.
 | 21 | 💖 **Divya Sanskara** | Chooses the kind action in everyday situations |
 | 22 | 🛕 **Mandir Builder** | Builds a temple from geometric shapes in order |
 
+Games 15–22 play in **rounds**: questions are generated or shuffled each time (so answers cannot be memorised), a row of dots shows progress, the right answer starts to glow after two wrong tries, and finishing a round earns that game's sticker. All 22 games have a sticker in the album.
+
 Every game is listed once in `GAME_CATALOG` at the top of `app.js` (icon, Hindi/English name, subtitle, hint). The navbar, sidebar and counters are all driven from that list.
 
 ---

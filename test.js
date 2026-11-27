@@ -360,6 +360,96 @@ console.log('\n🔗 7. Verifying Cross-File Consistency...');
   assert(indexHtml.includes('Content-Security-Policy'), 'index.html declares a Content-Security-Policy');
 })();
 
+// 7f. Game logic that can be checked without a browser
+console.log('\n🎲 7f. Verifying Round Generation & Rewards...');
+(function () {
+  const G = require('./games.js');
+  const kit = G.GamePlayKit;
+
+  const shuffled = kit.shuffle([1, 2, 3, 4, 5, 6]);
+  assert(shuffled.length === 6 && shuffled.slice().sort().join() === '1,2,3,4,5,6', 'GamePlayKit.shuffle keeps every element');
+  assert(kit.stripNumber('१. प्रातः नमस्ते') === 'प्रातः नमस्ते' && kit.stripNumber('1. Morning Namaste') === 'Morning Namaste', 'GamePlayKit.stripNumber removes Devanagari and Latin order numbers');
+
+  // Pattern Mala: 200 generated rounds must all be well-formed and actually follow their rule
+  let patternOk = true;
+  const firstAnswers = {};
+  for (let n = 0; n < 200 && patternOk; n++) {
+    const game = new G.PatternMalaGame({});
+    const round = game.buildRound();
+    if (round.length !== 5) patternOk = false;
+    round.forEach((lvl, i) => {
+      const unit = game.rules[i].unit;
+      const full = lvl.seq.concat([lvl.answer]);
+      const follows = full.every((bead, k) => bead === full[k % unit.length]);
+      const distinct = new Set(lvl.choices).size === lvl.choices.length;
+      if (!follows || !distinct || lvl.choices.length !== 3 || lvl.choices.indexOf(lvl.answer) === -1 || lvl.seq.length !== 5) patternOk = false;
+    });
+    firstAnswers[round[0].answer] = true;
+  }
+  assert(patternOk, 'Pattern Mala: every generated pattern follows its rule and offers 3 distinct choices including the answer');
+  assert(Object.keys(firstAnswers).length >= 6, `Pattern Mala: patterns vary between rounds (${Object.keys(firstAnswers).length} different first answers in 200 rounds)`);
+
+  // Habitat: rounds are a fresh sample, every creature has a real habitat
+  const habitat = new G.HabitatGame({});
+  const habitatIds = habitat.habitats.map((h) => h.id);
+  assert(habitat.creatures.length >= 10 && habitat.creatures.every((c) => habitatIds.indexOf(c.habitat) !== -1 && c.fact.hi && c.fact.en), 'Habitat: 10+ creatures, each with a valid habitat and a bilingual fact');
+  const r1 = habitat.buildRound();
+  assert(r1.length === habitat.roundLength && new Set(r1).size === r1.length, 'Habitat: a round has no repeated creature');
+  const orders = {};
+  for (let n = 0; n < 40; n++) orders[habitat.buildRound().map((c) => c.icon).join('')] = true;
+  assert(Object.keys(orders).length > 20, 'Habitat: round order is shuffled');
+
+  // Sanskara: the kind answer must not sit on a fixed side
+  const sanskara = new G.SanskaraValuesGame({});
+  let goodFirst = 0;
+  for (let n = 0; n < 400; n++) { sanskara.prepareQuestion(); if (sanskara.choiceOrder[0] === 'good') goodFirst++; }
+  assert(goodFirst > 140 && goodFirst < 260, `Sanskara: the kind choice appears on either side (${goodFirst}/400 first)`);
+  assert(sanskara.scenarios.length >= 6 && sanskara.scenarios.every((s) => s.good && s.other && s.praise.hi && s.praise.en), 'Sanskara: 6+ complete bilingual scenarios');
+  assert(!gamesCode.includes('is-good-opt'), 'Sanskara: markup carries no class that gives the answer away');
+
+  // Sequencing games offer their pieces in a mixed order
+  const mandir = new G.MandirBuilderGame({});
+  const dina = new G.DinacharyaGame({});
+  const mOrders = {}, dOrders = {};
+  for (let n = 0; n < 60; n++) { mandir.newBuild(); dina.newDay(); mOrders[mandir.trayOrder.join('')] = true; dOrders[dina.trayOrder.join('')] = true; }
+  assert(Object.keys(mOrders).length > 15 && Object.keys(dOrders).length > 15, 'Mandir & Dinacharya: tray order is shuffled each round');
+
+  // Timers and hints
+  const timers = new G.GameTimers();
+  let fired = 0;
+  timers.later(() => { fired++; }, 5);
+  timers.later(() => { fired++; }, 5);
+  timers.clear();
+  assert(timers.ids.length === 0, 'GameTimers.clear() cancels everything pending');
+  setTimeout(() => assert(fired === 0, 'GameTimers: cancelled callbacks never run'), 30);
+  const hints = new G.HintTracker();
+  hints.miss();
+  const afterOne = hints.shouldHint();
+  hints.miss();
+  assert(!afterOne && hints.shouldHint(), 'HintTracker: the hint appears on the second miss, not the first');
+
+  // Every game can earn exactly one sticker
+  const stickerIds = G.ToddlerRewards.stickers.map((s) => s.id);
+  assert(stickerIds.length === all22Games.length && new Set(stickerIds).size === stickerIds.length, `Sticker album has one unique sticker per game (${stickerIds.length})`);
+  const awarded = {};
+  (gamesCode.match(/(?:ToddlerRewards\.award|celebrateRound)\('(\w+)'/g) || []).forEach((m) => { awarded[m.split("'")[1]] = true; });
+  const unreachable = stickerIds.filter((id) => !awarded[id]);
+  const unknown = Object.keys(awarded).filter((id) => stickerIds.indexOf(id) === -1);
+  assert(unreachable.length === 0 && unknown.length === 0, `Every sticker can be earned and every award names a real sticker (${unreachable.concat(unknown).join(', ') || 'ok'})`);
+  assert(G.ToddlerRewards.stickers.every((s) => s.title.hi && s.title.en && s.desc.hi && s.desc.en && s.icon), 'Every sticker has an icon and bilingual title and description');
+
+  // The eight rewritten games must cancel their timers when the child leaves
+  ['PatternMalaGame', 'DinacharyaGame', 'HabitatGame', 'BalaYogaGame', 'RituChakraGame', 'KolamSymmetryGame', 'SanskaraValuesGame', 'MandirBuilderGame'].forEach((name) => {
+    const body = gamesCode.slice(gamesCode.indexOf('class ' + name + ' {'));
+    const stopBody = body.slice(body.indexOf('  stop() {'), body.indexOf('  stop() {') + 120);
+    assert(stopBody.includes('this.timers.clear()'), `${name}.stop() cancels its pending timers`);
+  });
+  const petalMethods = {};
+  ((appCode + gamesCode).match(/(?:petalShower|shower)\.(\w+)\(/g) || []).forEach((m) => { petalMethods[m.split('.')[1].slice(0, -1)] = true; });
+  const missingPetal = Object.keys(petalMethods).filter((m) => typeof G.CelebrationPetalShower.prototype[m] !== 'function' && typeof G.CelebrationPetalShower[m] !== 'function');
+  assert(missingPetal.length === 0, `Every CelebrationPetalShower method the games call exists (${missingPetal.join(', ') || 'ok'})`);
+})();
+
 // 8. Live HTTP server: the real server.js on an ephemeral port
 console.log('\n🌐 8. Verifying HTTP Server (real server.js)...');
 const { createServer } = require('./server.js');
@@ -380,7 +470,7 @@ const liveServer = createServer();
 liveServer.listen(0, '127.0.0.1', async () => {
   const port = liveServer.address().port;
   try {
-    const publicPaths = ['/', '/manifest.json', '/favicon.svg', '/sw.js', '/styles.css', '/audio.js', '/vedic-assets.js', '/games.js', '/app.js', '/fonts/fredoka-latin.woff2', '/icons/icon-192.png', '/app.js?v=5.0'];
+    const publicPaths = ['/', '/manifest.json', '/favicon.svg', '/sw.js', '/styles.css', '/audio.js', '/vedic-assets.js', '/games.js', '/app.js', '/fonts/fredoka-latin.woff2', '/icons/icon-192.png', '/app.js?v=5.1'];
     for (const p of publicPaths) {
       const r = await request(port, { path: p });
       assert(r.status === 200 && r.body.length > 50, `GET ${p} returns 200 with content`);

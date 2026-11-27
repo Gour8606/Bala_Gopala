@@ -115,6 +115,54 @@ const ToddlerRewards = {
       icon: '🪕',
       title: { hi: 'नाद ब्रह्म', en: 'Sacred Musician' },
       desc: { hi: 'वीणा, मृदंग व मंजीरा बजाया!', en: 'Played divine classical instruments!' }
+    },
+    {
+      id: 'mala_shilpi',
+      icon: '📿',
+      title: { hi: 'माला शिल्पी', en: 'Pattern Master' },
+      desc: { hi: 'पाँचों माला क्रम पूरे किए!', en: 'Completed five bead patterns!' }
+    },
+    {
+      id: 'dinacharya_veer',
+      icon: '🌞',
+      title: { hi: 'दिनचर्या वीर', en: 'Routine Star' },
+      desc: { hi: 'सुबह से रात की दिनचर्या सजाई!', en: 'Ordered the whole day, morning to night!' }
+    },
+    {
+      id: 'van_mitra',
+      icon: '🏞️',
+      title: { hi: 'वन मित्र', en: 'Nature Friend' },
+      desc: { hi: 'सभी मित्रों को उनके घर पहुँचाया!', en: 'Helped every friend find its home!' }
+    },
+    {
+      id: 'nanha_yogi',
+      icon: '🤸',
+      title: { hi: 'नन्हा योगी', en: 'Little Yogi' },
+      desc: { hi: 'चारों योगासन श्वास के साथ किए!', en: 'Held all four poses with calm breaths!' }
+    },
+    {
+      id: 'ritu_gyani',
+      icon: '🌦️',
+      title: { hi: 'ऋतु ज्ञानी', en: 'Season Explorer' },
+      desc: { hi: 'भारत की छहों ऋतुएँ जानीं!', en: 'Explored all six seasons!' }
+    },
+    {
+      id: 'kolam_kalakar',
+      icon: '💠',
+      title: { hi: 'कोलम कलाकार', en: 'Kolam Artist' },
+      desc: { hi: 'सुन्दर सममित कोलम बनाया!', en: 'Created a beautiful mirrored kolam!' }
+    },
+    {
+      id: 'daya_sagar',
+      icon: '💖',
+      title: { hi: 'दया सागर', en: 'Kind Heart' },
+      desc: { hi: 'हर बार प्यार भरा काम चुना!', en: 'Chose the loving action every time!' }
+    },
+    {
+      id: 'mandir_shilpi',
+      icon: '🛕',
+      title: { hi: 'मन्दिर शिल्पी', en: 'Temple Builder' },
+      desc: { hi: 'नींव से ध्वजा तक मन्दिर बनाया!', en: 'Built a temple from base to flag!' }
     }
   ],
 
@@ -243,6 +291,96 @@ if (typeof window !== 'undefined') {
 }
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { ToddlerPersistence, ElementPool };
+}
+
+// ==========================================================================
+// GAME PLAY KIT — shared building blocks for the question-and-answer games
+// ==========================================================================
+const GamePlayKit = {
+  lang: function() {
+    return (typeof window !== 'undefined' && window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+  },
+
+  // Fisher-Yates; returns a new array and leaves the input untouched
+  shuffle: function(list) {
+    const out = list.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = out[i]; out[i] = out[j]; out[j] = tmp;
+    }
+    return out;
+  },
+
+  sample: function(list, count) {
+    return GamePlayKit.shuffle(list).slice(0, count);
+  },
+
+  // "१. प्रातः नमस्ते" / "1. Morning Namaste" -> the name without its order number
+  stripNumber: function(text) {
+    return String(text).replace(/^[0-9०-९]+\.\s*/, '');
+  },
+
+  // A row of dots showing how far through the round the child is
+  progressDots: function(done, total) {
+    let dots = '';
+    for (let i = 0; i < total; i++) {
+      dots += '<span class="round-dot ' + (i < done ? 'is-done' : (i === done ? 'is-current' : '')) + '"></span>';
+    }
+    return '<div class="round-progress" role="img" aria-label="' + Math.min(done, total) + ' / ' + total + '">' + dots + '</div>';
+  },
+
+  // End of a round: the first time it unlocks the game's sticker (which announces
+  // itself); on later rounds the child hears the praise instead.
+  celebrateRound: function(stickerId, praise) {
+    const isNewSticker = (typeof window !== 'undefined' && window.ToddlerRewards) ? window.ToddlerRewards.award(stickerId) : false;
+    if (!isNewSticker && typeof window !== 'undefined' && window.toddlerAudio) {
+      window.toddlerAudio.playCelebration();
+      window.toddlerAudio.speak(praise);
+    }
+    return isNewSticker;
+  }
+};
+
+// Timers that belong to one game. clear() cancels everything still pending, so
+// nothing a game scheduled can speak or redraw after the child has left it.
+class GameTimers {
+  constructor() {
+    this.ids = [];
+  }
+
+  later(fn, ms) {
+    const id = setTimeout(() => {
+      const at = this.ids.indexOf(id);
+      if (at !== -1) this.ids.splice(at, 1);
+      fn();
+    }, ms);
+    this.ids.push(id);
+    return id;
+  }
+
+  clear() {
+    this.ids.forEach((id) => clearTimeout(id));
+    this.ids = [];
+  }
+}
+
+// Counts wrong tries on the current question. From the second miss the right
+// answer starts to glow, so a stuck child is helped rather than left guessing.
+class HintTracker {
+  constructor(missesBeforeHint) {
+    this.threshold = missesBeforeHint || 2;
+    this.misses = 0;
+  }
+
+  reset() { this.misses = 0; }
+  miss() { this.misses++; }
+  shouldHint() { return this.misses >= this.threshold; }
+}
+
+if (typeof window !== 'undefined') {
+  window.GamePlayKit = GamePlayKit;
+  window.GameTimers = GameTimers;
+  window.HintTracker = HintTracker;
 }
 
 // ==========================================================================
@@ -2555,6 +2693,19 @@ class ShringarGame {
 // VEDIC FLOWER PETAL CELEBRATION SHOWER (Commercial Particle System)
 // ==========================================================================
 class CelebrationPetalShower {
+  // Instance form used by the games that keep a shower object around
+  celebrate() {
+    CelebrationPetalShower.shower();
+  }
+
+  cleanup() {
+    if (typeof document === 'undefined') return;
+    const petals = document.querySelectorAll('.falling-vedic-petal');
+    for (let i = 0; i < petals.length; i++) {
+      if (petals[i].parentNode) petals[i].parentNode.removeChild(petals[i]);
+    }
+  }
+
   static shower() {
     if (typeof document === 'undefined') return;
     const petals = ['🌸', '🪷', '🌼', '🌺', '🌹', '✨', '🍯'];
@@ -5281,66 +5432,72 @@ class VadyaGame {
 class PatternMalaGame {
   constructor(container) {
     this.container = container;
-    this.levelIdx = 0;
+    this.timers = new GameTimers();
+    this.hints = new HintTracker();
     this.solved = false;
-    this.levels = [
-      {
-        seq: ['🪷', '🌼', '🪷', '🌼', '🪷'],
-        answer: '🌼',
-        choices: ['🌼', '🪷', '🌿'],
-        name: { hi: 'कमल और गेंदा माला', en: 'Lotus & Marigold Pattern' }
-      },
-      {
-        seq: ['🦚', '🐚', '🦚', '🐚', '🦚'],
-        answer: '🐚',
-        choices: ['🪷', '🐚', '🦚'],
-        name: { hi: 'मयूर और शंख क्रम', en: 'Peacock & Conch Pattern' }
-      },
-      {
-        seq: ['🍯', '🍯', '🐮', '🍯', '🍯'],
-        answer: '🐮',
-        choices: ['🐮', '🍯', '🌼'],
-        name: { hi: 'माखन और गऊ क्रम', en: 'Butter & Cow AAB Pattern' }
-      },
-      {
-        seq: ['🌿', '🌸', '🪔', '🌿', '🌸'],
-        answer: '🪔',
-        choices: ['🌿', '🪔', '🌸'],
-        name: { hi: 'तुलसी, पुष्प और दीपक क्रम', en: 'Tulsi, Flower & Diya ABC Pattern' }
-      }
+    this.roundIdx = 0;
+    this.round = [];
+    this.beadPool = ['🪷', '🌼', '🦚', '🐚', '🍯', '🐮', '🌿', '🌸', '🪔', '🔔', '⭐', '🪈'];
+    // Each rule is the repeating unit. A round climbs from simple AB to three-part ABC.
+    this.rules = [
+      { unit: [0, 1], name: { hi: 'एक-एक क्रम (AB)', en: 'Turn-by-Turn Pattern (AB)' } },
+      { unit: [0, 1], name: { hi: 'एक-एक क्रम (AB)', en: 'Turn-by-Turn Pattern (AB)' } },
+      { unit: [0, 0, 1], name: { hi: 'दो-एक क्रम (AAB)', en: 'Two-and-One Pattern (AAB)' } },
+      { unit: [0, 1, 1], name: { hi: 'एक-दो क्रम (ABB)', en: 'One-and-Two Pattern (ABB)' } },
+      { unit: [0, 1, 2], name: { hi: 'तीन मोती क्रम (ABC)', en: 'Three-Bead Pattern (ABC)' } }
     ];
   }
 
+  // Builds a fresh round: new beads every time, so the answers cannot be memorised
+  buildRound() {
+    return this.rules.map((rule) => {
+      const beads = GamePlayKit.sample(this.beadPool, 4);
+      const seq = [];
+      for (let i = 0; i < 5; i++) seq.push(beads[rule.unit[i % rule.unit.length]]);
+      const answer = beads[rule.unit[5 % rule.unit.length]];
+      // Choices: the answer, the other beads in the pattern, then an outside distractor
+      const choices = [answer];
+      seq.concat([beads[3]]).forEach((b) => {
+        if (choices.length < 3 && choices.indexOf(b) === -1) choices.push(b);
+      });
+      return { seq: seq, answer: answer, choices: GamePlayKit.shuffle(choices), name: rule.name };
+    });
+  }
+
   start() {
-    this.levelIdx = 0;
+    this.round = this.buildRound();
+    this.roundIdx = 0;
     this.solved = false;
+    this.hints.reset();
     this.render();
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-    const lvl = this.levels[this.levelIdx % this.levels.length];
+    const lang = GamePlayKit.lang();
+    const lvl = this.round[this.roundIdx];
     const headerTitle = lang === 'hi'
-      ? '✨ माला क्रम (Montessori Pattern): अगला मोती चुनकर माला पूरी करें!'
-      : '✨ Pattern Mala (Montessori Logic): Pick the Next Bead to Complete the Garland!';
+      ? '📿 माला क्रम (Montessori Pattern): अगला मोती चुनकर माला पूरी करें!'
+      : '📿 Pattern Mala (Montessori Logic): Pick the Next Bead to Complete the Garland!';
 
     this.container.innerHTML = `
       <div class="game-pattern vedic-theme">
         <div class="pattern-header">
           <h2>${headerTitle}</h2>
           <div class="pattern-sub-badge">${lvl.name[lang] || lvl.name.en}</div>
+          ${GamePlayKit.progressDots(this.roundIdx, this.round.length)}
         </div>
         <div class="pattern-mala-strand">
           ${lvl.seq.map(item => `<div class="pattern-bead">${item}</div>`).join('')}
           <div class="pattern-bead pattern-slot ${this.solved ? 'is-solved' : ''}" id="pattern-missing-slot">${this.solved ? lvl.answer : '❓'}</div>
         </div>
         <div class="pattern-choices-row">
-          ${lvl.choices.map((ch, idx) => `
-            <button class="pattern-choice-btn" data-choice="${ch}" data-idx="${idx}">${ch}</button>
+          ${lvl.choices.map((ch) => `
+            <button class="pattern-choice-btn ${this.hints.shouldHint() && ch === lvl.answer ? 'hint-glow' : ''}" data-choice="${ch}" aria-label="${ch}">${ch}</button>
           `).join('')}
         </div>
       </div>
@@ -5349,53 +5506,73 @@ class PatternMalaGame {
   }
 
   bindEvents() {
-    const lvl = this.levels[this.levelIdx % this.levels.length];
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lvl = this.round[this.roundIdx];
     const btns = this.container.querySelectorAll('.pattern-choice-btn');
     btns.forEach(btn => {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (this.solved) return;
-        const picked = btn.dataset.choice;
-        if (picked === lvl.answer) {
-          this.solved = true;
-          const slot = this.container.querySelector('#pattern-missing-slot');
-          if (slot) {
-            slot.textContent = picked;
-            slot.classList.add('is-solved');
-          }
-          if (window.toddlerAudio) {
-            window.toddlerAudio.triggerHaptic('celebration');
-            window.toddlerAudio.playTempleBell(1046.5);
-            window.toddlerAudio.speak({
-              hi: 'शाबाश! बिल्कुल सही! माला पूरी हुई!',
-              en: 'Wonderful! You completed the pattern!'
-            });
-          }
-          CelebrationPetalShower.shower();
-          setTimeout(() => {
-            this.levelIdx = (this.levelIdx + 1) % this.levels.length;
-            this.solved = false;
-            this.render();
-          }, 2200);
+        if (btn.dataset.choice === lvl.answer) {
+          this.onCorrect();
         } else {
-          btn.classList.add('pattern-nudge');
-          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
-          if (window.toddlerAudio) {
-            window.toddlerAudio.triggerHaptic('light');
-            window.toddlerAudio.speak({
-              hi: 'ध्यान से देखें! अगला कौन सा आएगा?',
-              en: 'Look closely! Which one comes next?'
-            });
-          }
+          this.onWrong(btn);
         }
       });
     });
   }
 
+  onCorrect() {
+    const lvl = this.round[this.roundIdx];
+    this.solved = true;
+    const slot = this.container.querySelector('#pattern-missing-slot');
+    if (slot) {
+      slot.textContent = lvl.answer;
+      slot.classList.add('is-solved');
+    }
+    const isRoundEnd = this.roundIdx === this.round.length - 1;
+    if (window.toddlerAudio) {
+      window.toddlerAudio.triggerHaptic('celebration');
+      window.toddlerAudio.playTempleBell(1046.5);
+    }
+    CelebrationPetalShower.shower();
+    if (isRoundEnd) {
+      GamePlayKit.celebrateRound('mala_shilpi', { hi: 'अद्भुत! पाँचों मालाएँ पूरी हुईं!', en: 'Amazing! You finished all five garlands!' });
+    } else if (window.toddlerAudio) {
+      window.toddlerAudio.speak({ hi: 'शाबाश! बिल्कुल सही! माला पूरी हुई!', en: 'Wonderful! You completed the pattern!' });
+    }
+    this.timers.later(() => {
+      if (isRoundEnd) {
+        this.round = this.buildRound();
+        this.roundIdx = 0;
+      } else {
+        this.roundIdx++;
+      }
+      this.solved = false;
+      this.hints.reset();
+      this.render();
+    }, isRoundEnd ? 3600 : 2200);
+  }
+
+  onWrong(btn) {
+    btn.classList.add('pattern-nudge');
+    this.timers.later(() => btn.classList.remove('pattern-nudge'), 500);
+    this.hints.miss();
+    if (this.hints.shouldHint()) {
+      const lvl = this.round[this.roundIdx];
+      const right = this.container.querySelector(`.pattern-choice-btn[data-choice="${lvl.answer}"]`);
+      if (right) right.classList.add('hint-glow');
+    }
+    if (window.toddlerAudio) {
+      window.toddlerAudio.triggerHaptic('light');
+      window.toddlerAudio.speak(this.hints.shouldHint()
+        ? { hi: 'चमकते मोती को देखो!', en: 'Look at the glowing bead!' }
+        : { hi: 'ध्यान से देखें! अगला कौन सा आएगा?', en: 'Look closely! Which one comes next?' });
+    }
+  }
+
   handleAnyKey() {
-    const lvl = this.levels[this.levelIdx % this.levels.length];
-    const correctBtn = this.container.querySelector(`.pattern-choice-btn[data-choice="${lvl.answer}"]`);
+    const lvl = this.round[this.roundIdx];
+    const correctBtn = lvl ? this.container.querySelector(`.pattern-choice-btn[data-choice="${lvl.answer}"]`) : null;
     if (correctBtn) {
       correctBtn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
     }
@@ -5408,7 +5585,10 @@ class PatternMalaGame {
 class DinacharyaGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
+    this.hints = new HintTracker();
     this.currentStep = 0;
+    this.trayOrder = [];
     this.steps = [
       { id: 'wake', icon: '🌅', title: { hi: '१. प्रातः नमस्ते', en: '1. Morning Namaste' }, desc: { hi: 'सूरज दादा को प्रणाम! शुभ प्रभात!', en: 'Greet the morning sun! Good morning!' }, sound: 'bell' },
       { id: 'bath', icon: '🛁', title: { hi: '२. स्नान व स्वच्छता', en: '2. Fresh Bath' }, desc: { hi: 'ताजे जल से स्नान करके स्वच्छ बनें!', en: 'Wash up fresh and clean!' }, sound: 'water' },
@@ -5418,20 +5598,36 @@ class DinacharyaGame {
     ];
   }
 
-  start() {
+  newDay() {
     this.currentStep = 0;
+    this.hints.reset();
+    // The picture cards are offered in a mixed-up order: the child works out what comes next
+    this.trayOrder = GamePlayKit.shuffle(this.steps.map((s, i) => i));
+  }
+
+  start() {
+    this.newDay();
     this.render();
+    this.timers.later(() => this.speakQuestion(), 400);
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
+  speakQuestion() {
+    if (!window.toddlerAudio) return;
+    window.toddlerAudio.speak(this.currentStep === 0
+      ? { hi: 'कान्हा का दिन कैसे शुरू होता है?', en: "How does Kanha's day begin?" }
+      : { hi: 'इसके बाद क्या आता है?', en: 'What comes next?' });
+  }
+
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lang = GamePlayKit.lang();
     const headerTitle = lang === 'hi'
-      ? '🌞 कान्हा की दिनचर्या (Practical Life): क्रम से दिन की अच्छी आदतें चुनें!'
-      : '🌞 Daily Routine (Montessori Practical Life): Follow Healthy Habits in Order!';
+      ? '🌞 कान्हा की दिनचर्या (Practical Life): बताओ, अब क्या करना है?'
+      : '🌞 Daily Routine (Montessori Practical Life): What Comes Next?';
     const allDone = this.currentStep >= this.steps.length;
 
     this.container.innerHTML = `
@@ -5439,30 +5635,43 @@ class DinacharyaGame {
         <div class="dinacharya-header">
           <h2>${headerTitle}</h2>
         </div>
-        <div class="dinacharya-timeline">
+        <div class="dinacharya-timeline" id="dinacharya-timeline">
           ${this.steps.map((st, idx) => {
             const isDone = idx < this.currentStep;
             const isNext = idx === this.currentStep;
             return `
-              <button class="dinacharya-card ${isDone ? 'is-done' : ''} ${isNext ? 'is-next' : ''}" data-idx="${idx}">
-                <div class="dinacharya-icon">${st.icon}</div>
-                <div class="dinacharya-title">${st.title[lang] || st.title.en}</div>
-                <div class="dinacharya-status">${isDone ? '⭐' : (isNext ? '👆' : '⏳')}</div>
-              </button>
+              <div class="dinacharya-card dinacharya-slot ${isDone ? 'is-done' : 'is-pending'} ${isNext ? 'is-current-slot' : ''}">
+                <div class="dinacharya-icon">${isDone ? st.icon : '❔'}</div>
+                <div class="dinacharya-title">${isDone ? (st.title[lang] || st.title.en) : (idx + 1)}</div>
+                <div class="dinacharya-status">${isDone ? '⭐' : (isNext ? '👇' : '⏳')}</div>
+              </div>
             `;
           }).join('')}
         </div>
         ${allDone ? `
           <button class="dinacharya-reset-btn" id="dinacharya-reset">🔄 ${lang === 'hi' ? 'फिर से खेलें' : 'Play Again'}</button>
-        ` : ''}
+        ` : `
+          <div class="dinacharya-tray">
+            ${this.trayOrder.filter(idx => idx >= this.currentStep).map(idx => {
+              const st = this.steps[idx];
+              const hint = this.hints.shouldHint() && idx === this.currentStep;
+              return `
+                <button class="dinacharya-card dinacharya-choice ${hint ? 'hint-glow' : ''}" data-idx="${idx}">
+                  <div class="dinacharya-icon">${st.icon}</div>
+                  <div class="dinacharya-title">${GamePlayKit.stripNumber(st.title[lang] || st.title.en)}</div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        `}
       </div>
     `;
     this.bindEvents();
   }
 
   bindEvents() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-    const cards = this.container.querySelectorAll('.dinacharya-card');
+    const lang = GamePlayKit.lang();
+    const cards = this.container.querySelectorAll('.dinacharya-choice');
     cards.forEach(card => {
       card.addEventListener('pointerdown', (e) => {
         e.preventDefault();
@@ -5470,28 +5679,36 @@ class DinacharyaGame {
         if (idx === this.currentStep) {
           const st = this.steps[idx];
           this.currentStep++;
+          this.hints.reset();
+          const allDone = this.currentStep >= this.steps.length;
           if (window.toddlerAudio) {
-            window.toddlerAudio.triggerHaptic('medium');
+            window.toddlerAudio.triggerHaptic(allDone ? 'celebration' : 'medium');
             if (st.sound === 'water') window.toddlerAudio.playWaterSprinkle();
             else if (st.sound === 'makhan') window.toddlerAudio.playMakhanPop();
             else if (st.sound === 'giggle') window.toddlerAudio.playBabyGiggle();
             else if (st.sound === 'lullaby') window.toddlerAudio.playTempleBell(659.25);
             else window.toddlerAudio.playTempleBell(880);
-            setTimeout(() => window.toddlerAudio.speak((st.title[lang] || st.title.en) + '! ' + (st.desc[lang] || st.desc.en)), 350);
+            this.timers.later(() => window.toddlerAudio.speak((st.title[lang] || st.title.en) + '! ' + (st.desc[lang] || st.desc.en)), 350);
           }
-          if (this.currentStep >= this.steps.length) {
+          if (allDone) {
             CelebrationPetalShower.shower();
+            this.timers.later(() => GamePlayKit.celebrateRound('dinacharya_veer', { hi: 'वाह! कान्हा का पूरा दिन सुन्दर बीता!', en: "Wonderful! Kanha's whole day went beautifully!" }), 3200);
           }
           this.render();
-        } else if (idx > this.currentStep) {
+        } else {
           card.classList.add('pattern-nudge');
-          setTimeout(() => card.classList.remove('pattern-nudge'), 500);
+          this.timers.later(() => card.classList.remove('pattern-nudge'), 500);
+          this.hints.miss();
+          if (this.hints.shouldHint()) {
+            const right = this.container.querySelector(`.dinacharya-choice[data-idx="${this.currentStep}"]`);
+            if (right) right.classList.add('hint-glow');
+          }
           const nextSt = this.steps[this.currentStep];
           if (window.toddlerAudio && nextSt) {
-            window.toddlerAudio.speak({
-              hi: 'पहले ' + nextSt.title.hi + ' करें!',
-              en: 'First let us do ' + nextSt.title.en + '!'
-            });
+            window.toddlerAudio.triggerHaptic('light');
+            window.toddlerAudio.speak(this.hints.shouldHint()
+              ? { hi: 'पहले ' + GamePlayKit.stripNumber(nextSt.title.hi) + '!', en: 'First comes ' + GamePlayKit.stripNumber(nextSt.title.en) + '!' }
+              : { hi: 'सोचो! इससे पहले क्या आता है?', en: 'Think! What comes before this?' });
           }
         }
       });
@@ -5501,7 +5718,7 @@ class DinacharyaGame {
     if (resetBtn) {
       resetBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        this.currentStep = 0;
+        this.newDay();
         this.render();
       });
     }
@@ -5509,11 +5726,11 @@ class DinacharyaGame {
 
   handleAnyKey() {
     if (this.currentStep >= this.steps.length) {
-      this.currentStep = 0;
+      this.newDay();
       this.render();
       return;
     }
-    const nextCard = this.container.querySelector(`.dinacharya-card[data-idx="${this.currentStep}"]`);
+    const nextCard = this.container.querySelector(`.dinacharya-choice[data-idx="${this.currentStep}"]`);
     if (nextCard) {
       nextCard.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
     }
@@ -5526,8 +5743,12 @@ class DinacharyaGame {
 class HabitatGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
+    this.hints = new HintTracker();
     this.itemIdx = 0;
     this.solved = false;
+    this.round = [];
+    this.roundLength = 6;
     this.habitats = [
       { id: 'water', icon: '🌊', name: { hi: 'यमुना जल (Water)', en: 'Yamuna Water' }, color: '#0284C7' },
       { id: 'forest', icon: '🌳', name: { hi: 'कदम्ब वन (Trees)', en: 'Forest & Trees' }, color: '#16A34A' },
@@ -5539,18 +5760,33 @@ class HabitatGame {
       { icon: '🦚', name: { hi: 'मयूर (मोर)', en: 'Peacock' }, habitat: 'forest', sound: 'peacock', fact: { hi: 'सुन्दर मयूर कदम्ब वन के पेड़ों में रहता है!', en: 'The peacock lives among the forest trees!' } },
       { icon: '🐐', name: { hi: 'नन्ही बकरी', en: 'Little Goat' }, habitat: 'meadow', sound: 'goat', fact: { hi: 'बकरी हरे मैदान में चरती है!', en: 'The little goat grazes in the meadow!' } },
       { icon: '🐒', name: { hi: 'नन्हा वानर', en: 'Playful Monkey' }, habitat: 'forest', sound: 'monkey', fact: { hi: 'वानर पेड़ों की डालियों पर कूदता है!', en: 'The monkey jumps on forest tree branches!' } },
-      { icon: '🪷', name: { hi: 'कमल पुष्प', en: 'Lotus Flower' }, habitat: 'water', sound: 'bell', fact: { hi: 'सुन्दर कमल हमेशा स्वच्छ जल में खिलता है!', en: 'The sacred lotus blooms in calm water!' } }
+      { icon: '🪷', name: { hi: 'कमल पुष्प', en: 'Lotus Flower' }, habitat: 'water', sound: 'bell', fact: { hi: 'सुन्दर कमल हमेशा स्वच्छ जल में खिलता है!', en: 'The sacred lotus blooms in calm water!' } },
+      { icon: '🐟', name: { hi: 'नन्ही मछली', en: 'Little Fish' }, habitat: 'water', sound: 'water', fact: { hi: 'मछली यमुना जी के जल में तैरती है!', en: 'The little fish swims in the Yamuna water!' } },
+      { icon: '🐢', name: { hi: 'कछुआ', en: 'Turtle' }, habitat: 'water', sound: 'water', fact: { hi: 'कछुआ धीरे-धीरे जल में तैरता है!', en: 'The turtle paddles slowly through the water!' } },
+      { icon: '🦜', name: { hi: 'हरा तोता', en: 'Green Parrot' }, habitat: 'forest', sound: 'parrot', fact: { hi: 'तोता वन के पेड़ों पर बैठकर गाता है!', en: 'The parrot sings from the forest trees!' } },
+      { icon: '🐎', name: { hi: 'घोड़ा', en: 'Horse' }, habitat: 'meadow', sound: 'horse', fact: { hi: 'घोड़ा खुले मैदान में दौड़ता है!', en: 'The horse gallops across the open meadow!' } }
     ];
   }
 
+  buildRound() {
+    return GamePlayKit.sample(this.creatures, this.roundLength);
+  }
+
+  current() {
+    return this.round[this.itemIdx];
+  }
+
   start() {
+    this.round = this.buildRound();
     this.itemIdx = 0;
     this.solved = false;
+    this.hints.reset();
     this.render();
-    setTimeout(() => this.playCreatureSound(this.creatures[this.itemIdx]), 350);
+    this.timers.later(() => this.playCreatureSound(this.current()), 350);
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
@@ -5561,20 +5797,24 @@ class HabitatGame {
     else if (c.sound === 'peacock') window.toddlerAudio.playPeacockCall();
     else if (c.sound === 'goat') window.toddlerAudio.playGoatBleat();
     else if (c.sound === 'monkey') window.toddlerAudio.playMonkeyChatter();
+    else if (c.sound === 'water') window.toddlerAudio.playWaterSprinkle();
+    else if (c.sound === 'parrot') window.toddlerAudio.playShukaCall();
+    else if (c.sound === 'horse') window.toddlerAudio.playHorseNeigh();
     else window.toddlerAudio.playTempleBell(880);
   }
 
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-    const creature = this.creatures[this.itemIdx % this.creatures.length];
+    const lang = GamePlayKit.lang();
+    const creature = this.current();
     const headerTitle = lang === 'hi'
-      ? '🌍 प्रकृति आवास (IB Inquiry): यह मित्र कहाँ रहता है?'
-      : '🌍 Habitat Inquiry (Sharing the Planet): Where Does This Friend Live?';
+      ? '🏞️ प्रकृति आवास (IB Inquiry): यह मित्र कहाँ रहता है?'
+      : '🏞️ Habitat Inquiry (Sharing the Planet): Where Does This Friend Live?';
 
     this.container.innerHTML = `
       <div class="game-habitat vedic-theme">
         <div class="habitat-header">
           <h2>${headerTitle}</h2>
+          ${GamePlayKit.progressDots(this.itemIdx, this.round.length)}
         </div>
         <button class="habitat-creature-card" id="habitat-creature-btn">
           <div class="habitat-creature-icon">${creature.icon}</div>
@@ -5583,7 +5823,7 @@ class HabitatGame {
         </button>
         <div class="habitat-baskets-row">
           ${this.habitats.map(h => `
-            <button class="habitat-basket-btn" data-habitat="${h.id}" style="--hab-color: ${h.color};">
+            <button class="habitat-basket-btn ${this.hints.shouldHint() && h.id === creature.habitat ? 'hint-glow' : ''}" data-habitat="${h.id}" style="--hab-color: ${h.color};">
               <span class="hab-icon">${h.icon}</span>
               <span class="hab-name">${h.name[lang] || h.name.en}</span>
             </button>
@@ -5595,8 +5835,8 @@ class HabitatGame {
   }
 
   bindEvents() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-    const creature = this.creatures[this.itemIdx % this.creatures.length];
+    const lang = GamePlayKit.lang();
+    const creature = this.current();
 
     const cBtn = this.container.querySelector('#habitat-creature-btn');
     if (cBtn) {
@@ -5611,25 +5851,41 @@ class HabitatGame {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (this.solved) return;
-        const picked = btn.dataset.habitat;
-        if (picked === creature.habitat) {
+        if (btn.dataset.habitat === creature.habitat) {
           this.solved = true;
+          btn.classList.remove('hint-glow');
           btn.classList.add('quiz-correct');
+          const isRoundEnd = this.itemIdx === this.round.length - 1;
           if (window.toddlerAudio) {
             window.toddlerAudio.triggerHaptic('celebration');
             window.toddlerAudio.speak(creature.fact[lang] || creature.fact.en);
           }
           CelebrationPetalShower.shower();
-          setTimeout(() => {
-            this.itemIdx = (this.itemIdx + 1) % this.creatures.length;
+          if (isRoundEnd) {
+            this.timers.later(() => GamePlayKit.celebrateRound('van_mitra', { hi: 'शाबाश! सभी मित्र अपने घर पहुँच गए!', en: 'Well done! Every friend found its home!' }), 2600);
+          }
+          this.timers.later(() => {
+            if (isRoundEnd) {
+              this.round = this.buildRound();
+              this.itemIdx = 0;
+            } else {
+              this.itemIdx++;
+            }
             this.solved = false;
+            this.hints.reset();
             this.render();
-            setTimeout(() => this.playCreatureSound(this.creatures[this.itemIdx]), 300);
-          }, 2600);
+            this.timers.later(() => this.playCreatureSound(this.current()), 300);
+          }, isRoundEnd ? 6200 : 2600);
         } else {
           btn.classList.add('pattern-nudge');
-          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
+          this.timers.later(() => btn.classList.remove('pattern-nudge'), 500);
+          this.hints.miss();
+          if (this.hints.shouldHint()) {
+            const right = this.container.querySelector(`.habitat-basket-btn[data-habitat="${creature.habitat}"]`);
+            if (right) right.classList.add('hint-glow');
+          }
           if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('light');
             window.toddlerAudio.speak({
               hi: 'फिर से सोचें! ' + creature.name.hi + ' कहाँ रहता है?',
               en: 'Try again! Where does ' + creature.name.en + ' live?'
@@ -5641,8 +5897,8 @@ class HabitatGame {
   }
 
   handleAnyKey() {
-    const creature = this.creatures[this.itemIdx % this.creatures.length];
-    const correctBtn = this.container.querySelector(`.habitat-basket-btn[data-habitat="${creature.habitat}"]`);
+    const creature = this.current();
+    const correctBtn = creature ? this.container.querySelector(`.habitat-basket-btn[data-habitat="${creature.habitat}"]`) : null;
     if (correctBtn) {
       correctBtn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
     }
@@ -5655,7 +5911,11 @@ class HabitatGame {
 class BalaYogaGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.poseIdx = 0;
+    this.done = {};
+    this.holding = false;
+    this.breathsPerPose = 3;
     this.poses = [
       { id: 'tree', icon: '🌳', name: { hi: 'वृक्षासन (Tree Pose)', en: 'Vrikshasana (Tree Pose)' }, cue: { hi: 'पेड़ की तरह सीधे खड़े होकर हाथ ऊपर उठाएं और श्वास लें!', en: 'Stand tall like a Kadamba tree, raise both arms high, and breathe!' }, sound: 'birds' },
       { id: 'peacock', icon: '🦚', name: { hi: 'मयूरासन (Peacock Stretch)', en: 'Mayurasana (Peacock Stretch)' }, cue: { hi: 'मोर की तरह पंख फैलाकर धीरे से झुकें और मुस्कुराएं!', en: 'Spread your arms wide like peacock feathers and stretch gently!' }, sound: 'peacock' },
@@ -5666,22 +5926,29 @@ class BalaYogaGame {
 
   start() {
     this.poseIdx = 0;
+    this.done = {};
+    this.holding = false;
     this.render();
-    setTimeout(() => this.speakPose(this.poses[0]), 350);
+    this.timers.later(() => this.speakPose(this.poses[0]), 350);
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
+  }
+
+  doneCount() {
+    return Object.keys(this.done).length;
   }
 
   speakPose(pose) {
     if (!pose || !window.toddlerAudio) return;
-    const lang = window.toddlerAudio.currentLanguage || 'hi';
+    const lang = GamePlayKit.lang();
     if (pose.sound === 'birds') window.toddlerAudio.playForestBirdsChirp();
     else if (pose.sound === 'peacock') window.toddlerAudio.playPeacockCall();
     else if (pose.sound === 'cow') window.toddlerAudio.playCowMoo();
     else window.toddlerAudio.playOmChant();
-    setTimeout(() => {
+    this.timers.later(() => {
       if (window.toddlerAudio) {
         window.toddlerAudio.speak((pose.name[lang] || pose.name.en) + '! ' + (pose.cue[lang] || pose.cue.en));
       }
@@ -5689,27 +5956,31 @@ class BalaYogaGame {
   }
 
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lang = GamePlayKit.lang();
     const pose = this.poses[this.poseIdx % this.poses.length];
     const headerTitle = lang === 'hi'
-      ? '🧘 बाल योग (NEP पंचकोश): कान्हा के साथ प्यारे योगासन करें!'
-      : '🧘 Bala Yoga (NEP Panchakosha): Stretch & Breathe with Kanha!';
+      ? '🤸 बाल योग (NEP पंचकोश): कान्हा के साथ प्यारे योगासन करें!'
+      : '🤸 Bala Yoga (NEP Panchakosha): Stretch & Breathe with Kanha!';
 
     this.container.innerHTML = `
       <div class="game-yoga vedic-theme">
         <div class="yoga-header">
           <h2>${headerTitle}</h2>
+          ${GamePlayKit.progressDots(this.doneCount(), this.poses.length)}
         </div>
         <div class="yoga-pose-stage" id="yoga-hero-card">
-          <div class="yoga-pose-icon">${pose.icon}</div>
+          <div class="yoga-pose-icon" id="yoga-pose-icon">${pose.icon}</div>
           <div class="yoga-pose-name">${pose.name[lang] || pose.name.en}</div>
           <p class="yoga-pose-cue">${pose.cue[lang] || pose.cue.en}</p>
-          <button class="yoga-done-btn" id="yoga-complete-btn">✨ ${lang === 'hi' ? 'मैंने कर लिया! (Done!)' : 'I Did It! (Next Pose)'}</button>
+          <div class="yoga-breath-row" id="yoga-breath-row" aria-hidden="true">
+            ${[0, 1, 2].map(() => '<span class="yoga-breath-dot"></span>').join('')}
+          </div>
+          <button class="yoga-done-btn" id="yoga-complete-btn">🧘 ${lang === 'hi' ? 'आसन शुरू करें (३ श्वास)' : 'Hold the Pose (3 Breaths)'}</button>
         </div>
         <div class="yoga-pills-row">
           ${this.poses.map((p, idx) => `
-            <button class="yoga-pill-btn ${idx === this.poseIdx ? 'active' : ''}" data-idx="${idx}">
-              <span>${p.icon}</span> <span>${p.name[lang] || p.name.en}</span>
+            <button class="yoga-pill-btn ${idx === this.poseIdx ? 'active' : ''} ${this.done[p.id] ? 'is-done' : ''}" data-idx="${idx}">
+              <span>${this.done[p.id] ? '⭐' : p.icon}</span> <span>${p.name[lang] || p.name.en}</span>
             </button>
           `).join('')}
         </div>
@@ -5718,12 +5989,61 @@ class BalaYogaGame {
     this.bindEvents();
   }
 
+  // Hold the pose for three slow breaths: each breath lights a dot and is counted aloud
+  holdPose() {
+    if (this.holding) return;
+    this.holding = true;
+    const pose = this.poses[this.poseIdx];
+    const btn = this.container.querySelector('#yoga-complete-btn');
+    const icon = this.container.querySelector('#yoga-pose-icon');
+    if (btn) btn.classList.add('is-holding');
+    if (icon) icon.classList.add('yoga-breathing');
+    const counts = [{ hi: 'एक', en: 'One' }, { hi: 'दो', en: 'Two' }, { hi: 'तीन', en: 'Three' }];
+    const breathMs = 2200;
+
+    counts.forEach((word, i) => {
+      this.timers.later(() => {
+        const dots = this.container.querySelectorAll('.yoga-breath-dot');
+        if (dots[i]) dots[i].classList.add('is-filled');
+        if (window.toddlerAudio) {
+          window.toddlerAudio.triggerHaptic('light');
+          window.toddlerAudio.playJalTarang(523.25 + i * 130);
+          window.toddlerAudio.speak(word);
+        }
+      }, i * breathMs + 300);
+    });
+
+    this.timers.later(() => {
+      this.holding = false;
+      this.done[pose.id] = true;
+      const allDone = this.doneCount() >= this.poses.length;
+      if (window.toddlerAudio) {
+        window.toddlerAudio.triggerHaptic('celebration');
+        window.toddlerAudio.playTempleBell(1046.5);
+      }
+      CelebrationPetalShower.shower();
+      if (allDone) {
+        GamePlayKit.celebrateRound('nanha_yogi', { hi: 'अद्भुत! चारों योगासन पूरे हुए!', en: 'Amazing! You did all four yoga poses!' });
+      } else if (window.toddlerAudio) {
+        window.toddlerAudio.speak({ hi: 'शाबाश! बहुत सुन्दर योग!', en: 'Bravo! Wonderful yoga pose!' });
+      }
+      this.timers.later(() => {
+        if (allDone) this.done = {};
+        this.poseIdx = (this.poseIdx + 1) % this.poses.length;
+        this.render();
+        this.timers.later(() => this.speakPose(this.poses[this.poseIdx]), 300);
+      }, allDone ? 3600 : 1800);
+    }, counts.length * breathMs + 300);
+  }
+
   bindEvents() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
     const pills = this.container.querySelectorAll('.yoga-pill-btn');
     pills.forEach(btn => {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        // Choosing another pose abandons the current hold
+        this.timers.clear();
+        this.holding = false;
         this.poseIdx = parseInt(btn.dataset.idx, 10);
         this.render();
         this.speakPose(this.poses[this.poseIdx]);
@@ -5734,17 +6054,7 @@ class BalaYogaGame {
     if (doneBtn) {
       doneBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        if (window.toddlerAudio) {
-          window.toddlerAudio.triggerHaptic('celebration');
-          window.toddlerAudio.playTempleBell(1046.5);
-          window.toddlerAudio.speak({ hi: 'शाबाश! बहुत सुन्दर योग!', en: 'Bravo! Wonderful yoga pose!' });
-        }
-        CelebrationPetalShower.shower();
-        setTimeout(() => {
-          this.poseIdx = (this.poseIdx + 1) % this.poses.length;
-          this.render();
-          setTimeout(() => this.speakPose(this.poses[this.poseIdx]), 300);
-        }, 1600);
+        this.holdPose();
       });
     }
   }
@@ -5761,7 +6071,9 @@ class BalaYogaGame {
 class RituChakraGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.activeIdx = 0;
+    this.visited = {};
     this.seasons = [
       { id: 'vasant', icon: '🌸', name: { hi: 'वसन्त ऋतु (Spring)', en: 'Vasant (Spring)' }, desc: { hi: 'फूल खिलते हैं, कोयल गाती है और होली आती है!', en: 'Flowers bloom, cuckoos sing, and joyful Holi arrives!' }, bg: 'linear-gradient(135deg, #FCE7F3, #FEF3C7)', sound: 'koel' },
       { id: 'grishma', icon: '☀️', name: { hi: 'ग्रीष्म ऋतु (Summer)', en: 'Grishma (Summer)' }, desc: { hi: 'तेज धूप में यमुना का ठण्डा जल और मीठे आम!', en: 'Cool Yamuna water and sweet mangoes under the warm sun!' }, bg: 'linear-gradient(135deg, #FEF3C7, #FDE68A)', sound: 'yamuna' },
@@ -5774,36 +6086,55 @@ class RituChakraGame {
 
   start() {
     this.activeIdx = 0;
+    this.visited = {};
+    this.visited[this.seasons[0].id] = true;
     this.render();
-    setTimeout(() => this.playSeason(this.seasons[0]), 350);
+    this.timers.later(() => this.playSeason(this.seasons[0]), 350);
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
   playSeason(s) {
     if (!s || !window.toddlerAudio) return;
-    const lang = window.toddlerAudio.currentLanguage || 'hi';
+    const lang = GamePlayKit.lang();
     if (s.sound === 'koel') window.toddlerAudio.playKoelCall();
     else if (s.sound === 'yamuna') window.toddlerAudio.playYamunaStream();
     else if (s.sound === 'rain') {
       window.toddlerAudio.playMonsoonRain();
-      setTimeout(() => window.toddlerAudio.playPeacockCall(), 400);
+      this.timers.later(() => window.toddlerAudio.playPeacockCall(), 400);
     }
     else if (s.sound === 'crickets') window.toddlerAudio.playNightCrickets();
     else if (s.sound === 'cow') window.toddlerAudio.playCowMoo();
     else window.toddlerAudio.playTempleBell(880);
 
-    setTimeout(() => {
+    this.timers.later(() => {
       if (window.toddlerAudio) {
         window.toddlerAudio.speak((s.name[lang] || s.name.en) + '! ' + (s.desc[lang] || s.desc.en));
       }
     }, 650);
   }
 
+  selectSeason(idx) {
+    // A new season replaces whatever the previous one still had queued to say
+    this.timers.clear();
+    this.activeIdx = idx;
+    const season = this.seasons[idx];
+    const wasComplete = Object.keys(this.visited).length >= this.seasons.length;
+    this.visited[season.id] = true;
+    const nowComplete = Object.keys(this.visited).length >= this.seasons.length;
+    this.render();
+    this.playSeason(season);
+    if (nowComplete && !wasComplete) {
+      CelebrationPetalShower.shower();
+      this.timers.later(() => GamePlayKit.celebrateRound('ritu_gyani', { hi: 'वाह! आपने छहों ऋतुएँ देख लीं!', en: 'Wonderful! You explored all six seasons!' }), 6000);
+    }
+  }
+
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lang = GamePlayKit.lang();
     const s = this.seasons[this.activeIdx % this.seasons.length];
     const headerTitle = lang === 'hi'
       ? '🌦️ ऋतु चक्र (Waldorf Seasons): भारत की ६ पावन ऋतुएं जानें!'
@@ -5813,6 +6144,7 @@ class RituChakraGame {
       <div class="game-ritu vedic-theme">
         <div class="ritu-header">
           <h2>${headerTitle}</h2>
+          ${GamePlayKit.progressDots(Object.keys(this.visited).length, this.seasons.length)}
         </div>
         <div class="ritu-showcase-card" style="background: ${s.bg};">
           <div class="ritu-icon">${s.icon}</div>
@@ -5821,9 +6153,10 @@ class RituChakraGame {
         </div>
         <div class="ritu-wheel-grid">
           ${this.seasons.map((item, idx) => `
-            <button class="ritu-btn ${idx === this.activeIdx ? 'active' : ''}" data-idx="${idx}">
+            <button class="ritu-btn ${idx === this.activeIdx ? 'active' : ''} ${this.visited[item.id] ? 'is-visited' : ''}" data-idx="${idx}">
               <span class="ritu-btn-icon">${item.icon}</span>
               <span class="ritu-btn-label">${item.name[lang] || item.name.en}</span>
+              ${this.visited[item.id] ? '<span class="ritu-visited-star" aria-hidden="true">⭐</span>' : ''}
             </button>
           `).join('')}
         </div>
@@ -5837,17 +6170,13 @@ class RituChakraGame {
     btns.forEach(btn => {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        this.activeIdx = parseInt(btn.dataset.idx, 10);
-        this.render();
-        this.playSeason(this.seasons[this.activeIdx]);
+        this.selectSeason(parseInt(btn.dataset.idx, 10));
       });
     });
   }
 
   handleAnyKey() {
-    this.activeIdx = (this.activeIdx + 1) % this.seasons.length;
-    this.render();
-    this.playSeason(this.seasons[this.activeIdx]);
+    this.selectSeason((this.activeIdx + 1) % this.seasons.length);
   }
 }
 
@@ -5857,9 +6186,11 @@ class RituChakraGame {
 class KolamSymmetryGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
     this.activeStamp = '🪷';
     this.stamps = ['🪷', '🌼', '🪔', '🌿', '✨'];
     this.grid = [];
+    this.placements = 0;
     this.resetGrid();
   }
 
@@ -5875,15 +6206,17 @@ class KolamSymmetryGame {
 
   start() {
     this.resetGrid();
+    this.placements = 0;
     this.render();
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lang = GamePlayKit.lang();
     const headerTitle = lang === 'hi'
       ? '💠 दिव्य कोलम (Reggio Symmetry): एक ओर छूएं और चारों ओर समान सजावट देखें!'
       : '💠 Divya Kolam (Reggio Symmetry): Tap Any Dot to Mirror Sacred Symmetry!';
@@ -5895,7 +6228,7 @@ class KolamSymmetryGame {
         </div>
         <div class="kolam-stamp-bar">
           ${this.stamps.map(st => `
-            <button class="kolam-stamp-btn ${st === this.activeStamp ? 'active' : ''}" data-stamp="${st}">${st}</button>
+            <button class="kolam-stamp-btn ${st === this.activeStamp ? 'active' : ''}" data-stamp="${st}" aria-label="${st}">${st}</button>
           `).join('')}
           <button class="kolam-clear-btn" id="kolam-clear-btn">🔄 ${lang === 'hi' ? 'नया कोलम' : 'Clear'}</button>
         </div>
@@ -5911,13 +6244,24 @@ class KolamSymmetryGame {
     this.bindEvents();
   }
 
+  // Updates only the cells that changed, so the mirrored petals can pop in one after another
+  paintCell(r, c, delayMs) {
+    const cell = this.container.querySelector(`.kolam-cell[data-r="${r}"][data-c="${c}"]`);
+    if (!cell) return;
+    cell.textContent = this.grid[r][c] || '•';
+    cell.classList.toggle('has-petal', !!this.grid[r][c]);
+    cell.classList.remove('kolam-pop');
+    this.timers.later(() => cell.classList.add('kolam-pop'), delayMs);
+  }
+
   bindEvents() {
     const stampBtns = this.container.querySelectorAll('.kolam-stamp-btn');
     stampBtns.forEach(btn => {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         this.activeStamp = btn.dataset.stamp;
-        this.render();
+        stampBtns.forEach(b => b.classList.toggle('active', b === btn));
+        if (window.toddlerAudio) window.toddlerAudio.playJalTarang(659.25);
       });
     });
 
@@ -5936,22 +6280,28 @@ class KolamSymmetryGame {
         e.preventDefault();
         const r = parseInt(cell.dataset.r, 10);
         const c = parseInt(cell.dataset.c, 10);
-        // 4-way reflectional temple symmetry
-        const mirrorCoords = [
-          [r, c],
-          [r, 4 - c],
-          [4 - r, c],
-          [4 - r, 4 - c]
-        ];
-        mirrorCoords.forEach(pair => {
+        // 4-way reflectional temple symmetry (duplicates collapse on the centre lines)
+        const seen = {};
+        const mirrorCoords = [[r, c], [r, 4 - c], [4 - r, c], [4 - r, 4 - c]].filter(pair => {
+          const key = pair[0] + ',' + pair[1];
+          if (seen[key]) return false;
+          seen[key] = true;
+          return true;
+        });
+        mirrorCoords.forEach((pair, i) => {
           this.grid[pair[0]][pair[1]] = this.activeStamp;
+          this.paintCell(pair[0], pair[1], i * 90);
         });
         if (window.toddlerAudio) {
           window.toddlerAudio.triggerHaptic('light');
           const freqs = [523.25, 587.33, 659.25, 783.99, 880];
           window.toddlerAudio.playJalTarang(freqs[(r + c) % freqs.length]);
         }
-        this.render();
+        this.placements++;
+        if (this.placements === 8) {
+          CelebrationPetalShower.shower();
+          GamePlayKit.celebrateRound('kolam_kalakar', { hi: 'कितना सुन्दर कोलम बनाया!', en: 'What a beautiful kolam you made!' });
+        }
       });
     });
   }
@@ -5970,8 +6320,12 @@ class KolamSymmetryGame {
 class SanskaraValuesGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
+    this.hints = new HintTracker();
     this.idx = 0;
     this.solved = false;
+    this.round = [];
+    this.choiceOrder = ['good', 'other'];
     this.scenarios = [
       {
         icon: '🐦',
@@ -6000,31 +6354,58 @@ class SanskaraValuesGame {
         good: { icon: '🥣', label: { hi: 'अपना प्रसाद बाँटकर खाएं (दान)', en: 'Share Our Meal Together (Sharing)' } },
         other: { icon: '🙈', label: { hi: 'छिपा लें', en: 'Hide It' } },
         praise: { hi: 'वाह! बाँटकर खाने से खुशी दोगुनी हो जाती है!', en: 'Awesome! Sharing with friends doubles the joy!' }
+      },
+      {
+        icon: '🌱',
+        prompt: { hi: 'नन्हा पौधा मुरझा रहा है! हम क्या करें?', en: 'The little plant is drooping! What should we do?' },
+        good: { icon: '🚿', label: { hi: 'पौधे को पानी दें (प्रकृति प्रेम)', en: 'Water the Plant (Care for Nature)' } },
+        other: { icon: '🍂', label: { hi: 'सूखा छोड़ दें', en: 'Leave It Dry' } },
+        praise: { hi: 'बहुत बढ़िया! पेड़-पौधों की देखभाल करना प्रकृति की सेवा है!', en: 'Well done! Caring for plants is caring for Mother Nature!' }
+      },
+      {
+        icon: '🧸',
+        prompt: { hi: 'छोटी बहन आपके खिलौने से खेलना चाहती है! हम क्या करें?', en: 'Little sister wants to play with your toy! What should we do?' },
+        good: { icon: '🤗', label: { hi: 'साथ मिलकर खेलें (प्रेम)', en: 'Play Together (Love)' } },
+        other: { icon: '✊', label: { hi: 'खिलौना छीन लें', en: 'Snatch It Away' } },
+        praise: { hi: 'वाह! मिल-जुलकर खेलने से प्यार बढ़ता है!', en: 'Lovely! Playing together makes love grow!' }
       }
     ];
   }
 
-  start() {
-    this.idx = 0;
+  current() {
+    return this.round[this.idx];
+  }
+
+  // The kind choice lands on a random side each time, so it must be understood, not remembered
+  prepareQuestion() {
     this.solved = false;
+    this.hints.reset();
+    this.choiceOrder = GamePlayKit.shuffle(['good', 'other']);
+  }
+
+  start() {
+    this.round = GamePlayKit.shuffle(this.scenarios);
+    this.idx = 0;
+    this.prepareQuestion();
     this.render();
-    setTimeout(() => this.speakScenario(), 350);
+    this.timers.later(() => this.speakScenario(), 350);
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
   speakScenario() {
-    const sc = this.scenarios[this.idx % this.scenarios.length];
+    const sc = this.current();
     if (!sc || !window.toddlerAudio) return;
-    const lang = window.toddlerAudio.currentLanguage || 'hi';
+    const lang = GamePlayKit.lang();
     window.toddlerAudio.speak(sc.prompt[lang] || sc.prompt.en);
   }
 
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-    const sc = this.scenarios[this.idx % this.scenarios.length];
+    const lang = GamePlayKit.lang();
+    const sc = this.current();
     const headerTitle = lang === 'hi'
       ? '💖 दिव्य संस्कार (Charlotte Mason Habits): सही और दयालु विकल्प चुनें!'
       : '💖 Divya Sanskara (Kindness & Values): Choose the Loving Action!';
@@ -6033,20 +6414,19 @@ class SanskaraValuesGame {
       <div class="game-sanskara vedic-theme">
         <div class="sanskara-header">
           <h2>${headerTitle}</h2>
+          ${GamePlayKit.progressDots(this.idx, this.round.length)}
         </div>
         <div class="sanskara-story-card" id="sanskara-prompt-btn">
           <div class="sanskara-story-icon">${sc.icon}</div>
           <div class="sanskara-story-text">${sc.prompt[lang] || sc.prompt.en}</div>
         </div>
         <div class="sanskara-choices-row">
-          <button class="sanskara-choice-btn is-good-opt" data-kind="good">
-            <span class="sc-opt-icon">${sc.good.icon}</span>
-            <span class="sc-opt-label">${sc.good.label[lang] || sc.good.label.en}</span>
-          </button>
-          <button class="sanskara-choice-btn" data-kind="other">
-            <span class="sc-opt-icon">${sc.other.icon}</span>
-            <span class="sc-opt-label">${sc.other.label[lang] || sc.other.label.en}</span>
-          </button>
+          ${this.choiceOrder.map(kind => `
+            <button class="sanskara-choice-btn ${this.hints.shouldHint() && kind === 'good' ? 'hint-glow' : ''}" data-kind="${kind}">
+              <span class="sc-opt-icon">${sc[kind].icon}</span>
+              <span class="sc-opt-label">${sc[kind].label[lang] || sc[kind].label.en}</span>
+            </button>
+          `).join('')}
         </div>
       </div>
     `;
@@ -6054,8 +6434,8 @@ class SanskaraValuesGame {
   }
 
   bindEvents() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
-    const sc = this.scenarios[this.idx % this.scenarios.length];
+    const lang = GamePlayKit.lang();
+    const sc = this.current();
     const promptBtn = this.container.querySelector('#sanskara-prompt-btn');
     if (promptBtn) {
       promptBtn.addEventListener('pointerdown', (e) => {
@@ -6071,23 +6451,39 @@ class SanskaraValuesGame {
         if (this.solved) return;
         if (btn.dataset.kind === 'good') {
           this.solved = true;
+          btn.classList.remove('hint-glow');
           btn.classList.add('quiz-correct');
+          const isRoundEnd = this.idx === this.round.length - 1;
           if (window.toddlerAudio) {
             window.toddlerAudio.triggerHaptic('celebration');
             window.toddlerAudio.playTempleBell(1046.5);
             window.toddlerAudio.speak(sc.praise[lang] || sc.praise.en);
           }
           CelebrationPetalShower.shower();
-          setTimeout(() => {
-            this.idx = (this.idx + 1) % this.scenarios.length;
-            this.solved = false;
+          if (isRoundEnd) {
+            this.timers.later(() => GamePlayKit.celebrateRound('daya_sagar', { hi: 'अति सुन्दर! आपका हृदय प्रेम से भरा है!', en: 'Beautiful! Your heart is full of kindness!' }), 3600);
+          }
+          this.timers.later(() => {
+            if (isRoundEnd) {
+              this.round = GamePlayKit.shuffle(this.scenarios);
+              this.idx = 0;
+            } else {
+              this.idx++;
+            }
+            this.prepareQuestion();
             this.render();
-            setTimeout(() => this.speakScenario(), 300);
-          }, 2600);
+            this.timers.later(() => this.speakScenario(), 300);
+          }, isRoundEnd ? 7200 : 3200);
         } else {
           btn.classList.add('pattern-nudge');
-          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
+          this.timers.later(() => btn.classList.remove('pattern-nudge'), 500);
+          this.hints.miss();
+          if (this.hints.shouldHint()) {
+            const right = this.container.querySelector('.sanskara-choice-btn[data-kind="good"]');
+            if (right) right.classList.add('hint-glow');
+          }
           if (window.toddlerAudio) {
+            window.toddlerAudio.triggerHaptic('light');
             window.toddlerAudio.speak({
               hi: 'सोचिए, कान्हा को कौन सा प्यार भरा काम अच्छा लगेगा?',
               en: 'Think gently! Which loving action would make Kanha happy?'
@@ -6110,7 +6506,10 @@ class SanskaraValuesGame {
 class MandirBuilderGame {
   constructor(container) {
     this.container = container;
+    this.timers = new GameTimers();
+    this.hints = new HintTracker();
     this.builtCount = 0;
+    this.trayOrder = [];
     this.parts = [
       { id: 'base', shape: '🟫', label: { hi: '१. चौकोर आधार (Square Base)', en: '1. Square Foundation' }, cssClass: 'mandir-part-base', voice: { hi: 'चौकोर आधार शिला! मन्दिर की मजबूत नींव!', en: 'Square foundation stone! A strong temple base!' } },
       { id: 'pillars', shape: '🏛️', label: { hi: '२. स्तम्भ (Pillars)', en: '2. Sacred Pillars' }, cssClass: 'mandir-part-pillars', voice: { hi: 'सुन्दर स्तम्भ! मन्दिर के खम्भे लग गए!', en: 'Tall pillars placed! Supporting the temple!' } },
@@ -6120,20 +6519,28 @@ class MandirBuilderGame {
     ];
   }
 
-  start() {
+  newBuild() {
     this.builtCount = 0;
+    this.hints.reset();
+    // Pieces lie in the tray in a mixed-up order: the child decides which goes on next
+    this.trayOrder = GamePlayKit.shuffle(this.parts.map((p, i) => i));
+  }
+
+  start() {
+    this.newBuild();
     this.render();
   }
 
   stop() {
+    this.timers.clear();
     this.container.innerHTML = '';
   }
 
   render() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lang = GamePlayKit.lang();
     const headerTitle = lang === 'hi'
-      ? '🛕 मन्दिर शिल्प (Froebel Geometry): क्रम से ज्यामितीय आकार जोड़कर मन्दिर बनाएं!'
-      : '🛕 Mandir Builder (Froebel Geometry): Stack Geometric Shapes to Build a Temple!';
+      ? '🛕 मन्दिर शिल्प (Froebel Geometry): नीचे से ऊपर, सही आकार जोड़कर मन्दिर बनाएं!'
+      : '🛕 Mandir Builder (Froebel Geometry): Build the Temple from the Ground Up!';
     const isComplete = this.builtCount >= this.parts.length;
 
     // Render built parts from top to bottom inside the temple stage
@@ -6147,18 +6554,20 @@ class MandirBuilderGame {
       <div class="game-mandir vedic-theme">
         <div class="mandir-header">
           <h2>${headerTitle}</h2>
+          ${GamePlayKit.progressDots(this.builtCount, this.parts.length)}
         </div>
         <div class="mandir-stage ${isComplete ? 'is-complete' : ''}">
-          ${builtVisuals.length > 0 ? builtVisuals.join('') : `<div class="mandir-empty-hint">✨ ${lang === 'hi' ? 'नीचे से पहला आकार चुनें!' : 'Pick the first shape below!'}</div>`}
+          ${builtVisuals.length > 0 ? builtVisuals.join('') : `<div class="mandir-empty-hint">✨ ${lang === 'hi' ? 'सबसे नीचे क्या आएगा? चुनो!' : 'What goes at the very bottom? Pick it!'}</div>`}
         </div>
         <div class="mandir-tray">
-          ${this.parts.map((p, idx) => {
+          ${this.trayOrder.map((idx) => {
+            const p = this.parts[idx];
             const isUsed = idx < this.builtCount;
-            const isNext = idx === this.builtCount;
+            const hint = this.hints.shouldHint() && idx === this.builtCount;
             return `
-              <button class="mandir-piece-btn ${isUsed ? 'is-used' : ''} ${isNext ? 'is-next' : ''}" data-idx="${idx}" ${isUsed ? 'disabled' : ''}>
+              <button class="mandir-piece-btn ${isUsed ? 'is-used' : ''} ${hint ? 'hint-glow' : ''}" data-idx="${idx}" ${isUsed ? 'disabled' : ''}>
                 <span class="mandir-piece-icon">${p.shape}</span>
-                <span class="mandir-piece-label">${p.label[lang] || p.label.en}</span>
+                <span class="mandir-piece-label">${GamePlayKit.stripNumber(p.label[lang] || p.label.en)}</span>
               </button>
             `;
           }).join('')}
@@ -6170,7 +6579,7 @@ class MandirBuilderGame {
   }
 
   bindEvents() {
-    const lang = (window.toddlerAudio && window.toddlerAudio.currentLanguage) ? window.toddlerAudio.currentLanguage : 'hi';
+    const lang = GamePlayKit.lang();
     const btns = this.container.querySelectorAll('.mandir-piece-btn');
     btns.forEach(btn => {
       btn.addEventListener('pointerdown', (e) => {
@@ -6179,24 +6588,32 @@ class MandirBuilderGame {
         if (idx === this.builtCount) {
           const part = this.parts[idx];
           this.builtCount++;
+          this.hints.reset();
+          const isComplete = this.builtCount >= this.parts.length;
           if (window.toddlerAudio) {
-            window.toddlerAudio.triggerHaptic(this.builtCount >= this.parts.length ? 'celebration' : 'medium');
+            window.toddlerAudio.triggerHaptic(isComplete ? 'celebration' : 'medium');
             window.toddlerAudio.playTempleBell(523.25 + idx * 110);
-            setTimeout(() => window.toddlerAudio.speak(part.voice[lang] || part.voice.en), 300);
+            this.timers.later(() => window.toddlerAudio.speak(part.voice[lang] || part.voice.en), 300);
           }
-          if (this.builtCount >= this.parts.length) {
+          if (isComplete) {
             CelebrationPetalShower.shower();
+            this.timers.later(() => GamePlayKit.celebrateRound('mandir_shilpi', { hi: 'अद्भुत! आपने पूरा मन्दिर बना लिया!', en: 'Amazing! You built the whole temple!' }), 3400);
           }
           this.render();
         } else if (idx > this.builtCount) {
           btn.classList.add('pattern-nudge');
-          setTimeout(() => btn.classList.remove('pattern-nudge'), 500);
+          this.timers.later(() => btn.classList.remove('pattern-nudge'), 500);
+          this.hints.miss();
+          if (this.hints.shouldHint()) {
+            const right = this.container.querySelector(`.mandir-piece-btn[data-idx="${this.builtCount}"]`);
+            if (right) right.classList.add('hint-glow');
+          }
           const nextPart = this.parts[this.builtCount];
           if (window.toddlerAudio && nextPart) {
-            window.toddlerAudio.speak({
-              hi: 'पहले ' + nextPart.label.hi + ' लगाएं!',
-              en: 'First place ' + nextPart.label.en + '!'
-            });
+            window.toddlerAudio.triggerHaptic('light');
+            window.toddlerAudio.speak(this.hints.shouldHint()
+              ? { hi: 'पहले ' + GamePlayKit.stripNumber(nextPart.label.hi) + ' लगाएं!', en: 'First place the ' + GamePlayKit.stripNumber(nextPart.label.en) + '!' }
+              : { hi: 'अभी नहीं! इसके नीचे क्या आएगा?', en: 'Not yet! What goes underneath it?' });
           }
         }
       });
@@ -6206,7 +6623,7 @@ class MandirBuilderGame {
     if (resetBtn) {
       resetBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        this.builtCount = 0;
+        this.newBuild();
         this.render();
       });
     }
@@ -6214,7 +6631,7 @@ class MandirBuilderGame {
 
   handleAnyKey() {
     if (this.builtCount >= this.parts.length) {
-      this.builtCount = 0;
+      this.newBuild();
       this.render();
       return;
     }
@@ -6276,6 +6693,10 @@ if (typeof module !== 'undefined' && module.exports) {
     MandirBuilderGame,
     CelebrationPetalShower,
     ToddlerPersistence,
-    ElementPool
+    ToddlerRewards,
+    ElementPool,
+    GamePlayKit,
+    GameTimers,
+    HintTracker
   };
 }
